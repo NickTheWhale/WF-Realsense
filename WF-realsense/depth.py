@@ -31,7 +31,7 @@ try:
         elapsed_time = time.time() - previous_time
         print(round(elapsed_time * 1000, 3))
         
-        # Print a simple text-based representation of the image, by breaking it into 10x20 pixel regions and approximating the coverage of pixels within one meter
+        # Print a simple text based representation of the image, by breaking it into 10x20 pixel regions and approximating the coverage of pixels within one meter
         
         coverage = [0]*64
         for y in range(480):
