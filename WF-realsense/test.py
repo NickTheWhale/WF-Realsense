@@ -15,7 +15,7 @@ import cv2
 # Create a pipeline
 pipeline = rs.pipeline()
 
-# Create a config and configure the pipeline to stream
+# Create a config and configure the pipeline to streams
 #  different resolutions of color and depth streams
 config = rs.config()
 
