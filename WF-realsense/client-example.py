@@ -32,6 +32,7 @@ def main():
     client = Client("opc.tcp://localhost:4840/freeopcua/server/")
     # client = Client("opc.tcp://admin@localhost:4840/freeopcua/server/") #connect using a user
     try:
+        print("Connecting...")
         client.connect()
 
         # Client has a few methods to get proxy to UA nodes that should always be in address space such as Root or Objects
@@ -44,7 +45,7 @@ def main():
 
         myevent = root.get_child(["0:Types", "0:EventTypes", "0:BaseEventType", "2:MyFirstEvent"])
         print("MyFirstEventType is: ", myevent)
-
+        
         msclt = SubHandler()
         sub = client.create_subscription(100, msclt)
         handle = sub.subscribe_events(obj, myevent)
@@ -52,8 +53,6 @@ def main():
         embed()
         sub.unsubscribe(handle)
         sub.delete()
-    except:
-        print("Unknown Error")
     finally:
         print("why")
         client.disconnect()
