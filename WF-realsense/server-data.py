@@ -3,29 +3,24 @@ import time
 import pyrealsense2 as rs
 
 
-s = opcua.Server()
-s.set_server_name("OpcUa Test Server")
-s.set_endpoint("opc.tcp://localhost:4840")
+sv = opcua.Server()
+sv.set_server_name("Realsense OCP")
+sv.set_endpoint("opc.tcp://localhost:4840")
 
 # Register the OPC-UA namespace
-idx = s.register_namespace("http://localhost:4840")
+idx = sv.register_namespace("http://localhost:4840")
 # start the OPC UA server (no tags at this point)
-s.start()
+sv.start()
 
-objects = s.get_objects_node()
-# Define a Weather Station object with some tags
-myobject = objects.add_object(idx, "Station")
+objects = sv.get_objects_node()
+# Define camera object
+camera_obj = objects.add_object(idx, "Camera")
 
-# Add a Temperature tag with a value and range
-myvar1 = myobject.add_variable(idx, "Temperature", 25)
-myvar1.set_writable(writable=True)
+depth_tag = camera_obj.add_variable(idx, "Depth", 64)
+depth_tag.set_writable(writable=True)
 
-# Add a Windspeed tag with a value and range
-myvar2 = myobject.add_variable(idx, "Windspeed", 11)
-myvar2.set_writable(writable=True)
-
-
-# Create a context object. This object owns the handles to all connected realsense devices
+# Create a context object. 
+# This object owns the handles to all connected realsense devices
 pipeline = rs.pipeline()
 
 # Configure streams
@@ -43,13 +38,18 @@ while True:
     if not depth:
         continue
 
-    w, h = 640, 480
-    pixels = [[0 for x in range(w)] for y in range(h)] 
+    # w, h = 10, 10
+    # pixels = [[0 for x in range(w)] for y in range(h)] 
     
-    for y in range(480):
-        for x in range(640):
-            pixels[y][x] = round(depth.get_distance(x, y) * 3.28084, 2)
-
-    myvar1.set_value(pixels)
-    # myvar2.set_value(random.randrange(10, 20))
+    # for y in range(h):
+    #     for x in range(w):
+    #         pixels[y][x] = depth.get_distance(x*(640//w), y*(480//h)) * 3.28084
+    #         pixels[y][x] = round(pixels[y][x], 1)
+    
+    # myvar1.set_value(pixels)
+    
+    distance = depth.get_distance(320, 240)
+    
+    depth_tag.set_value(distance * 3.28084)
+    
     time.sleep(.01)

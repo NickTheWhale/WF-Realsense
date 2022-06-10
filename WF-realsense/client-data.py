@@ -1,6 +1,7 @@
 import opcua
 import time
-
+import numpy as np
+import cv2
 
 # def update_gauge():
     # update the gauges with the OPC-UA values every 1 second
@@ -8,12 +9,22 @@ import time
     # gwind.set_value(client.get_node("ns=2;i=5").get_value())
 
 
+d = 10
+
 def main():
     client = opcua.Client("opc.tcp://localhost:4840")
     client.connect()
 
     while True:
-        print(f'Value: {client.get_node("ns=2;i=2").get_value()}')
+        # pixels = client.get_node("ns=2;i=2").get_value()
+         
+        # for i in range(10):
+        #     print(pixels[i])
+        # print()
+        
+        distance = client.get_node("ns=2;i=2").get_value()
+        print(f'Distance (feet): {distance:0.4f}')
+        
         time.sleep(0.01)
 
 
