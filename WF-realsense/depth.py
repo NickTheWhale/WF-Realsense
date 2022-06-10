@@ -6,7 +6,6 @@
 #####################################################
 
 # First import the library
-from turtle import distance
 import pyrealsense2 as rs
 import time
 

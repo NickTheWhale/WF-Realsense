@@ -29,11 +29,11 @@ class SubHandler(object):
 
 
 def main():
-    # client = Client("opc.tcp://localhost:4840")
-    client = Client("tcp://localhost:49320")
+    client = Client("opc.tcp://localhost:4840")
+    # client = Client("tcp://localhost:49320")
 
     # client = Client("opc.tcp://localhost:51879/freeopcua/server/")
-    # client = Client("opc.tcp://meeee@localhost:4840/freeopcua/server/") #connect using a user
+    # client = Client("opc.tcp://user@localhost:4840/freeopcua/server/") #connect using a user
     try:
         print("Connecting...")
         client.connect()
@@ -54,14 +54,14 @@ def main():
         sub = client.create_subscription(100, msclt)
         handle = sub.subscribe_events(obj, myevent)
 
-        embed()
+        # embed()
         sub.unsubscribe(handle)
         sub.delete()
     except Exception as e:
         print(e)
-    # finally:
-    #     print("Disconnecting")
-    #     client.disconnect()
+    finally:
+        print("Disconnecting")
+        client.disconnect()
         
 
 if __name__ == "__main__":

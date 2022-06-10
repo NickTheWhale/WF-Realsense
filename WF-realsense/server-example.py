@@ -26,27 +26,31 @@ def main():
     server.set_endpoint("opc.tcp://0.0.0.0:4840/freeopcua/server/")
 
     # setup our own namespace, not really necessary but should as spec
-    uri = "http://examples.freeopcua.github.io"
+    # uri = "http://examples.freeopcua.github.io"
+    uri = "http://plc/"
     idx = server.register_namespace(uri)
 
     # get Objects node, this is where we should put our custom stuff
     objects = server.get_objects_node()
+    print(f"Objects: {objects}")
 
     # populating our address space
-    myobj = objects.add_object(idx, "MyObject")
+    ready_bit_obj = objects.add_object(1, "ReadyBit")
 
     # Creating a custom event: Approach 1
     # The custom event object automatically will have members from its parent (BaseEventType).
-    etype = server.create_custom_event_type(idx, 'MyFirstEvent', ua.ObjectIds.BaseEventType, [('MyNumericProperty', ua.VariantType.Float), ('MyStringProperty', ua.VariantType.String)])
+    etype = server.create_custom_event_type(idx, 'MyFirstEvent', ua.ObjectIds.BaseEventType, 
+                                            [('MyNumericProperty', ua.VariantType.Float), 
+                                             ('MyStringProperty', ua.VariantType.String)])
 
-    myevgen = server.get_event_generator(etype, myobj)
+    myevgen = server.get_event_generator(etype, ready_bit_obj)
 
     # Creating a custom event: Approach 2
     custom_etype = server.nodes.base_event_type.add_object_type(2, 'MySecondEvent')
     custom_etype.add_property(2, 'MyIntProperty', ua.Variant(0, ua.VariantType.Int32))
     custom_etype.add_property(2, 'MyBoolProperty', ua.Variant(True, ua.VariantType.Boolean))
 
-    mysecondevgen = server.get_event_generator(custom_etype, myobj)
+    mysecondevgen = server.get_event_generator(custom_etype, ready_bit_obj)
 
     # starting!
     server.start()
@@ -56,13 +60,14 @@ def main():
         import time
         count = 0
         while True:
-            time.sleep(5)
+            time.sleep(2)
             myevgen.event.Message = ua.LocalizedText("MyFirstEvent %d" % count)
             myevgen.event.Severity = count
             myevgen.event.MyNumericProperty = count
             myevgen.event.MyStringProperty = "Property " + str(count)
             myevgen.trigger()
             mysecondevgen.trigger(message="MySecondEvent %d" % count)
+            # print(ready_bit_obj.get_value())
             count += 1
 
         embed()
