@@ -1,5 +1,4 @@
 import opcua
-import random
 import time
 import pyrealsense2 as rs
 
