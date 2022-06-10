@@ -29,12 +29,16 @@ class SubHandler(object):
 
 
 def main():
-    client = Client("opc.tcp://localhost:4840/freeopcua/server/")
-    # client = Client("opc.tcp://admin@localhost:4840/freeopcua/server/") #connect using a user
+    # client = Client("opc.tcp://localhost:4840")
+    client = Client("tcp://localhost:49320")
+
+    # client = Client("opc.tcp://localhost:51879/freeopcua/server/")
+    # client = Client("opc.tcp://meeee@localhost:4840/freeopcua/server/") #connect using a user
     try:
         print("Connecting...")
         client.connect()
-
+        print("Connected")
+        
         # Client has a few methods to get proxy to UA nodes that should always be in address space such as Root or Objects
         root = client.get_root_node()
         print("Objects node is: ", root)
@@ -53,9 +57,11 @@ def main():
         embed()
         sub.unsubscribe(handle)
         sub.delete()
-    finally:
-        print("why")
-        client.disconnect()
+    except Exception as e:
+        print(e)
+    # finally:
+    #     print("Disconnecting")
+    #     client.disconnect()
         
 
 if __name__ == "__main__":
