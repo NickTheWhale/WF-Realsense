@@ -46,6 +46,9 @@ def main():
             client.disconnect()
         except:
             print(f"Error connecting to {ip}")
+            
+    print("Succesfull connections:")
+    print(connections)
     # client = Client("tcp://localhost:49320")
     # try:
     #     client.connect()
