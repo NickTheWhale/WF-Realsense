@@ -1,3 +1,4 @@
+from importlib.resources import read_binary
 import sys
 sys.path.insert(0, "..")
 import logging
@@ -67,7 +68,7 @@ def main():
             myevgen.event.MyStringProperty = "Property " + str(count)
             myevgen.trigger()
             mysecondevgen.trigger(message="MySecondEvent %d" % count)
-            # print(ready_bit_obj.get_value())
+            print(f'Debug: {type(ready_bit_obj)} {ready_bit_obj.get_properties()} {ready_bit_obj.get_variables()}')
             count += 1
 
         embed()
