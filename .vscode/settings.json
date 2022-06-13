@@ -3,8 +3,7 @@
         "-v",
         "-s",
         "./WF-realsense",
-        "-p",
-        "*test*.py"
+        "-p"
     ],
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true
