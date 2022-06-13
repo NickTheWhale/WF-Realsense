@@ -5,7 +5,7 @@ import pyrealsense2 as rs
 
 def main():
     MOVING_AVERAGE = True
-    
+
     # Intel Realsense setup
     pipeline = rs.pipeline()
     config = rs.config()
