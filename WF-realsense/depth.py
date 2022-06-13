@@ -47,28 +47,6 @@ try:
                     line += " .,-~:;=!*#$@"[c//17]  # 13
                 coverage = [0]*64
                 print(line)
-        # w, h = 20, 20
-        # dist_array = [[0 for x in range(w)] for y in range(h)]
-        # for y in range(h):
-        #     for x in range(w):
-        #         dist_array[y][x] = round(depth.get_distance(x+315, y+235) * 3.28084, 2)
-
-        # for i in range(h):
-        #     print(dist_array[i])
-        # print()
-        # print()
-
-        # center_distance = depth.get_distance(320, 240) * 3.28084
-        # if center_distance > 0:
-        #     print(f'depth at center: {center_distance:0.3f}')
-        # else:
-        #     print("depth at center: N/A")
-    exit(0)
-# except rs.error as e:
-#    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
-#    print("pylibrs.error was thrown when calling %s(%s):\n", % (e.get_failed_function(), e.get_failed_args()))
-#    print("    %s\n", e.what())
-#    exit(1)
 except Exception as e:
     print(e)
     pass
