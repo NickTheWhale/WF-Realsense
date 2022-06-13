@@ -32,6 +32,8 @@ print("Connecting Camera...")
 pipeline.start(config)
 print("Connected")
 
+# Initialize depth_tag
+depth_tag.set_value(0)
 while True:
     frames = pipeline.wait_for_frames()
     depth = frames.get_depth_frame()
@@ -50,6 +52,8 @@ while True:
     
     distance = depth.get_distance(320, 240)
     
-    depth_tag.set_value(distance * 3.28084)
+    # depth_tag.set_value(distance * 3.28084)
+    depth_val = depth_tag.get_value()
+    print(depth_val)
     
     time.sleep(.01)

@@ -1,7 +1,6 @@
 import opcua
 import time
-import numpy as np
-import cv2
+import random
 
 # def update_gauge():
     # update the gauges with the OPC-UA values every 1 second
@@ -22,8 +21,10 @@ def main():
         #     print(pixels[i])
         # print()
         
-        distance = client.get_node("ns=2;i=2").get_value()
-        print(f'Distance (feet): {distance:0.4f}')
+        # distance = client.get_node("ns=2;i=2").get_value()
+        depth_node = client.get_node("ns=2;i=2")
+        depth_node.set_value(random.randint(0, 10))
+        # print(f'Distance (feet): {distance:0.4f}')
         
         time.sleep(0.01)
 
