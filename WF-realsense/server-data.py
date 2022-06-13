@@ -32,12 +32,12 @@ previous_distance = 0
 while True:
     current_distance = depth_tag.get_value()
     dt = time.time() - delay_tag.get_value()
+    gtg = time.time() - loop_time_tag.get_value()
     dt *= 1000
-    loop = loop_time_tag.get_value()
+    gtg *= 1000
     
     if current_distance != previous_distance:
         previous_distance = current_distance
-        print(f'Distance (feet): {current_distance:0.2f}   '
-              f'Dt (ms): {dt:0.3f}   Loop (ms) {loop:0.3f}')
+        print(f'Distance (feet): {current_distance:0.3f}    Dt (ms): {dt:0.4f}    GTG (ms) {gtg:0.4f}')
 
     time.sleep(0.005)
