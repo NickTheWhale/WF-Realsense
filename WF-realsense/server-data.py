@@ -20,10 +20,10 @@ depth_tag = camera_obj.add_variable(idx, "Depth", 64)
 depth_tag.set_writable(writable=True)
 
 # Initialize depth_tag
-depth_tag.set_value(-1)
+depth_tag.set_value(-1 / 3.28084)
 
 while True:
-    distance = depth_tag.get_value()
+    distance = depth_tag.get_value() * 3.28084
     print(f'Distance (feet): {distance:0.4f}')
 
     time.sleep(0.01)
