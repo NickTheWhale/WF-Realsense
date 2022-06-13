@@ -25,8 +25,11 @@ def main():
     client.connect()
 
     depth_node = client.get_node("ns=2;i=2")
+    timer_node = client.get_node("ns=2;i=3")
+    loop_node = client.get_node("ns=2;i=4")
 
     while True:
+        now = time.time()
         frames = pipeline.wait_for_frames()
         depth = frames.get_depth_frame()
         if not depth:
@@ -40,14 +43,24 @@ def main():
             readings.pop(0)
 
         current_distance = round(sum(readings) / num_of_readings, 3)
-
+        
         if MOVING_AVERAGE:
             if current_distance != previous_distance:
                 previous_distance = current_distance
                 depth_node.set_value(current_distance)
-                print(f'Distance (feet): {current_distance:0.2f}')
+                timer_node.set_value(time.time())
+                loop_time = time.time() - now
+                loop_time *= 1000.0
+                loop_node.set_value(loop_time)
+                print(f'Distance (feet): {current_distance:0.2f}  Loop (ms) {loop_time:0.3f}')
         else:
             depth_node.set_value(distance)
+            timer_node.set_value(time.time())
+            loop_time = time.time() - now
+            loop_time *= 1000
+            loop_node.set_value(loop_time)
+            print(f'Distance (feet): {distance:0.2f}  Loop (ms) {loop_time:0.3f}')
+            
 
         time.sleep(0.001)
 

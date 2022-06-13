@@ -14,18 +14,30 @@ server.start()
 # Populate address space
 objects = server.get_objects_node()
 camera_obj = objects.add_object(idx, "Camera")
-depth_tag = camera_obj.add_variable(idx, "Depth", 0,
-                                    varianttype=ua.VariantType.Float)
+
+depth_tag = camera_obj.add_variable(idx, "Depth", 0,)
 depth_tag.set_writable(writable=True)
 depth_tag.set_value(-1)
+
+delay_tag = camera_obj.add_variable(idx, "Time", 0)
+delay_tag.set_writable(writable=True)
+delay_tag.set_value(-1)
+
+loop_time_tag = camera_obj.add_variable(idx, "Loop", 0)
+loop_time_tag.set_writable(writable=True)
+loop_time_tag.set_value(-1)
 
 previous_distance = 0
 
 while True:
     current_distance = depth_tag.get_value()
-
+    dt = time.time() - delay_tag.get_value()
+    dt *= 1000
+    loop = loop_time_tag.get_value()
+    
     if current_distance != previous_distance:
         previous_distance = current_distance
-        print(f'Distance (feet): {current_distance:0.2f}')
+        print(f'Distance (feet): {current_distance:0.2f}   '
+              f'Dt (ms): {dt:0.3f}   Loop (ms) {loop:0.3f}')
 
     time.sleep(0.005)
