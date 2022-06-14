@@ -24,12 +24,14 @@ def main():
 
     previous_distance = 0
 
-    client = opcua.Client("opc.tcp://localhost:4840")
+    
+    
+    # client = opcua.Client("opc.tcp://localhost:4840")
+    client = opcua.Client("opc.tcp://192.168.0.1:4840")
     client.connect()
 
     depth_node = client.get_node("ns=2;i=2")
     timer_node = client.get_node("ns=2;i=3")
-    loop_node = client.get_node("ns=2;i=4")
     
     # Window calculations
     vert_l = 240 - height // 2
@@ -37,6 +39,8 @@ def main():
     horz_l = 320 - width // 2
     horz_u = 321 + width // 2
 
+    offset_time = time.time()
+    
     while True:
         now = time.time()
         
@@ -74,13 +78,11 @@ def main():
             if current_distance != previous_distance:
                 previous_distance = current_distance
                 depth_node.set_value(current_distance)
-                timer_node.set_value(time.time())
-                loop_node.set_value(now)
+                timer_node.set_value(time.time() - offset_time)
                 print(f'Distance (feet): {current_distance:0.2f}')
         else:
             depth_node.set_value(distance)
             timer_node.set_value(time.time())
-            loop_node.set_value(now)
             print(f'Distance (feet): {distance:0.2f}')
             
 

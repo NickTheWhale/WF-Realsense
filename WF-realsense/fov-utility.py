@@ -134,8 +134,8 @@ def main():
                 exit(1)
                 
             # Show image
-            rect_widget.draw(masked_colormap)
-            cv2.imshow('RealSense', masked_colormap)
+            rect_widget.draw(depth_colormap)
+            cv2.imshow('RealSense', depth_colormap)
             key = cv2.waitKey(1)
 
     finally:
