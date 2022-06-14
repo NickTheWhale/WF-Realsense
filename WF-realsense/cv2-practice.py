@@ -1,44 +1,17 @@
-import cv2
+import numpy as np
 
-class DrawLineWidget(object):
-    def __init__(self):
-        self.original_image = cv2.imread('1.jpg')
-        self.clone = self.original_image.copy()
+arr = np.eye(480, 640)
 
-        cv2.namedWindow('image')
-        cv2.setMouseCallback('image', self.extract_coordinates)
+print(arr)
 
-        # List to store start/end points
-        self.image_coordinates = []
-
-    def extract_coordinates(self, event, x, y, flags, parameters):
-        # Record starting (x,y) coordinates on left mouse button click
-        if event == cv2.EVENT_LBUTTONDOWN:
-            self.image_coordinates = [(x,y)]
-
-        # Record ending (x,y) coordintes on left mouse bottom release
-        elif event == cv2.EVENT_LBUTTONUP:
-            self.image_coordinates.append((x,y))
-            print('Starting: {}, Ending: {}'.format(self.image_coordinates[0], self.image_coordinates[1]))
-
-            # Draw line
-            cv2.line(self.clone, self.image_coordinates[0], self.image_coordinates[1], (36,255,12), 2)
-            cv2.imshow("image", self.clone) 
-
-        # Clear drawing boxes on right mouse button click
-        elif event == cv2.EVENT_RBUTTONDOWN:
-            self.clone = self.original_image.copy()
-
-    def show_image(self):
-        return self.clone
-
-if __name__ == '__main__':
-    draw_line_widget = DrawLineWidget()
-    while True:
-        cv2.imshow('image', draw_line_widget.show_image())
-        key = cv2.waitKey(1)
-
-        # Close program with keyboard 'q'
-        if key == ord('q'):
-            cv2.destroyAllWindows()
-            exit(1)
+from numpy.random import default_rng
+default_rng(42).random((2,3))
+array([[0.77395605, 0.43887844, 0.85859792],
+       [0.69736803, 0.09417735, 0.97562235]])
+default_rng(42).random((2,3,2))
+array([[[0.77395605, 0.43887844],
+        [0.85859792, 0.69736803],
+        [0.09417735, 0.97562235]],
+       [[0.7611397 , 0.78606431],
+        [0.12811363, 0.45038594],
+        [0.37079802, 0.92676499]]])
