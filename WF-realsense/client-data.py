@@ -11,11 +11,10 @@ def main():
     height = 4
 
     # Intel Realsense setup
+    print("Connecting Camera... ", end="")
     pipeline = rs.pipeline()
     config = rs.config()
     config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60)
-
-    print("Connecting Camera... ", end="")
     profile = pipeline.start(config)
     print("success")
 
