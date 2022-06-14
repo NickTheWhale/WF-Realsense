@@ -1,37 +1,44 @@
 import opcua
+from opcua import ua
+import opcua.ua.uatypes
 import time
 import pyrealsense2 as rs
 import numpy as np
+import random
 
 
 def main():
-    MOVING_AVERAGE = True
+    MOVING_AVERAGE = False
     
     width = 4
     height = 4
 
     # Intel Realsense setup
-    print("Connecting Camera... ", end="")
+    print("Connecting Camera...    ", end="")
     pipeline = rs.pipeline()
     config = rs.config()
-    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60)
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 90)
     profile = pipeline.start(config)
     print("success")
 
     # Rolling average buffer
     num_of_readings = 20
     readings = [0] * num_of_readings
-
     previous_distance = 0
 
     
-    
+    print("Connecting to Server... ", end="")
     # client = opcua.Client("opc.tcp://localhost:4840")
     client = opcua.Client("opc.tcp://192.168.0.1:4840")
     client.connect()
-
-    depth_node = client.get_node("ns=2;i=2")
-    timer_node = client.get_node("ns=2;i=3")
+    print("success")
+    
+    print("Gettings Nodes...       ", end="")
+    depth_node = client.get_node('ns=3;s="OPC Testing"."Realsense Depth"')
+    timer_node = client.get_node('ns=3;s="OPC Testing"."Counter"')
+    client_tick = client.get_node('ns=3;s="OPC Testing"."Client Tick"')
+    array_node = client.get_node('ns=3;s="OPC Testing"."Realsense Depth Array"')
+    print("success")
     
     # Window calculations
     vert_l = 240 - height // 2
@@ -40,6 +47,8 @@ def main():
     horz_u = 321 + width // 2
 
     offset_time = time.time()
+    
+    tick = False
     
     while True:
         now = time.time()
@@ -54,18 +63,6 @@ def main():
         # depth_array = np.asanyarray(depth.get_data())
         
         distance = depth.get_distance(320, 240) * 3.28084
-
-        
-        # # narrow_depth_array = depth_array[218:237, 314:327]
-        # narrow_depth_array = depth_array[vert_l:vert_u, horz_l:horz_u]
-        # depth_scale = profile.get_device().first_depth_sensor().get_depth_scale()
-        # distance = narrow_depth_array.mean() * depth_scale * 3.28084
-        
-        # print(distance)
-        
-        # # print(narrow_depth_array * depth_scale * 3.28084)
-        
-        # # print(f'Distance: {distance}  DArr: {depth_array(320, 240)}')
         
         readings.append(distance)
 
@@ -77,15 +74,44 @@ def main():
         if MOVING_AVERAGE:
             if current_distance != previous_distance:
                 previous_distance = current_distance
-                depth_node.set_value(current_distance)
-                timer_node.set_value(time.time() - offset_time)
-                print(f'Distance (feet): {current_distance:0.2f}')
+                
+                # Send data to PLC
+                dv = ua.DataValue(ua.Variant(current_distance, ua.VariantType.Float))
+                depth_node.set_value(dv)
+                
+                dv = ua.DataValue(ua.Variant(time.time() - offset_time, ua.VariantType.Float))
+                timer_node.set_value(dv)
+                
+                tick = not tick
+                dv = ua.DataValue(ua.Variant(tick, ua.VariantType.Boolean))
+                client_tick.set_value(dv)
+                
+                arr = []
+                for i in range(100):
+                    arr.append(depth.get_distance(i+270, 240) * 3.28084)
+                    
+                dv = ua.DataValue(ua.Variant(arr, ua.VariantType.Float))
+                array_node.set_value(dv)
+                
         else:
-            depth_node.set_value(distance)
-            timer_node.set_value(time.time())
-            print(f'Distance (feet): {distance:0.2f}')
+            # Send data to PLC
+            dv = ua.DataValue(ua.Variant(current_distance, ua.VariantType.Float))
+            depth_node.set_value(dv)
             
-
+            dv = ua.DataValue(ua.Variant(time.time() - offset_time, ua.VariantType.Float))
+            timer_node.set_value(dv)
+            
+            tick = not tick
+            dv = ua.DataValue(ua.Variant(tick, ua.VariantType.Boolean))
+            client_tick.set_value(dv)
+            
+            arr = []
+            for i in range(100):
+                arr.append(depth.get_distance(i+270, 240) * 3.28084)
+                
+            dv = ua.DataValue(ua.Variant(arr, ua.VariantType.Float))
+            array_node.set_value(dv)
+            
         time.sleep(0.001)
 
 
