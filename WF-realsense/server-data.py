@@ -32,7 +32,7 @@ previous_distance = 0
 while True:
     current_distance = depth_tag.get_value()
     dt = time.time() - delay_tag.get_value()
-    gtg = time.time() - loop_time_tag.get_value()
+    gtg = loop_time_tag.get_value()
     dt *= 1000
     gtg *= 1000
     
