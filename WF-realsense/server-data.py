@@ -13,31 +13,36 @@ server.start()
 
 # Populate address space
 objects = server.get_objects_node()
-camera_obj = objects.add_object(idx, "Camera")
 
-depth_tag = camera_obj.add_variable(idx, "Depth", 0,)
+
+opc_db = objects.add_object(idx, "OPC Testing")
+
+
+
+depth_tag = opc_db.add_variable(idx, "Realsense Depth", 0, ua.VariantType.Float)
 depth_tag.set_writable(writable=True)
-depth_tag.set_value(-1)
+depth_tag.set_value(0)
 
-delay_tag = camera_obj.add_variable(idx, "Time", 0)
-delay_tag.set_writable(writable=True)
-delay_tag.set_value(-1)
+timer_tag = opc_db.add_variable(idx, "Counter", 0, ua.VariantType.Float)
+timer_tag.set_writable(writable=True)
+timer_tag.set_value(0)
 
-loop_time_tag = camera_obj.add_variable(idx, "Loop", 0)
-loop_time_tag.set_writable(writable=True)
-loop_time_tag.set_value(-1)
+client_tick_tag = opc_db.add_variable(idx, "Client Tick", 0, ua.VariantType.Boolean)
+client_tick_tag.set_writable(writable=True)
+client_tick_tag.set_value(0)
+
+array_tag = opc_db.add_variable(idx, "Realsense Depth Array", 0, ua.VariantType.Float)
+array_tag.set_writable(writable=True)
+array_tag.set_value(0)
 
 previous_distance = 0
 
 while True:
-    current_distance = depth_tag.get_value()
-    dt = time.time() - delay_tag.get_value()
-    gtg = loop_time_tag.get_value()
-    dt *= 1000
-    gtg *= 1000
+    depth = depth_tag.get_value()
+    timer = timer_tag.get_value()
+    tick = client_tick_tag.get_value()
+    array = array_tag.get_value()
     
-    if current_distance != previous_distance:
-        previous_distance = current_distance
-        print(f'Distance (feet): {current_distance:0.3f}    Dt (ms): {dt:0.4f}    GTG (ms) {gtg:0.4f}')
+    print(f'Depth: {depth} Timer: {timer} Tick: {tick}')
 
-    time.sleep(0.005)
+    time.sleep(0.5)
