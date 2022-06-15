@@ -157,7 +157,6 @@ def main():
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
                 depth_image, alpha=0.07), cv2.COLORMAP_JET)
 
-            
             cv2.setMouseCallback('RealSense FOV Utility',
                                  mask_widget.get_coordinates)
             key = cv2.waitKey(1)
@@ -169,7 +168,7 @@ def main():
             elif key == ord('y'):
                 mask_widget.redo()
             elif key == ord('q'):
-                # pipeline.stop(config)
+                # pipeline.stop()
                 cv2.destroyAllWindows()
                 exit(1)
 
