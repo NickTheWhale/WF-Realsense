@@ -1,27 +1,37 @@
 # .ini configuration test
 
 from configparser import ConfigParser
+import logging
 
 # instantiate
 config = ConfigParser()
 
 # parse file
-config.read('config.ini')
+rs = config.read('config.ini')
+print(f'Read Status: {rs}')
 
 # read values
-ip = config.get('section_server', 'ip')
-depth = config.get('section_server', 'depth_node')
-timer = config.get('section_server', 'timer_node')
-client = config.get('section_server', 'client_node')
-array = config.get('section_server', 'array_node')
+if len(rs) > 0:
+    ip = config.get('section_server', 'ip', fallback=None)
+    depth = config.get('section_server', 'depth_node', fallback=None)
+    timer = config.get('section_server', 'timer_node', fallback=None)
+    client = config.get('section_server', 'client_node', fallback=None)
+    array = config.get('section_server', 'array_node', fallback=None)
+
+    print(f'ip:     {ip}')
+    print(f'depth:  {depth}')
+    print(f'timer:  {timer}')
+    print(f'client: {client}')
+    print(f'array:  {array}')
+else:
+    print('Cannot open file')
 
 
-print(f'ip:     {ip}')
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s')
 
-print(f'depth:  {depth}')
+logging.debug("Debug message")
 
-print(f'timer:  {timer}')
+logging.info("Informative message")
 
-print(f'client: {client}')
-
-print(f'array:  {array}')
+logging.error("Error message")
