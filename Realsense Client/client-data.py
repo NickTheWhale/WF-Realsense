@@ -54,19 +54,17 @@ def parse_config(file):
             "visual_preset": None,
             "width": None
         }
-        for val in config_dict:
-            config_dict[val] = config_dict[val].replace("'", "")
         # Server
         config_dict["ip"] = config_file.get(
-            'server', 'ip', fallback=None)
+            'server', 'ip', fallback=None).replace("'", "")
         config_dict["depth_node"] = config_file.get(
-            'server', 'depth_node', fallback=None)
+            'server', 'depth_node', fallback=None).replace("'", "")
         config_dict["status_node"] = config_file.get(
-            'server', 'status_node', fallback=None)
+            'server', 'status_node', fallback=None).replace("'", "")
         config_dict["receive_node"] = config_file.get(
-            'server', 'receive_node', fallback=None)
+            'server', 'receive_node', fallback=None).replace("'", "")
         config_dict["extra_node"] = config_file.get(
-            'server', 'extra_node', fallback=None)
+            'server', 'extra_node', fallback=None).replace("'", "")
         # Camera
         config_dict["width"] = config_file.getint(
             'camera', 'width', fallback=640)

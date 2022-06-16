@@ -1,7 +1,9 @@
+from asyncio.windows_events import NULL
 import pyrealsense2 as rs
 import numpy as np
 import numpy.ma as ma
 import cv2
+import sys
 
 # CONSTANTS
 M_TO_F = 3.28084
@@ -118,6 +120,13 @@ class MaskWidget():
 
 def main():
     try:
+        # Create/open file to output mask
+        file = open('mask-output.txt', 'w')
+        file.write(
+            "Copy this into RealSenseOPC Client Application configuration file")
+        file.write('\n')
+        file.close()
+
         # Configure depth and color streams
         pipeline = rs.pipeline()
         config = rs.config()
@@ -129,7 +138,6 @@ def main():
         depth_sensor = profile.get_device().first_depth_sensor()
         depth_scale = depth_sensor.get_depth_scale()
 
-    
         cv2.namedWindow('RealSense FOV Utility', cv2.WINDOW_AUTOSIZE)
         mask_widget = MaskWidget()
 
@@ -145,12 +153,11 @@ def main():
 
             # Convert images to numpy arrays
             depth_image = np.asanyarray(depth_frame.get_data())
-            
+
             # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
                 depth_image, alpha=0.07), cv2.COLORMAP_JET)
 
-            
             cv2.setMouseCallback('RealSense FOV Utility',
                                  mask_widget.get_coordinates)
             key = cv2.waitKey(1)
@@ -162,14 +169,24 @@ def main():
             elif key == ord('y'):
                 mask_widget.redo()
             elif key == ord('q'):
-                # pipeline.stop(config)
                 cv2.destroyAllWindows()
-                exit(1)
+                sys.exit(0)
 
             mask_widget.draw(depth_colormap)
             poly = mask_widget.polygon()
 
             if poly is not False:
+                # Write polygon vertices to file
+                write_to_file = True
+                if write_to_file:
+                    file = open('mask-output.txt', 'w')
+                    file.write(
+                        "Copy this into RealSenseOPC Client Application configuration file")
+                    file.write('\n')
+                    file.write(str(mask_widget.coordinates))
+                    file.close()
+                    write_to_file = False
+
                 # Compute mask from user polygon coordinates
                 mask = cv2.fillPoly(blank_image, pts=[poly], color=1)
                 mask = mask.astype('bool')
@@ -194,13 +211,14 @@ def main():
                 cv2.setWindowTitle('RealSense FOV Utility',
                                    f'RealSense FOV Utility   '
                                    f'ROI Depth: {ROI_depth:0.4f} (feet)')
-                
+
             else:
+                write_to_file = False
                 cv2.imshow('RealSense FOV Utility', depth_colormap)
                 cv2.setWindowTitle('RealSense FOV Utility',
                                    'RealSense FOV Utility')
                 blank_image = np.zeros((480, 848))
-                
+
             # Display color image
             key = cv2.waitKey(1)
 
