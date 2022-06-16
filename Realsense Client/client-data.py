@@ -1,3 +1,9 @@
+# title:   RealSenseOPC client application
+# author:  Nicholas Loehrke 
+# data:    June 2022
+# license: todo
+
+
 import opcua
 from opcua import ua
 import opcua.ua.uatypes
@@ -25,50 +31,89 @@ def parse_config(file):
     rs = config_file.read(file)
     if len(rs) > 0:
         # configuration dictionary
-        config = {
-            "ip": None,
+        config_dict = {
+            "extra_node": None,
+            "receive_node": None,
             "depth_node": None,
-            "timer_node": None,
-            "client_node": None,
-            "array_node": None,
-            "width": None,
-            "height": None,
+            "emitter_enabled": None,
+            "emitter_on_off": None,
+            "enabled_auto_exposure": None,
+            "error_polling_enabled": None,
+            "frames_queue_size": None,
             "framerate": None,
-            "region_of_interest": None
+            "gain": None,
+            "global_time_enabled": None,
+            "height": None,
+            "inter_cam_sync_mode": None,
+            "ip": None,
+            "laser_power": None,
+            "output_trigger_enabled": None,
+            "region_of_interest": None,
+            "stereo_baseline": None,
+            "status_node": None,
+            "visual_preset": None,
+            "width": None
         }
+        for val in config_dict:
+            config_dict[val] = config_dict[val].replace("'", "")
         # Server
-        config["ip"] = config_file.get(
-            'server', 'ip', fallback=None).replace("'", "")
-        config["depth_node"] = config_file.get(
-            'server', 'depth_node', fallback=None).replace("'", "")
-        config["timer_node"] = config_file.get(
-            'server', 'timer_node', fallback=None).replace("'", "")
-        config["client_node"] = config_file.get(
-            'server', 'client_node', fallback=None).replace("'", "")
-        config["array_node"] = config_file.get(
-            'server', 'array_node', fallback=None).replace("'", "")
+        config_dict["ip"] = config_file.get(
+            'server', 'ip', fallback=None)
+        config_dict["depth_node"] = config_file.get(
+            'server', 'depth_node', fallback=None)
+        config_dict["status_node"] = config_file.get(
+            'server', 'status_node', fallback=None)
+        config_dict["receive_node"] = config_file.get(
+            'server', 'receive_node', fallback=None)
+        config_dict["extra_node"] = config_file.get(
+            'server', 'extra_node', fallback=None)
         # Camera
-        config["width"] = config_file.getint('camera', 'width', fallback=640)
-        config["height"] = config_file.getint('camera', 'height', fallback=480)
-        config["framerate"] = config_file.getint(
+        config_dict["width"] = config_file.getint(
+            'camera', 'width', fallback=640)
+        config_dict["height"] = config_file.getint(
+            'camera', 'height', fallback=480)
+        config_dict["framerate"] = config_file.getint(
             'camera', 'framerate', fallback=30)
-        config["region_of_interest"] = config_file.get(
+        config_dict["region_of_interest"] = config_file.get(
             'camera', 'region_of_interest', fallback=None)
-        config["region_of_interest"] = list(eval(config["region_of_interest"]))
-        for val in config:
-            if config[val] is None:
-                return False
-        return config
+        config_dict["region_of_interest"] = list(
+            eval(config_dict["region_of_interest"]))
+        for val in config_dict:
+            if config_dict[val] is None:
+                print(val)
+        return config_dict
     else:
         return False
+
+
+def dump_options(profile):
+    depth_sensor = profile.get_device().first_depth_sensor()
+    file = open('options.txt', 'r')
+    available_f = open('avaliable-options.txt', 'w')
+    available_f.write("Available options for setting/getting\n")
+    available_f.write('\n')
+    available_f.close()
+    available_f = open('avaliable-options.txt', 'a')
+    for option in file:
+        option = option.strip()
+        try:
+            val = depth_sensor.get_option(getattr(rs.option, option))
+            print(f'{option} {val}')
+            available_f.write(option)
+            available_f.write('\n')
+        except (RuntimeError, AttributeError):
+            pass
+    file.close()
+    available_f.close()
+    # print(f'{option} is not supported')
 
 
 def main():
 
     # Read Configuration File
     print("Reading Configuration... ", end="")
-    config_f = parse_config('config.ini')
-    if config_f is not False:
+    config_file = parse_config('config.ini')
+    if config_file is not False:
         print("success")
         print()
     else:
@@ -78,24 +123,27 @@ def main():
     # Intel Realsense Setup
     print("Connecting Camera...     ", end="")
     pipeline = rs.pipeline()
-    config = rs.config()
-    w, h, f = config_f["width"], config_f["height"], config_f["framerate"]
-    config.enable_stream(rs.stream.depth, w, h, rs.format.z16, f)
-    pipeline.start()
+    camera_config = rs.config()
+    w, h, f = config_file["width"], config_file["height"], config_file["framerate"]
+    camera_config.enable_stream(rs.stream.depth, w, h, rs.format.z16, f)
+    profile = pipeline.start(camera_config)
+    depth_sensor = profile.get_device().first_depth_sensor()
     print("success")
+
+    dump_options(profile=profile)
 
     # OPC Server Connection Setup
     print("Connecting to Server...  ", end="")
-    client = opcua.Client(config_f["ip"])
+    client = opcua.Client(config_file["ip"])
     client.connect()
     print("success")
     print()
 
     print("Gettings Nodes...        ", end="")
-    depth_node = client.get_node(config_f["depth_node"])
-    timer_node = client.get_node(config_f["timer_node"])
-    client_tick = client.get_node(config_f["client_node"])
-    array_node = client.get_node(config_f["array_node"])
+    depth_node = client.get_node(config_file["depth_node"])
+    status_node = client.get_node(config_file["status_node"])
+    client_tick = client.get_node(config_file["receive_node"])
+    extra_node = client.get_node(config_file["extra_node"])
     print("success")
     print()
 
@@ -118,14 +166,13 @@ def main():
         if not depth:
             continue
 
-        # Calculate distance
-        # depth_array = np.asanyarray(depth.get_data())
+        # print(rs.option())
 
         distance = depth.get_distance(424, 240) * 3.28084
         depth_array = depth.data
         depth_array = np.asanyarray(depth_array)
-        print(depth_array.shape, distance, depth.get_data_size(),
-              depth.get_height(), depth.get_width())
+        # print(depth_array.shape, distance, depth.get_data_size(),
+        #       depth.get_height(), depth.get_width())
 
         # Send data to PLC
         dv = ua.DataValue(ua.Variant(distance, ua.VariantType.Float))
@@ -133,7 +180,7 @@ def main():
 
         dv = ua.DataValue(ua.Variant(
             time.time() - offset_time, ua.VariantType.Float))
-        timer_node.set_value(dv)
+        status_node.set_value(dv)
 
         tick = not tick
         dv = ua.DataValue(ua.Variant(tick, ua.VariantType.Boolean))
@@ -144,7 +191,7 @@ def main():
             arr.append(depth.get_distance(i+270, 240) * 3.28084)
 
         dv = ua.DataValue(ua.Variant(arr, ua.VariantType.Float))
-        array_node.set_value(dv)
+        extra_node.set_value(dv)
 
         time.sleep(0.001)
 
