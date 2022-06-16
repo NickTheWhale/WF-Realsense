@@ -3,8 +3,6 @@ from opcua import ua
 import opcua.ua.uatypes
 import time
 import pyrealsense2 as rs
-import numpy as np
-import random
 
 
 def main():
