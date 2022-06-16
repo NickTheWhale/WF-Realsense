@@ -5,18 +5,58 @@ import time
 import pyrealsense2 as rs
 
 
-def main():
-    MOVING_AVERAGE = False
+# def setup_camera(width=640, height=480, framerate=30):
+#     pipeline = rs.pipeline()
+
+# class RealSense():
+#     def __init__(self, width=640, height=480, framerate=30):
+#         self.__width = width
+#         self.__height = height
+#         self.__framerate = framerate
+#         self.__pipeline = None
+#         self.__config = None
+#         self.__exception = None
+        
+#     def start_depth_streaming(self):
+#         self.__pipeline = rs.pipeline()
+#         self.__config = rs.config()
+#         self.__config.enable_stream(rs.stream.depth, self.__width, self.__height, rs.format.z16, self.__framerate)
+#         self.__pipeline.start(self.__config)
+#         return self.__pipeline
+
+#     @property
+#     def width(self):
+#         return self.__width
     
-    width = 4
-    height = 4
+#     @property
+#     def height(self):
+#         return self.__height
+    
+#     @property
+#     def framerate(self):
+#         return self.__framerate
+    
+#     @property
+#     def pipeline(self):
+#         return self.__pipeline
+    
+#     @property
+#     def config(self):
+#         return self.__config
+    
+#     @property
+#     def exception(self):
+#         return self.__exception
+
+def main():
+    MOVING_AVERAGE = True
 
     # Intel Realsense setup
     print("Connecting Camera...    ", end="")
     pipeline = rs.pipeline()
     config = rs.config()
     config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 90)
-    profile = pipeline.start(config)
+    pipeline.start()
     print("success")
 
     # Rolling average buffer
@@ -26,8 +66,8 @@ def main():
 
     
     print("Connecting to Server... ", end="")
-    # client = opcua.Client("opc.tcp://localhost:4840")
-    client = opcua.Client("opc.tcp://192.168.0.1:4840")
+    client = opcua.Client("opc.tcp://localhost:4840")
+    # client = opcua.Client("opc.tcp://192.168.0.1:4840")
     client.connect()
     print("success")
     
@@ -36,13 +76,13 @@ def main():
     timer_node = client.get_node('ns=3;s="OPC Testing"."Counter"')
     client_tick = client.get_node('ns=3;s="OPC Testing"."Client Tick"')
     array_node = client.get_node('ns=3;s="OPC Testing"."Realsense Depth Array"')
+    
+    depth_node = client.get_node('ns=2;i=2')
+    timer_node = client.get_node('ns=2;i=3')
+    client_tick = client.get_node('ns=2;i=4')
+    array_node = client.get_node('ns=2;i=5')
     print("success")
     
-    # Window calculations
-    vert_l = 240 - height // 2
-    vert_u = 241 + height // 2
-    horz_l = 320 - width // 2
-    horz_u = 321 + width // 2
 
     offset_time = time.time()
     
