@@ -1,14 +1,7 @@
-from cmath import nan
-from cv2 import CV_32F
-from matplotlib import docstring
-from matplotlib.pyplot import text
 import pyrealsense2 as rs
 import numpy as np
 import numpy.ma as ma
-from numpy.random import default_rng
 import cv2
-import pylab as plt
-from matplotlib.path import Path
 
 # CONSTANTS
 M_TO_F = 3.28084
@@ -61,7 +54,7 @@ class MaskWidget():
         '''
         Method to check if coordinated are valid
         '''
-        if x <= 639 and x >= 0:
+        if x <= 847 and x >= 0:
             if y <= 479 and y >= 0:
                 return True
         else:
@@ -128,7 +121,7 @@ def main():
         # Configure depth and color streams
         pipeline = rs.pipeline()
         config = rs.config()
-        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        config.enable_stream(rs.stream.depth, 848, 480, rs.format.z16, 30)
 
         # Start streaming
         profile = pipeline.start(config)
@@ -140,7 +133,7 @@ def main():
         cv2.namedWindow('RealSense FOV Utility', cv2.WINDOW_AUTOSIZE)
         mask_widget = MaskWidget()
 
-        blank_image = np.zeros((480, 640))
+        blank_image = np.zeros((480, 848))
 
         while True:
 
@@ -201,11 +194,14 @@ def main():
                 cv2.setWindowTitle('RealSense FOV Utility',
                                    f'RealSense FOV Utility   '
                                    f'ROI Depth: {ROI_depth:0.4f} (feet)')
+                
+                print(mask_widget.coordinates, type(mask_widget.coordinates))
+                
             else:
                 cv2.imshow('RealSense FOV Utility', depth_colormap)
                 cv2.setWindowTitle('RealSense FOV Utility',
                                    'RealSense FOV Utility')
-                blank_image = np.zeros((480, 640))
+                blank_image = np.zeros((480, 848))
                 
             # Display color image
             key = cv2.waitKey(1)
