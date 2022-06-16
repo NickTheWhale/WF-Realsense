@@ -194,7 +194,7 @@ def main():
                 cv2.setWindowTitle('RealSense FOV Utility',
                                    f'RealSense FOV Utility   '
                                    f'ROI Depth: {ROI_depth:0.4f} (feet)')
-                
+                cv2.imshow('Mask', depth_mask * 100)
                 print(mask_widget.coordinates, type(mask_widget.coordinates))
                 
             else:
