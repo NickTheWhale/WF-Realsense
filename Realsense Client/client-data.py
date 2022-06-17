@@ -1,7 +1,10 @@
-# title:   RealSenseOPC client application
-# author:  Nicholas Loehrke 
-# data:    June 2022
-# license: todo
+"""
+title:   RealSenseOPC client application
+author:  Nicholas Loehrke 
+data:    June 2022
+license: todo
+"""
+
 
 
 import opcua
