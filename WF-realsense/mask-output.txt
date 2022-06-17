@@ -1,0 +1,1 @@
+Copy this into RealSenseOPC Client Application configuration file

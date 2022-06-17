@@ -1,9 +1,9 @@
-from asyncio.windows_events import NULL
-import pyrealsense2 as rs
+import sys
+
+import cv2
 import numpy as np
 import numpy.ma as ma
-import cv2
-import sys
+import pyrealsense2 as rs
 
 # CONSTANTS
 M_TO_F = 3.28084
