@@ -46,3 +46,5 @@
 2022-06-17 23:08:47,839:DEBUG:success
 2022-06-17 23:08:47,840:ERROR:wait_for_frames cannot be called before start()
 2022-06-17 23:08:47,840:CRITICAL:Exiting program
+2022-06-17 23:09:39,797:INFO:Socket has closed connection
+2022-06-17 23:09:39,797:INFO:Thread ended
