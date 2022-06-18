@@ -1,0 +1,48 @@
+2022-06-17 23:06:40,621:DEBUG:Reading Configuration... 
+2022-06-17 23:06:40,625:DEBUG:success
+2022-06-17 23:06:40,625:DEBUG:Connecting Camera...     
+2022-06-17 23:06:55,691:DEBUG:error
+2022-06-17 23:06:55,691:DEBUG:Connecting to Server...  
+2022-06-17 23:06:55,691:INFO:opening connection
+2022-06-17 23:06:59,794:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-17 23:06:59,794:ERROR:wait_for_frames cannot be called before start()
+2022-06-17 23:06:59,794:CRITICAL:Exiting program
+2022-06-17 23:07:53,746:DEBUG:Reading Configuration... 
+2022-06-17 23:07:53,747:DEBUG:success
+2022-06-17 23:07:53,747:DEBUG:Connecting Camera...     
+2022-06-17 23:08:08,814:DEBUG:error
+2022-06-17 23:08:08,814:DEBUG:Connecting to Server...  
+2022-06-17 23:08:08,814:INFO:opening connection
+2022-06-17 23:08:12,909:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-17 23:08:12,909:ERROR:wait_for_frames cannot be called before start()
+2022-06-17 23:08:12,909:CRITICAL:Exiting program
+2022-06-17 23:08:32,762:DEBUG:Reading Configuration... 
+2022-06-17 23:08:32,763:DEBUG:success
+2022-06-17 23:08:32,763:DEBUG:Connecting Camera...     
+2022-06-17 23:08:47,826:DEBUG:error
+2022-06-17 23:08:47,826:DEBUG:Connecting to Server...  
+2022-06-17 23:08:47,826:INFO:opening connection
+2022-06-17 23:08:47,833:INFO:Thread started
+2022-06-17 23:08:47,834:DEBUG:Waiting for header
+2022-06-17 23:08:47,834:INFO:received header: Header(type:b'ACK', chunk_type:b'F', body_size:20, channel:0)
+2022-06-17 23:08:47,834:DEBUG:Waiting for header
+2022-06-17 23:08:47,834:INFO:open_secure_channel
+2022-06-17 23:08:47,834:DEBUG:Sending: OpenSecureChannelRequest(TypeId:{self.TypeId}, RequestHeader:{self.RequestHeader}, Parameters:{self.Parameters})
+2022-06-17 23:08:47,835:INFO:received header: Header(type:b'OPN', chunk_type:b'F', body_size:123, channel:6)
+2022-06-17 23:08:47,835:DEBUG:Waiting for header
+2022-06-17 23:08:47,835:INFO:create_session
+2022-06-17 23:08:47,835:DEBUG:Sending: CreateSessionRequest(TypeId:{self.TypeId}, RequestHeader:{self.RequestHeader}, Parameters:{self.Parameters})
+2022-06-17 23:08:47,837:INFO:received header: Header(type:b'MSG', chunk_type:b'F', body_size:514, channel:6)
+2022-06-17 23:08:47,837:DEBUG:Waiting for header
+2022-06-17 23:08:47,837:DEBUG:CreateSessionResponse(TypeId:{self.TypeId}, ResponseHeader:{self.ResponseHeader}, Parameters:{self.Parameters})
+2022-06-17 23:08:47,838:DEBUG:starting keepalive thread with period of 2520000.0 milliseconds
+2022-06-17 23:08:47,838:INFO:activate_session
+2022-06-17 23:08:47,838:DEBUG:Sending: ActivateSessionRequest(TypeId:{self.TypeId}, RequestHeader:{self.RequestHeader}, Parameters:{self.Parameters})
+2022-06-17 23:08:47,839:INFO:received header: Header(type:b'MSG', chunk_type:b'F', body_size:84, channel:6)
+2022-06-17 23:08:47,839:DEBUG:Waiting for header
+2022-06-17 23:08:47,839:DEBUG:ActivateSessionResponse(TypeId:{self.TypeId}, ResponseHeader:{self.ResponseHeader}, Parameters:{self.Parameters})
+2022-06-17 23:08:47,839:DEBUG:success
+2022-06-17 23:08:47,839:DEBUG:Gettings Nodes...        
+2022-06-17 23:08:47,839:DEBUG:success
+2022-06-17 23:08:47,840:ERROR:wait_for_frames cannot be called before start()
+2022-06-17 23:08:47,840:CRITICAL:Exiting program
