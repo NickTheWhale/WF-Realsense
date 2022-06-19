@@ -82,7 +82,8 @@ def parse_config(file):
         config_dict["region_of_interest"] = list(
             eval(config_dict["region_of_interest"]))
         # Logging
-        config_dict["logging_level"] = config_file.get('logging', 'logging_level', fallback="INFO").replace("'", "").replace('"', "")
+        config_dict["logging_level"] = config_file.get(
+            'logging', 'logging_level', fallback="INFO").replace("'", "").replace('"', "")
         for val in config_dict:
             if config_dict[val] is None:
                 log.debug(val)
@@ -115,16 +116,18 @@ def dump_options(profile):
 def main():
     # Create log config
     log.basicConfig(filename="logger.log", filemode="a", level=log.DEBUG,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+                    format='%(asctime)s:%(levelname)s:%(lineno)d:%(message)s')
 
     # Read Configuration File
     config_file = parse_config('config.ini')
     if config_file is not False:
         try:
-            log_level = getattr(log, config_file["logging_level"].upper(), None)
+            log_level = getattr(
+                log, config_file["logging_level"].upper(), None)
             log.getLogger().setLevel(log_level)
         except Exception:
-            log.warning("Could not set logging level from configuration file, defaulting level to DEBUG")
+            log.warning(
+                "Could not set logging level from configuration file, defaulting level to DEBUG")
         log.info("Successfully read configuration file")
     else:
         log.critical("Failed to read configuration file, exiting program")

@@ -66,3 +66,9 @@
 2022-06-18 23:20:08,173:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
 2022-06-18 23:20:08,173:ERROR:wait_for_frames cannot be called before start()
 2022-06-18 23:20:08,173:CRITICAL:Exiting program
+2022-06-18 23:33:44,371:INFO:128:Successfully read configuration file
+2022-06-18 23:33:59,444:ERROR:142:Failed to connect camera
+2022-06-18 23:33:59,444:INFO:153:opening connection
+2022-06-18 23:34:03,529:ERROR:150:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-18 23:34:03,529:ERROR:179:wait_for_frames cannot be called before start()
+2022-06-18 23:34:03,529:CRITICAL:180:Exiting program
