@@ -36,39 +36,40 @@ def parse_config(file):
     if len(rs) > 0:
         # configuration dictionary
         config_dict = {
-            "ip": 'opc.tcp://localhost:4840',
-            "width": 848,
-            "height": 480,
-            "framerate": 30,
+            "depth_node": None,
+            "enabled_auto_exposure": 1.0,
             "emitter_enabled": 1.0,
             "emitter_on_off": 0.0,
-            "enabled_auto_exposure": 1.0,
             "error_polling_enabled": 1.0,
+            "extra_node": None,
+            "framerate": 30,
             "frames_queue_size": 16.0,
             "gain": 16.0,
             "global_time_enabled": 1.0,
+            "height": 480,
             "inter_cam_sync_mode": 0.0,
+            "ip": 'opc.tcp://localhost:4840',
             "laser_power": 150.0,
+            "logging_level": "INFO",
             "output_trigger_enabled": 0.0,
-            "stereo_baseline": 95.02674865722656,
             "region_of_interest": [(283, 160), (565, 160), (565, 320), (283, 320), (283, 160)],
-            "visual_preset": 0.0,
-            "extra_node": None,
+            "stereo_baseline": 95.02674865722656,
             "still_alive_node": None,
-            "depth_node": None,
-            "status_node": None
+            "status_node": None,
+            "visual_preset": 0.0,
+            "width": 848
         }
         # Server
         config_dict["ip"] = config_file.get(
-            'server', 'ip', fallback=None).replace("'", "")
+            'server', 'ip', fallback=None).replace("'", "").replace('"', "")
         config_dict["depth_node"] = config_file.get(
-            'server', 'depth_node', fallback=None).replace("'", "")
+            'server', 'depth_node', fallback=None).replace("'", "").replace('"', "")
         config_dict["status_node"] = config_file.get(
-            'server', 'status_node', fallback=None).replace("'", "")
+            'server', 'status_node', fallback=None).replace("'", "").replace('"', "")
         config_dict["still_alive_node"] = config_file.get(
-            'server', 'still_alive_node', fallback=None).replace("'", "")
+            'server', 'still_alive_node', fallback=None).replace("'", "").replace('"', "")
         config_dict["extra_node"] = config_file.get(
-            'server', 'extra_node', fallback=None).replace("'", "")
+            'server', 'extra_node', fallback=None).replace("'", "").replace('"', "")
         # Camera
         config_dict["width"] = config_file.getint(
             'camera', 'width', fallback=640)
@@ -80,6 +81,8 @@ def parse_config(file):
             'camera', 'region_of_interest', fallback=None)
         config_dict["region_of_interest"] = list(
             eval(config_dict["region_of_interest"]))
+        # Logging
+        config_dict["logging_level"] = config_file.get('logging', 'logging_level', fallback="INFO").replace("'", "").replace('"', "")
         for val in config_dict:
             if config_dict[val] is None:
                 log.debug(val)
@@ -107,54 +110,52 @@ def dump_options(profile):
             pass
     file.close()
     available_f.close()
-    # log.debug(f'{option} is not supported')
 
 
 def main():
-
+    # Create log config
     log.basicConfig(filename="logger.log", filemode="a", level=log.DEBUG,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
     # Read Configuration File
-    log.debug("Reading Configuration... ")
     config_file = parse_config('config.ini')
     if config_file is not False:
-        log.debug("success")
+        try:
+            log_level = getattr(log, config_file["logging_level"].upper(), None)
+            log.getLogger().setLevel(log_level)
+        except Exception:
+            log.warning("Could not set logging level from configuration file, defaulting level to DEBUG")
+        log.info("Successfully read configuration file")
     else:
-        log.debug(f'Error Reading Config')
+        log.critical("Failed to read configuration file, exiting program")
         sys.exit(1)
 
     # Intel Realsense Setup
     try:
-        log.debug("Connecting Camera...     ")
         pipeline = rs.pipeline()
         camera_config = rs.config()
         w, h, f = config_file["width"], config_file["height"], config_file["framerate"]
         camera_config.enable_stream(rs.stream.depth, w, h, rs.format.z16, f)
         profile = pipeline.start(camera_config)
-        log.debug("success")
+        log.info("Successfully connected RealSense camera")
     except RuntimeError:
-        log.debug("error")
-    else:
-        dump_options(profile)
+        log.error("Failed to connect camera")
 
     # OPC Server Connection Setup
     try:
-        log.debug("Connecting to Server...  ")
         client = opcua.Client(config_file["ip"])
         client.connect()
-        log.debug("success")
+        log.info("Successfully connected to OPC server")
     except ConnectionRefusedError as e:
         log.error(e)
     except Exception:
         log.error("Unknown error connecting to server")
     else:
-        log.debug("Gettings Nodes...        ")
         depth_node = client.get_node(config_file["depth_node"])
         status_node = client.get_node(config_file["status_node"])
         still_alive_node = client.get_node(config_file["still_alive_node"])
         extra_node = client.get_node(config_file["extra_node"])
-        log.debug("success")
+        log.info("Successfully retrieved nodes from OPC server")
 
     offset_time = time.time()
 
