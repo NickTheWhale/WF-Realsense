@@ -1,2 +1,2 @@
 Copy this into RealSenseOPC Client Application configuration file
-[(205, 72), (69, 165), (351, 194), (370, 62), (205, 72)]
+[(172, 129), (166, 238), (296, 267), (284, 140), (172, 129)]
