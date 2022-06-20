@@ -1,74 +1,308 @@
-2022-06-18 22:44:05,035:INFO:Successfully read configuration file
-2022-06-18 22:44:20,094:ERROR:Failed to connect camera
-2022-06-18 22:44:20,094:INFO:opening connection
-2022-06-18 22:44:24,200:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 22:44:24,200:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 22:44:24,200:CRITICAL:Exiting program
-2022-06-18 22:45:53,981:CRITICAL:Failed to read configuration file, exiting program
-2022-06-18 22:47:02,786:INFO:Successfully read configuration file
-2022-06-18 22:47:17,864:ERROR:Failed to connect camera
-2022-06-18 22:47:17,864:INFO:opening connection
-2022-06-18 22:47:21,945:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 22:47:21,945:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 22:47:21,945:CRITICAL:Exiting program
-2022-06-18 22:50:23,388:INFO:Successfully read configuration file
-2022-06-18 22:50:38,448:ERROR:Failed to connect camera
-2022-06-18 22:50:38,448:INFO:opening connection
-2022-06-18 22:50:42,520:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 22:50:42,520:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 22:50:42,520:CRITICAL:Exiting program
-2022-06-18 23:08:48,159:INFO:Successfully read configuration file
-2022-06-18 23:09:03,214:ERROR:Failed to connect camera
-2022-06-18 23:09:03,214:INFO:opening connection
-2022-06-18 23:09:07,301:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:09:07,301:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:09:07,301:CRITICAL:Exiting program
-2022-06-18 23:09:10,338:INFO:Successfully read configuration file
-2022-06-18 23:09:25,390:ERROR:Failed to connect camera
-2022-06-18 23:09:25,390:INFO:opening connection
-2022-06-18 23:09:29,472:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:09:29,472:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:09:29,472:CRITICAL:Exiting program
-2022-06-18 23:09:49,252:INFO:Successfully read configuration file
-2022-06-18 23:10:04,305:ERROR:Failed to connect camera
-2022-06-18 23:10:04,305:INFO:opening connection
-2022-06-18 23:10:08,428:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:10:08,428:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:10:08,428:CRITICAL:Exiting program
-2022-06-18 23:10:37,484:INFO:Successfully read configuration file
-2022-06-18 23:10:52,564:ERROR:Failed to connect camera
-2022-06-18 23:10:52,564:INFO:opening connection
-2022-06-18 23:10:56,664:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:10:56,664:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:10:56,664:CRITICAL:Exiting program
-2022-06-18 23:12:44,588:INFO:Successfully read configuration file
-2022-06-18 23:12:59,647:ERROR:Failed to connect camera
-2022-06-18 23:12:59,647:INFO:opening connection
-2022-06-18 23:13:03,731:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:13:03,731:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:13:03,731:CRITICAL:Exiting program
-2022-06-18 23:13:59,192:INFO:Successfully read configuration file
-2022-06-18 23:14:14,234:ERROR:Failed to connect camera
-2022-06-18 23:14:14,234:INFO:opening connection
-2022-06-18 23:14:18,305:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:14:18,305:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:14:18,305:CRITICAL:Exiting program
-2022-06-18 23:16:10,999:CRITICAL:Exiting program
-2022-06-18 23:16:19,656:INFO:Successfully read configuration file
-2022-06-18 23:16:34,700:ERROR:Failed to connect camera
-2022-06-18 23:16:34,700:INFO:opening connection
-2022-06-18 23:16:38,812:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:16:38,812:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:16:38,812:CRITICAL:Exiting program
-2022-06-18 23:19:49,034:INFO:Successfully read configuration file
-2022-06-18 23:20:04,088:ERROR:Failed to connect camera
-2022-06-18 23:20:04,088:INFO:opening connection
-2022-06-18 23:20:08,173:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:20:08,173:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:20:08,173:CRITICAL:Exiting program
-2022-06-18 23:33:44,371:INFO:128:Successfully read configuration file
-2022-06-18 23:33:59,444:ERROR:142:Failed to connect camera
-2022-06-18 23:33:59,444:INFO:153:opening connection
-2022-06-18 23:34:03,529:ERROR:150:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:34:03,529:ERROR:179:wait_for_frames cannot be called before start()
-2022-06-18 23:34:03,529:CRITICAL:180:Exiting program
+2022-06-20 08:44:12,101:145:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:44:12,101:162:INFO:Successfully read configuration file
+2022-06-20 08:44:12,571:173:INFO:Successfully connected RealSense camera
+2022-06-20 08:44:16,595:183:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-20 08:44:16,595:134:ERROR:Server error: local variable 'depth_node' referenced before assignment
+2022-06-20 08:44:16,595:135:CRITICAL:Exiting program
+2022-06-20 08:44:26,942:145:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:44:26,942:162:INFO:Successfully read configuration file
+2022-06-20 08:44:27,446:173:INFO:Successfully connected RealSense camera
+2022-06-20 08:44:31,483:183:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-20 08:44:31,483:134:ERROR:Server error: local variable 'depth_node' referenced before assignment
+2022-06-20 08:44:31,483:135:CRITICAL:Exiting program
+2022-06-20 08:49:57,360:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:49:57,375:169:INFO:Successfully read configuration file
+2022-06-20 08:49:57,957:180:INFO:Successfully connected RealSense camera
+2022-06-20 08:49:57,973:188:INFO:Successfully connected to OPC server
+2022-06-20 08:49:57,973:199:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 08:50:23,784:141:ERROR:Failed to retreve camera frames: Device disconnected. Failed to recconect: No device connected5000
+2022-06-20 08:50:23,784:142:CRITICAL:Exiting program
+2022-06-20 08:51:23,769:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:51:23,769:169:INFO:Successfully read configuration file
+2022-06-20 08:51:38,820:182:ERROR:Failed to connect camera
+2022-06-20 08:51:38,836:188:INFO:Successfully connected to OPC server
+2022-06-20 08:51:38,836:199:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 08:51:38,836:141:ERROR:Failed to retreve camera frames: wait_for_frames cannot be called before start()
+2022-06-20 08:51:38,836:142:CRITICAL:Exiting program
+2022-06-20 08:52:11,620:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:52:11,620:169:INFO:Successfully read configuration file
+2022-06-20 08:52:26,678:182:ERROR:Failed to connect camera
+2022-06-20 08:52:26,695:188:INFO:Successfully connected to OPC server
+2022-06-20 08:52:26,695:199:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 08:52:26,695:137:ERROR:Failed to retreve camera frames: wait_for_frames cannot be called before start()
+2022-06-20 08:52:26,695:138:CRITICAL:Restarting program
+2022-06-20 08:52:26,695:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:52:26,695:169:INFO:Successfully read configuration file
+2022-06-20 08:52:41,740:182:ERROR:Failed to connect camera
+2022-06-20 08:52:41,740:188:INFO:Successfully connected to OPC server
+2022-06-20 08:52:41,740:199:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 08:52:41,740:137:ERROR:Failed to retreve camera frames: wait_for_frames cannot be called before start()
+2022-06-20 08:52:41,740:138:CRITICAL:Restarting program
+2022-06-20 08:52:41,740:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:52:41,756:169:INFO:Successfully read configuration file
+2022-06-20 08:52:44,861:180:INFO:Successfully connected RealSense camera
+2022-06-20 08:52:44,861:188:INFO:Successfully connected to OPC server
+2022-06-20 08:52:44,861:199:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 08:52:56,163:137:ERROR:Server error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2022-06-20 08:52:56,165:138:CRITICAL:Restarting program
+2022-06-20 08:52:56,165:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:52:56,171:169:INFO:Successfully read configuration file
+2022-06-20 08:52:56,365:180:INFO:Successfully connected RealSense camera
+2022-06-20 08:52:59,416:188:INFO:Successfully connected to OPC server
+2022-06-20 08:52:59,416:199:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 08:53:04,965:137:ERROR:Server error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2022-06-20 08:53:04,966:138:CRITICAL:Restarting program
+2022-06-20 08:53:04,969:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:53:04,973:169:INFO:Successfully read configuration file
+2022-06-20 08:53:05,171:180:INFO:Successfully connected RealSense camera
+2022-06-20 08:53:09,212:190:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-20 08:53:09,212:137:ERROR:Server error: local variable 'depth_node' referenced before assignment
+2022-06-20 08:53:09,212:138:CRITICAL:Restarting program
+2022-06-20 08:53:09,212:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:53:09,218:169:INFO:Successfully read configuration file
+2022-06-20 08:53:09,435:180:INFO:Successfully connected RealSense camera
+2022-06-20 08:53:12,518:188:INFO:Successfully connected to OPC server
+2022-06-20 08:53:12,518:199:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 08:53:23,070:137:ERROR:Server error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2022-06-20 08:53:23,071:138:CRITICAL:Restarting program
+2022-06-20 08:53:23,072:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:53:23,077:169:INFO:Successfully read configuration file
+2022-06-20 08:53:23,319:180:INFO:Successfully connected RealSense camera
+2022-06-20 08:53:27,343:190:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-20 08:53:27,343:137:ERROR:Server error: local variable 'depth_node' referenced before assignment
+2022-06-20 08:53:27,343:138:CRITICAL:Restarting program
+2022-06-20 08:53:27,343:152:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 08:53:27,343:169:INFO:Successfully read configuration file
+2022-06-20 08:53:27,590:180:INFO:Successfully connected RealSense camera
+2022-06-20 09:14:07,287:179:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:14:07,295:197:INFO:Successfully read configuration file
+2022-06-20 09:14:07,834:210:INFO:Successfully connected RealSense camera
+2022-06-20 09:14:07,850:218:INFO:Successfully connected to OPC server
+2022-06-20 09:14:07,850:229:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:14:56,728:179:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:14:56,728:197:INFO:Successfully read configuration file
+2022-06-20 09:14:57,203:210:INFO:Successfully connected RealSense camera
+2022-06-20 09:14:57,209:218:INFO:Successfully connected to OPC server
+2022-06-20 09:14:57,209:229:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:15:10,948:179:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:15:10,964:197:INFO:Successfully read configuration file
+2022-06-20 09:15:11,427:210:INFO:Successfully connected RealSense camera
+2022-06-20 09:15:11,443:218:INFO:Successfully connected to OPC server
+2022-06-20 09:15:11,443:229:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:15:43,362:179:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:15:43,362:197:INFO:Successfully read configuration file
+2022-06-20 09:15:43,862:210:INFO:Successfully connected RealSense camera
+2022-06-20 09:15:43,878:218:INFO:Successfully connected to OPC server
+2022-06-20 09:15:43,878:229:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:16:31,014:182:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:16:31,014:200:INFO:Successfully read configuration file
+2022-06-20 09:16:31,563:213:INFO:Successfully connected RealSense camera
+2022-06-20 09:16:31,563:221:INFO:Successfully connected to OPC server
+2022-06-20 09:16:31,578:232:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:17:28,245:182:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:17:28,245:200:INFO:Successfully read configuration file
+2022-06-20 09:17:28,738:213:INFO:Successfully connected RealSense camera
+2022-06-20 09:17:28,754:221:INFO:Successfully connected to OPC server
+2022-06-20 09:17:28,754:232:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:18:12,580:184:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:18:12,587:202:INFO:Successfully read configuration file
+2022-06-20 09:18:13,161:215:INFO:Successfully connected RealSense camera
+2022-06-20 09:18:13,176:223:INFO:Successfully connected to OPC server
+2022-06-20 09:18:13,177:234:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:18:34,172:184:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:18:34,172:202:INFO:Successfully read configuration file
+2022-06-20 09:18:34,646:215:INFO:Successfully connected RealSense camera
+2022-06-20 09:18:34,652:223:INFO:Successfully connected to OPC server
+2022-06-20 09:18:34,652:234:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:18:56,145:185:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:18:56,145:203:INFO:Successfully read configuration file
+2022-06-20 09:18:56,618:216:INFO:Successfully connected RealSense camera
+2022-06-20 09:18:56,624:224:INFO:Successfully connected to OPC server
+2022-06-20 09:18:56,624:235:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:19:40,734:185:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:19:40,739:203:INFO:Successfully read configuration file
+2022-06-20 09:19:41,344:216:INFO:Successfully connected RealSense camera
+2022-06-20 09:19:41,360:224:INFO:Successfully connected to OPC server
+2022-06-20 09:19:41,360:235:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:22:41,408:186:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:22:41,408:204:INFO:Successfully read configuration file
+2022-06-20 09:22:41,957:217:INFO:Successfully connected RealSense camera
+2022-06-20 09:22:45,995:227:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-20 09:22:45,995:139:ERROR:Server error: local variable 'depth_node' referenced before assignment
+2022-06-20 09:22:45,995:140:CRITICAL:Restarting program
+2022-06-20 09:22:45,995:186:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:22:46,011:204:INFO:Successfully read configuration file
+2022-06-20 09:22:46,195:217:INFO:Successfully connected RealSense camera
+2022-06-20 09:22:50,247:227:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-20 09:22:50,253:139:ERROR:Server error: local variable 'depth_node' referenced before assignment
+2022-06-20 09:22:50,253:140:CRITICAL:Restarting program
+2022-06-20 09:22:50,253:186:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:22:50,253:204:INFO:Successfully read configuration file
+2022-06-20 09:22:50,453:217:INFO:Successfully connected RealSense camera
+2022-06-20 09:22:54,483:227:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-20 09:22:54,483:139:ERROR:Server error: local variable 'depth_node' referenced before assignment
+2022-06-20 09:22:54,483:140:CRITICAL:Restarting program
+2022-06-20 09:22:54,483:186:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:22:54,498:204:INFO:Successfully read configuration file
+2022-06-20 09:24:00,026:184:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:24:00,026:202:INFO:Successfully read configuration file
+2022-06-20 09:24:00,653:215:INFO:Successfully connected RealSense camera
+2022-06-20 09:24:04,714:225:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-20 09:24:04,777:139:ERROR:Server error: local variable 'depth_node' referenced before assignment
+2022-06-20 09:24:04,778:140:CRITICAL:Restarting program
+2022-06-20 09:24:04,779:184:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:24:04,781:202:INFO:Successfully read configuration file
+2022-06-20 09:24:04,984:215:INFO:Successfully connected RealSense camera
+2022-06-20 09:24:06,017:223:INFO:Successfully connected to OPC server
+2022-06-20 09:24:06,017:234:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:25:32,726:184:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:25:32,729:202:INFO:Successfully read configuration file
+2022-06-20 09:25:33,246:215:INFO:Successfully connected RealSense camera
+2022-06-20 09:25:33,261:223:INFO:Successfully connected to OPC server
+2022-06-20 09:25:33,261:234:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:26:24,792:184:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:26:24,808:202:INFO:Successfully read configuration file
+2022-06-20 09:26:25,372:215:INFO:Successfully connected RealSense camera
+2022-06-20 09:26:25,372:223:INFO:Successfully connected to OPC server
+2022-06-20 09:26:25,388:234:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:29:18,845:184:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:29:18,845:202:INFO:Successfully read configuration file
+2022-06-20 09:29:19,474:215:INFO:Successfully connected RealSense camera
+2022-06-20 09:29:19,489:223:INFO:Successfully connected to OPC server
+2022-06-20 09:29:19,489:234:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:35:25,715:184:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:35:25,722:202:INFO:Successfully read configuration file
+2022-06-20 09:35:26,298:215:INFO:Successfully connected RealSense camera
+2022-06-20 09:35:26,313:223:INFO:Successfully connected to OPC server
+2022-06-20 09:35:26,314:234:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:36:00,882:180:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:36:00,886:198:INFO:Successfully read configuration file
+2022-06-20 09:36:15,911:213:ERROR:Failed to connect camera
+2022-06-20 09:36:15,926:219:INFO:Successfully connected to OPC server
+2022-06-20 09:36:15,927:230:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:36:15,927:139:ERROR:Failed to retreve camera frames: wait_for_frames cannot be called before start()
+2022-06-20 09:36:15,928:140:CRITICAL:Restarting program
+2022-06-20 09:36:15,929:180:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:36:15,935:198:INFO:Successfully read configuration file
+2022-06-20 09:36:30,954:213:ERROR:Failed to connect camera
+2022-06-20 09:36:30,960:219:INFO:Successfully connected to OPC server
+2022-06-20 09:36:30,966:230:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:36:30,967:139:ERROR:Failed to retreve camera frames: wait_for_frames cannot be called before start()
+2022-06-20 09:36:30,972:140:CRITICAL:Restarting program
+2022-06-20 09:36:30,974:180:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:36:30,979:198:INFO:Successfully read configuration file
+2022-06-20 09:36:46,001:213:ERROR:Failed to connect camera
+2022-06-20 09:36:46,018:219:INFO:Successfully connected to OPC server
+2022-06-20 09:36:46,020:230:INFO:Successfully retrieved nodes from OPC server
+2022-06-20 09:36:46,021:139:ERROR:Failed to retreve camera frames: wait_for_frames cannot be called before start()
+2022-06-20 09:36:46,022:140:CRITICAL:Restarting program
+2022-06-20 09:36:46,023:180:INFO:
+
+~~~~~Starting Client Application~~~~~
+
+2022-06-20 09:36:46,032:198:INFO:Successfully read configuration file

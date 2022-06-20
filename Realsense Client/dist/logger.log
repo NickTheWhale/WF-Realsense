@@ -1,6 +1,0 @@
-2022-06-18 23:30:21,988:INFO:Successfully read configuration file
-2022-06-18 23:30:37,056:ERROR:Failed to connect camera
-2022-06-18 23:30:37,057:INFO:opening connection
-2022-06-18 23:30:41,157:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-18 23:30:41,157:ERROR:wait_for_frames cannot be called before start()
-2022-06-18 23:30:41,157:CRITICAL:Exiting program
