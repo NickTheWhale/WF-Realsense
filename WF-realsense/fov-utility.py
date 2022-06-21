@@ -6,6 +6,8 @@ import numpy.ma as ma
 import pyrealsense2 as rs
 
 # CONSTANTS
+WINDOW_NAME = 'RealSense FOV Utility'
+
 M_TO_F = 3.28084
 
 
@@ -14,11 +16,15 @@ class MaskWidget():
         self.__coordinates = []
         self.__right_clicked = False
         self.__last_coordinate = ()
+        self.__x = -1
+        self.__y = -1
 
     def get_coordinates(self, event, x, y, flags, parameters):
         '''
         Method to store mouse coordinates only if they are valid
         '''
+        self.__x = x
+        self.__y = y
         if event == cv2.EVENT_FLAG_LBUTTON:
             if not self.__right_clicked:
                 if self.coordinate_valid(x, y):
@@ -88,7 +94,7 @@ class MaskWidget():
         '''
         Method to return numpy array of coordinates
         '''
-        if len(self.__coordinates) > 2:
+        if len(self.__coordinates) > 0:
             if self.__right_clicked:
                 return np.array(self.__coordinates)
         return False
@@ -111,6 +117,13 @@ class MaskWidget():
         return text_cd
 
     @property
+    def cursor_xy(self):
+        '''
+        Method to return cursor coordinate tuple
+        '''
+        return self.__x, self.__y
+
+    @property
     def coordinates(self):
         '''
         Method to return coordinate list
@@ -118,7 +131,15 @@ class MaskWidget():
         return self.__coordinates
 
 
+def window_title(msg, filter_enable, filter_level):
+    cv2.setWindowTitle(WINDOW_NAME, f'RealSense FOV Utility     {msg}     |     '
+                       f'(r)eset, (q)uit, (u)ndo, (p)ause, (f)ilter     |    '
+                       f'Filter: {filter_level if filter_enable else filter_enable} (- , +)')
+
+
 def main():
+    filter_enable = False
+    filter_level = 1  # 1-5
     try:
         # Create/open file to output mask
         file = open('mask-output.txt', 'w')
@@ -138,36 +159,51 @@ def main():
         depth_sensor = profile.get_device().first_depth_sensor()
         depth_scale = depth_sensor.get_depth_scale()
 
-        cv2.namedWindow('RealSense FOV Utility', cv2.WINDOW_AUTOSIZE)
+        cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_AUTOSIZE)
         mask_widget = MaskWidget()
 
         blank_image = np.zeros((480, 848))
+        colorizer = rs.colorizer()
 
         while True:
-
             # Wait for a coherent pair of frames: depth and color
             frames = pipeline.wait_for_frames()
             depth_frame = frames.get_depth_frame()
             if not depth_frame:
                 continue
 
-            # Convert images to numpy arrays
-            depth_image = np.asanyarray(depth_frame.get_data())
+            if filter_enable:
+                spatial = rs.spatial_filter()
+                spatial.set_option(rs.option.holes_fill, 5)
+                filtered_depth_frame = spatial.process(depth_frame)
+                depth_image = np.asanyarray(filtered_depth_frame.get_data())
+                depth_colormap = np.asanyarray(
+                    colorizer.colorize(filtered_depth_frame).get_data())
+            else:
+                # Convert images to numpy arrays
+                depth_image = np.asanyarray(depth_frame.get_data())
+                # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
+                depth_colormap = np.asanyarray(
+                    colorizer.colorize(depth_frame).get_data())
 
-            # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
-            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
-                depth_image, alpha=0.07), cv2.COLORMAP_JET)
-
-            cv2.setMouseCallback('RealSense FOV Utility',
+            cv2.setMouseCallback(WINDOW_NAME,
                                  mask_widget.get_coordinates)
             key = cv2.waitKey(1)
 
             if key == ord('r'):
                 mask_widget.reset()
-            elif key == ord('z'):
+            elif key == ord('u'):
                 mask_widget.undo()
-            elif key == ord('y'):
-                mask_widget.redo()
+            elif key == ord('p'):
+                key = cv2.waitKey(0)
+            elif key == ord('-'):
+                if filter_level > 1:
+                    filter_level -= 1
+            elif key == ord('='):
+                if filter_level < 5:
+                    filter_level += 1
+            elif key == ord('f'):
+                filter_enable = not filter_enable
             elif key == ord('q'):
                 cv2.destroyAllWindows()
                 sys.exit(0)
@@ -200,32 +236,28 @@ def main():
                 # Compute average distance in the selected region of interest
                 ROI_depth = depth_mask.mean() * depth_scale * M_TO_F
 
-                mask_widget.text_coordinate
-
+                # Draw depth text
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 text_pos = mask_widget.text_coordinate(len(str(ROI_depth)))
 
                 cv2.putText(depth_colormap, f'{ROI_depth:0.2f}',
                             (text_pos), font, 1, (38, 37, 37), 2, cv2.LINE_AA)
-                cv2.imshow('RealSense FOV Utility', depth_colormap)
-                cv2.setWindowTitle('RealSense FOV Utility',
-                                   f'RealSense FOV Utility   '
-                                   f'ROI Depth: {ROI_depth:0.4f} (feet)')
+                cv2.imshow(WINDOW_NAME, depth_colormap)
+                window_title(
+                    f'ROI Depth: {ROI_depth:0.4f} (feet)', filter_enable, filter_level)
 
             else:
                 write_to_file = False
-                cv2.imshow('RealSense FOV Utility', depth_colormap)
-                cv2.setWindowTitle('RealSense FOV Utility',
-                                   'RealSense FOV Utility')
+                cv2.imshow(WINDOW_NAME, depth_colormap)
+                x, y = mask_widget.cursor_xy
+                if mask_widget.coordinate_valid(x, y):
+                    window_title(
+                        f'Depth ({x:03d},{y:03d}):  {depth_frame.get_distance(x, y) * M_TO_F:.4f} (feet)', filter_enable, filter_level)
                 blank_image = np.zeros((480, 848))
-
-            # Display color image
-            key = cv2.waitKey(1)
-
     finally:
-
         # Stop streaming
         pipeline.stop()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
