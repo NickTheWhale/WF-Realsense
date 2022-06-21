@@ -16,7 +16,6 @@ import numpy as np
 import numpy.ma as ma
 import opcua
 import opcua.ua.uatypes
-from pyparsing import col
 import pyrealsense2 as rs
 import win32api
 from opcua import ua
