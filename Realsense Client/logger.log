@@ -1,401 +1,78 @@
-2022-06-21 08:43:57,579:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:43:57,588:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:44:00,238:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:44:04,281:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:44:04,282:119:CRITICAL:Restarting program
-2022-06-21 08:44:04,282:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:44:04,295:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:44:05,128:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:44:09,167:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:44:09,168:119:CRITICAL:Restarting program
-2022-06-21 08:44:09,169:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:44:09,177:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:44:09,890:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:44:41,324:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:44:41,329:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:44:43,936:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:44:47,953:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:44:47,954:119:CRITICAL:Restarting program
-2022-06-21 08:44:52,956:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:44:52,961:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:44:53,695:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:44:57,730:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:44:57,731:119:CRITICAL:Restarting program
-2022-06-21 08:45:02,732:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:45:02,810:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:45:03,589:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:45:07,607:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:45:07,608:119:CRITICAL:Restarting program
-2022-06-21 08:45:12,609:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:45:12,615:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:45:13,358:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:45:17,385:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:45:17,386:119:CRITICAL:Restarting program
-2022-06-21 08:45:22,387:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:45:22,393:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:45:23,193:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:45:27,223:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:45:27,224:119:CRITICAL:Restarting program
-2022-06-21 08:45:32,224:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:45:32,228:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:45:33,024:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:45:37,051:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:45:37,052:119:CRITICAL:Restarting program
-2022-06-21 08:45:42,052:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:45:42,058:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:45:42,925:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:45:46,953:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:45:46,954:119:CRITICAL:Restarting program
-2022-06-21 08:45:51,956:156:INFO:
-
-~~~~~Starting Client Application~~~~~
-
-2022-06-21 08:45:51,961:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:45:52,829:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:46:45,729:156:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 08:46:45,732:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:46:48,352:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:47:12,595:156:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 08:47:12,604:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:47:15,157:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:47:19,198:118:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:47:19,199:119:CRITICAL:Restarting program
-2022-06-21 08:47:24,201:156:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 08:47:24,205:168:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:47:24,982:204:INFO:Successfully connected RealSense camera
-2022-06-21 08:50:33,166:161:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 08:50:33,174:173:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:50:35,794:209:INFO:Successfully connected RealSense camera
-2022-06-21 08:50:52,502:162:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 08:50:52,508:174:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:50:55,070:210:INFO:Successfully connected RealSense camera
-2022-06-21 08:50:59,108:124:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:50:59,109:125:CRITICAL:Restarting program
-2022-06-21 08:51:03,721:162:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 08:51:03,725:174:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:51:06,282:210:INFO:Successfully connected RealSense camera
-2022-06-21 08:51:10,320:124:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 08:51:10,321:125:CRITICAL:Restarting program
-2022-06-21 08:51:15,321:162:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 08:51:15,325:174:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:51:16,100:210:INFO:Successfully connected RealSense camera
-2022-06-21 08:52:19,205:162:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 08:52:19,212:174:INFO:Successfully read configuration file and set logging levels
-2022-06-21 08:52:21,856:210:INFO:Successfully connected RealSense camera
-2022-06-21 08:52:24,901:221:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 08:52:24,902:238:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 08:52:29,690:124:ERROR:[WinError 10054] An existing connection was forcibly closed by the remote host
-2022-06-21 08:52:29,691:125:CRITICAL:Restarting program
-2022-06-21 08:52:31,882:50:INFO:User exited program
-2022-06-21 12:35:34,991:184:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:35:34,998:199:WARNING:Failed to set logging level based on configuration file: While reading from 'config.ini' [line 17]: option 'depth_node' in section 'server' already exists
-2022-06-21 12:35:35,029:223:WARNING:local variable 'sections' referenced before assignment
-2022-06-21 12:35:36,136:125:ERROR:local variable 'sections' referenced before assignment
-2022-06-21 12:35:36,137:126:CRITICAL:Restarting program
-2022-06-21 12:35:41,139:184:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:35:41,141:199:WARNING:Failed to set logging level based on configuration file: While reading from 'config.ini' [line 17]: option 'depth_node' in section 'server' already exists
-2022-06-21 12:35:41,173:223:WARNING:local variable 'sections' referenced before assignment
-2022-06-21 12:35:42,208:125:ERROR:local variable 'sections' referenced before assignment
-2022-06-21 12:35:42,210:126:CRITICAL:Restarting program
-2022-06-21 12:35:47,210:184:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:35:47,213:199:WARNING:Failed to set logging level based on configuration file: While reading from 'config.ini' [line 17]: option 'depth_node' in section 'server' already exists
-2022-06-21 12:35:47,243:223:WARNING:local variable 'sections' referenced before assignment
-2022-06-21 12:35:48,287:125:ERROR:local variable 'sections' referenced before assignment
-2022-06-21 12:35:48,288:126:CRITICAL:Restarting program
-2022-06-21 12:35:51,967:52:INFO:User exited program
-2022-06-21 12:35:51,968:52:INFO:User exited program
-2022-06-21 12:35:51,969:52:INFO:User exited program
-2022-06-21 12:36:26,650:184:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:36:26,653:197:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:36:28,466:233:INFO:Successfully connected RealSense camera
-2022-06-21 12:36:28,485:244:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:36:28,485:261:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:36:54,919:52:INFO:User exited program
-2022-06-21 12:38:09,666:187:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:38:09,670:200:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:38:12,314:236:INFO:Successfully connected RealSense camera
-2022-06-21 12:38:12,330:247:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:38:12,331:264:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:38:35,871:52:INFO:User exited program
-2022-06-21 12:40:01,464:187:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:40:01,469:200:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:40:04,111:236:INFO:Successfully connected RealSense camera
-2022-06-21 12:40:04,126:247:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:40:04,128:264:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:40:04,340:125:ERROR:type object 'pyrealsense2.pyrealsense2.options' has no attribute 'holes_fill'
-2022-06-21 12:40:04,341:126:CRITICAL:Restarting program
-2022-06-21 12:40:08,143:52:INFO:User exited program
-2022-06-21 12:40:56,190:187:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:40:56,194:200:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:40:58,824:236:INFO:Successfully connected RealSense camera
-2022-06-21 12:40:58,840:247:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:40:58,841:264:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:40:59,072:125:ERROR:Mask and data not compatible: data size is 1, mask size is 407040.
-2022-06-21 12:40:59,074:126:CRITICAL:Restarting program
-2022-06-21 12:41:00,270:52:INFO:User exited program
-2022-06-21 12:41:09,542:187:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:41:09,545:200:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:41:12,103:236:INFO:Successfully connected RealSense camera
-2022-06-21 12:41:12,120:247:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:41:12,120:264:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:41:12,350:125:ERROR:Mask and data not compatible: data size is 1, mask size is 407040.
-2022-06-21 12:41:12,351:126:CRITICAL:Restarting program
-2022-06-21 12:41:17,351:187:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:41:17,357:200:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:41:18,119:236:INFO:Successfully connected RealSense camera
-2022-06-21 12:41:18,124:247:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:41:18,127:264:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:41:18,185:125:ERROR:Mask and data not compatible: data size is 1, mask size is 407040.
-2022-06-21 12:41:18,186:126:CRITICAL:Restarting program
-2022-06-21 12:41:20,142:52:INFO:User exited program
-2022-06-21 12:41:20,143:52:INFO:User exited program
-2022-06-21 12:44:39,874:187:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:44:39,880:200:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:44:42,495:236:INFO:Successfully connected RealSense camera
-2022-06-21 12:44:42,511:247:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:44:42,512:264:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:44:42,797:125:ERROR:name 'filtered_depth_mask' is not defined
-2022-06-21 12:44:42,797:126:CRITICAL:Restarting program
-2022-06-21 12:44:47,798:187:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:44:47,801:200:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:44:48,511:236:INFO:Successfully connected RealSense camera
-2022-06-21 12:44:48,516:247:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:44:48,517:264:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:44:48,580:125:ERROR:name 'filtered_depth_mask' is not defined
-2022-06-21 12:44:48,580:126:CRITICAL:Restarting program
-2022-06-21 12:44:50,963:52:INFO:User exited program
-2022-06-21 12:44:50,964:52:INFO:User exited program
-2022-06-21 12:44:58,861:188:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:44:58,863:201:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:45:01,422:237:INFO:Successfully connected RealSense camera
-2022-06-21 12:45:01,437:248:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:45:01,438:265:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:45:01,732:125:ERROR:name 'filtered_depth_mask' is not defined
-2022-06-21 12:45:01,733:126:CRITICAL:Restarting program
-2022-06-21 12:45:06,733:188:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:45:06,736:201:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:45:07,440:237:INFO:Successfully connected RealSense camera
-2022-06-21 12:45:07,456:248:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:45:07,457:265:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:45:07,513:125:ERROR:name 'filtered_depth_mask' is not defined
-2022-06-21 12:45:07,514:126:CRITICAL:Restarting program
-2022-06-21 12:45:12,516:188:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:45:12,522:201:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:45:13,274:237:INFO:Successfully connected RealSense camera
-2022-06-21 12:45:13,291:248:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:45:13,292:265:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:45:13,343:125:ERROR:name 'filtered_depth_mask' is not defined
-2022-06-21 12:45:13,344:126:CRITICAL:Restarting program
-2022-06-21 12:45:18,345:188:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:45:18,348:201:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:45:19,107:237:INFO:Successfully connected RealSense camera
-2022-06-21 12:45:19,112:248:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:45:19,114:265:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:45:19,182:125:ERROR:name 'filtered_depth_mask' is not defined
-2022-06-21 12:45:19,183:126:CRITICAL:Restarting program
-2022-06-21 12:45:21,306:52:INFO:User exited program
-2022-06-21 12:45:21,307:52:INFO:User exited program
-2022-06-21 12:45:21,309:52:INFO:User exited program
-2022-06-21 12:45:21,312:52:INFO:User exited program
-2022-06-21 12:45:50,023:188:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:45:50,026:201:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:45:52,602:237:INFO:Successfully connected RealSense camera
-2022-06-21 12:45:52,618:248:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:45:52,618:265:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:45:52,924:125:ERROR:local variable 'ROI_depth' referenced before assignment
-2022-06-21 12:45:52,925:126:CRITICAL:Restarting program
-2022-06-21 12:45:55,690:52:INFO:User exited program
-2022-06-21 12:46:04,497:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:46:04,500:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:46:07,056:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:46:07,070:249:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:46:07,071:266:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:46:19,201:52:INFO:User exited program
-2022-06-21 12:46:21,311:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:46:21,314:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:46:23,860:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:46:23,876:249:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:46:23,877:266:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:46:27,346:52:INFO:User exited program
-2022-06-21 12:46:31,677:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:46:31,680:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:46:34,229:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:46:34,247:249:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:46:34,248:266:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:46:39,442:52:INFO:User exited program
-2022-06-21 12:46:51,564:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:46:51,567:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:46:54,117:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:46:58,157:125:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 12:46:58,158:126:CRITICAL:Restarting program
-2022-06-21 12:47:03,159:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:47:03,163:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:47:03,938:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:47:07,964:125:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
-2022-06-21 12:47:07,966:126:CRITICAL:Restarting program
-2022-06-21 12:47:12,966:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:47:12,969:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:47:13,769:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:47:13,775:249:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:47:13,776:266:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:47:13,814:125:ERROR:invalid literal for int() with base 10: '1.2'
-2022-06-21 12:47:13,815:126:CRITICAL:Restarting program
-2022-06-21 12:47:18,816:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:47:18,820:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:47:19,669:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:47:19,677:249:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:47:19,678:266:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:47:19,715:125:ERROR:invalid literal for int() with base 10: '1.2'
-2022-06-21 12:47:19,716:126:CRITICAL:Restarting program
-2022-06-21 12:47:24,716:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:47:24,722:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:47:25,569:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:47:25,574:249:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:47:25,575:266:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:47:25,615:125:ERROR:invalid literal for int() with base 10: '1.2'
-2022-06-21 12:47:25,617:126:CRITICAL:Restarting program
-2022-06-21 12:47:26,112:52:INFO:User exited program
-2022-06-21 12:47:26,113:52:INFO:User exited program
-2022-06-21 12:47:26,114:52:INFO:User exited program
-2022-06-21 12:47:26,116:52:INFO:User exited program
-2022-06-21 12:47:26,118:52:INFO:User exited program
-2022-06-21 12:47:31,009:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:47:31,012:202:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:47:33,562:238:INFO:Successfully connected RealSense camera
-2022-06-21 12:47:33,580:249:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:47:33,581:266:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:47:43,139:52:INFO:User exited program
-2022-06-21 12:49:10,473:188:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:49:10,477:201:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:49:13,102:237:INFO:Successfully connected RealSense camera
-2022-06-21 12:49:13,117:248:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:49:13,118:265:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:49:13,349:125:ERROR:Mask and data not compatible: data size is 1, mask size is 407040.
-2022-06-21 12:49:13,350:126:CRITICAL:Restarting program
-2022-06-21 12:49:15,015:52:INFO:User exited program
-2022-06-21 12:49:46,897:192:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:49:46,900:205:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:49:49,516:241:INFO:Successfully connected RealSense camera
-2022-06-21 12:49:49,530:252:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:49:49,531:269:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:50:00,511:52:INFO:User exited program
-2022-06-21 12:50:07,570:192:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:50:07,574:205:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:50:10,135:241:INFO:Successfully connected RealSense camera
-2022-06-21 12:50:10,150:252:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:50:10,150:269:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:50:28,902:52:INFO:User exited program
-2022-06-21 12:51:35,566:195:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:51:35,569:208:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:51:38,216:244:INFO:Successfully connected RealSense camera
-2022-06-21 12:51:38,232:255:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:51:38,232:272:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:51:45,102:52:INFO:User exited program
-2022-06-21 12:52:15,699:195:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:52:15,703:208:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:52:18,338:244:INFO:Successfully connected RealSense camera
-2022-06-21 12:52:18,353:255:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:52:18,354:272:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:52:26,453:52:INFO:User exited program
-2022-06-21 12:52:36,763:195:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:52:36,768:208:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:52:39,315:244:INFO:Successfully connected RealSense camera
-2022-06-21 12:52:39,331:255:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:52:39,331:272:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:52:51,197:52:INFO:User exited program
-2022-06-21 12:52:58,697:195:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:52:58,700:208:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:53:01,236:244:INFO:Successfully connected RealSense camera
-2022-06-21 12:53:01,251:255:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:53:01,251:272:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:53:16,029:52:INFO:User exited program
-2022-06-21 12:53:17,535:195:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:53:17,538:208:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:53:20,084:244:INFO:Successfully connected RealSense camera
-2022-06-21 12:53:20,100:255:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:53:20,101:272:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:53:27,701:52:INFO:User exited program
-2022-06-21 12:53:33,522:195:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:53:33,529:208:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:53:36,077:244:INFO:Successfully connected RealSense camera
-2022-06-21 12:53:36,094:255:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:53:36,094:272:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:53:39,036:52:INFO:User exited program
-2022-06-21 12:54:42,652:193:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:54:42,673:206:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:54:45,325:242:INFO:Successfully connected RealSense camera
-2022-06-21 12:54:45,345:253:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:54:45,346:270:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:55:20,579:52:INFO:User exited program
-2022-06-21 12:55:25,250:193:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:55:25,254:206:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:55:27,811:242:INFO:Successfully connected RealSense camera
-2022-06-21 12:55:27,825:253:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:55:27,826:270:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:55:37,035:52:INFO:User exited program
-2022-06-21 12:56:37,153:193:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:56:37,156:206:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:56:39,715:242:INFO:Successfully connected RealSense camera
-2022-06-21 12:56:39,731:253:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:56:39,732:270:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:57:07,955:52:INFO:User exited program
-2022-06-21 12:57:11,114:193:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:57:11,116:206:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:57:13,671:242:INFO:Successfully connected RealSense camera
-2022-06-21 12:57:13,686:253:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:57:13,687:270:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:58:16,682:52:INFO:User exited program
-2022-06-21 12:58:42,207:193:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:58:42,210:206:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:58:44,775:242:INFO:Successfully connected RealSense camera
-2022-06-21 12:58:44,790:253:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:58:44,791:270:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:58:58,530:52:INFO:User exited program
-2022-06-21 12:59:00,078:193:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:59:00,081:206:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:59:02,643:242:INFO:Successfully connected RealSense camera
-2022-06-21 12:59:02,657:253:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:59:02,658:270:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:59:06,986:52:INFO:User exited program
-2022-06-21 12:59:15,006:193:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:59:15,009:206:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:59:17,573:242:INFO:Successfully connected RealSense camera
-2022-06-21 12:59:17,587:253:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:59:17,588:270:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:59:21,551:52:INFO:User exited program
-2022-06-21 12:59:29,108:193:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 12:59:29,111:206:INFO:Successfully read configuration file and set logging levels
-2022-06-21 12:59:31,657:242:INFO:Successfully connected RealSense camera
-2022-06-21 12:59:31,672:253:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-21 12:59:31,673:270:INFO:Successfully retrieved nodes from OPC server
-2022-06-21 12:59:33,778:52:INFO:User exited program
+2022-06-21 14:34:23,699:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:34:23,715:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:34:25,768:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:34:25,784:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:34:25,784:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:34:44,319:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:36:14,152:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:36:14,152:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:36:18,342:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:36:18,358:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:36:18,358:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:36:23,320:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:36:29,265:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:36:29,265:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:36:33,444:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:36:33,460:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:36:33,460:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:37:54,589:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:37:58,500:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:37:58,500:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:38:00,421:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:38:00,437:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:38:00,437:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:38:05,017:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:38:12,141:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:38:12,156:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:38:14,060:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:38:14,075:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:38:14,075:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:38:17,083:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:38:23,722:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:38:23,722:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:38:27,862:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:38:27,868:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:38:27,868:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:39:03,934:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:39:32,523:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:39:32,523:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:39:36,487:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:39:36,503:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:39:36,503:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:39:40,132:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:39:47,128:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:39:47,128:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:39:51,293:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:39:51,307:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:39:51,307:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:39:53,988:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:40:00,743:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:40:00,743:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:40:04,905:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:40:04,920:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:40:04,920:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:40:07,523:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:40:17,125:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:40:17,125:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:40:21,279:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:40:21,295:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:40:21,295:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:40:29,308:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:40:34,960:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:40:34,960:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:40:39,054:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:40:39,072:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:40:39,073:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:40:50,117:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:41:38,862:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:41:38,862:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:41:42,819:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:41:42,834:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:41:42,834:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:41:47,388:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-21 14:41:56,799:224:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 14:41:56,799:237:INFO:Successfully read configuration file and set logging levels
+2022-06-21 14:42:00,807:273:INFO:Successfully connected RealSense camera
+2022-06-21 14:42:00,823:284:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-21 14:42:00,823:301:INFO:Successfully retrieved nodes from OPC server
+2022-06-21 14:42:13,614:52:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~

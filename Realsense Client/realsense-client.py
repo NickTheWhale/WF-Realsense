@@ -22,12 +22,12 @@ import win32api
 from opcua import ua
 
 # CONSTANTS
-WAIT_BEFORE_RESTARTING = 5 # seconds. set to 0 for no wait time
+WAIT_BEFORE_RESTARTING = 5  # seconds. set to 0 for no wait time
 METER_TO_FEET = 3.28084
 SHUTDOWN_MSG = "Exiting program"
 STARTUP_MSG = "~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~"
 RESTART_MSG = "Restarting program"
-USER_SHUTDOWN_MSG = "User exited program"
+USER_SHUTDOWN_MSG = "~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~"
 ALLOW_RESTART = True
 BACKUP_CONFIG = {
     # server
@@ -48,9 +48,9 @@ BACKUP_CONFIG = {
     "allow_restart": '1.0'
 }
 
-def on_exit(signal_type):
-   log.info(USER_SHUTDOWN_MSG)
 
+def on_exit(signal_type):
+    log.info(USER_SHUTDOWN_MSG)
 
 
 def parse_config(file_path):
@@ -97,24 +97,49 @@ def dump_options(profile):
 def set_camera_options(profile, configuration):
     depth_sensor = profile.get_device().first_depth_sensor()
     try:
+        # visual_preset
+        raw_val = float(configuration['camera']['visual_preset'])
+        set_val = scale_option_value(profile, 'visual_preset', raw_val)
+        depth_sensor.set_option(rs.option.visual_preset, set_val)
+        # preset_range = depth_sensor.get_option_range(rs.option.visual_preset)
+        # for i in range(int(preset_range.max)):
+        #     visualpreset = depth_sensor.get_option_value_description(rs.option.visual_preset, i)
+        #     print(i, visualpreset)
+        # print(configuration['camera']['visual_preset'])
+        # emitter_enabled
         set_val = float(configuration['camera']['emitter_enabled'])
         depth_sensor.set_option(rs.option.emitter_enabled, set_val)
-
+        # emitter_on_off
         set_val = float(configuration['camera']['emitter_on_off'])
         depth_sensor.set_option(rs.option.emitter_on_off, set_val)
-
+        # enable_auto_exposure
         set_val = float(configuration['camera']['enable_auto_exposure'])
         depth_sensor.set_option(rs.option.enable_auto_exposure, set_val)
-
+        # gain
         set_val = float(configuration['camera']['gain'])
         depth_sensor.set_option(rs.option.gain, set_val)
-
+        # laser_power
         set_val = float(configuration['camera']['laser_power'])
         depth_sensor.set_option(rs.option.laser_power, set_val)
     except KeyError as e:
         log.warning(e)
     except Exception as e:
         log.warning(f"Failed to set 1 or more camera options: {e}")
+
+
+def scale_option_value(profile, option, set_val):
+    depth_sensor = profile.get_device().first_depth_sensor()
+    value_range = depth_sensor.get_option_range(getattr(rs.option, option))
+    min_val = value_range.min
+    max_val = value_range.max
+    if min_val <= set_val <= max_val:
+        return set_val
+    else:
+        if set_val > max_val:
+            set_val = max_val
+        elif set_val < min_val:
+            set_val = min_val
+        return set_val
 
 
 def critical_error(message="Unkown critical error", allow_rst=True):
@@ -146,19 +171,22 @@ def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
                 spatial = rs.spatial_filter()
                 spatial.set_option(rs.option.holes_fill, filter_level)
                 filtered_depth_frame = spatial.process(depth_frame)
-                filtered_depth_image = np.asanyarray(filtered_depth_frame.get_data())
-                
+                filtered_depth_image = np.asanyarray(
+                    filtered_depth_frame.get_data())
+
                 # Compute mask form polygon vertices
                 mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
                 mask = mask.astype('bool')
                 mask = np.invert(mask)
-                
+
                 # Apply mask to filtered depth data and ignore invalid/zero distances
-                filtered_depth_mask = ma.array(filtered_depth_image, mask=mask, fill_value=0)
+                filtered_depth_mask = ma.array(
+                    filtered_depth_image, mask=mask, fill_value=0)
                 filtered_depth_mask = ma.masked_invalid(filtered_depth_mask)
                 filtered_depth_mask = ma.masked_equal(filtered_depth_mask, 0)
-                
-                filtered_depth_colormap = np.asanyarray(colorizer.colorize(filtered_depth_frame).get_data())
+
+                filtered_depth_colormap = np.asanyarray(
+                    colorizer.colorize(filtered_depth_frame).get_data())
                 cv2.imshow('Filtered Mask', filtered_depth_colormap)
                 cv2.waitKey(1)
                 # Compute average distnace of the region of interest
@@ -177,6 +205,12 @@ def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
             depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
             depth_mask = ma.masked_invalid(depth_mask)
             depth_mask = ma.masked_equal(depth_mask, 0)
+
+            depth_color_map = np.asanyarray(
+                colorizer.colorize(depth_frame).get_data())
+
+            cv2.imshow('Depth colormap', depth_color_map)
+            cv2.waitKey(1)
 
             # Compute average distance of the region of interest
             ROI_depth = depth_mask.mean() * depth_scale * METER_TO_FEET
@@ -297,7 +331,8 @@ def main():
             try:
                 polygon = list(eval(sections['camera']['region_of_interest']))
                 try:
-                    filter_level = int(sections['camera']['spatial_filter_level'])
+                    filter_level = int(
+                        sections['camera']['spatial_filter_level'])
                 except KeyError as e:
                     filter_level = int(BACKUP_CONFIG['spatial_filter_level'])
                     log.warn(e)
