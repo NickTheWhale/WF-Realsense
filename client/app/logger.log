@@ -1,0 +1,212 @@
+2022-06-21 16:28:56,966:227:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 16:28:56,967:240:INFO:Successfully read configuration file and set logging levels
+2022-06-21 16:29:12,058:150:ERROR:Failed to connect camera: No device connected
+2022-06-21 16:29:12,058:151:CRITICAL:Restarting program
+2022-06-21 16:29:17,062:227:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-21 16:29:17,062:240:INFO:Successfully read configuration file and set logging levels
+2022-06-22 07:59:49,263:295:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 07:59:49,271:308:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:00:04,304:192:ERROR:Failed to connect camera: No device connected
+2022-06-22 08:00:04,305:193:CRITICAL:Restarting program
+2022-06-22 08:00:05,950:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:00:25,279:295:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:00:25,283:308:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:00:28,785:344:INFO:Successfully connected RealSense camera
+2022-06-22 08:00:32,825:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:00:32,825:193:CRITICAL:Restarting program
+2022-06-22 08:00:33,229:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:00:45,534:295:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:00:45,537:308:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:00:48,341:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:01:33,916:295:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:01:33,920:308:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:01:38,378:344:INFO:Successfully connected RealSense camera
+2022-06-22 08:01:42,407:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:01:42,408:193:CRITICAL:Restarting program
+2022-06-22 08:01:42,837:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:04:47,852:296:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:04:47,855:309:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:04:52,341:345:INFO:Successfully connected RealSense camera
+2022-06-22 08:04:56,370:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:04:56,371:193:CRITICAL:Restarting program
+2022-06-22 08:05:01,005:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:10:46,419:296:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:10:46,428:309:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:10:50,968:345:INFO:Successfully connected RealSense camera
+2022-06-22 08:10:55,011:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:10:55,011:193:CRITICAL:Restarting program
+2022-06-22 08:10:55,077:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:11:21,925:296:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:11:21,929:309:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:11:26,362:345:INFO:Successfully connected RealSense camera
+2022-06-22 08:11:30,389:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:11:30,390:193:CRITICAL:Restarting program
+2022-06-22 08:11:31,541:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:11:42,234:296:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:11:42,238:309:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:11:46,632:345:INFO:Successfully connected RealSense camera
+2022-06-22 08:11:50,654:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:11:50,695:193:CRITICAL:Restarting program
+2022-06-22 08:11:50,933:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:12:00,097:296:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:12:00,107:309:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:12:07,059:345:INFO:Successfully connected RealSense camera
+2022-06-22 08:12:11,692:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:12:11,695:193:CRITICAL:Restarting program
+2022-06-22 08:12:16,702:296:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:12:16,713:309:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:12:22,963:345:INFO:Successfully connected RealSense camera
+2022-06-22 08:12:27,516:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:12:27,518:193:CRITICAL:Restarting program
+2022-06-22 08:12:32,519:296:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:12:32,530:309:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:12:37,978:345:INFO:Successfully connected RealSense camera
+2022-06-22 08:12:42,158:192:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:12:42,160:193:CRITICAL:Restarting program
+2022-06-22 08:12:43,622:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:12:43,625:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:12:43,629:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:13:52,063:296:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:13:52,067:309:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:13:56,644:345:INFO:Successfully connected RealSense camera
+2022-06-22 08:13:59,811:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:17:32,716:298:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:17:32,723:311:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:17:37,357:347:INFO:Successfully connected RealSense camera
+2022-06-22 08:17:41,401:194:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:17:41,402:195:CRITICAL:Restarting program
+2022-06-22 08:17:44,986:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:18:13,238:298:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:18:13,242:311:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:18:17,770:347:INFO:Successfully connected RealSense camera
+2022-06-22 08:18:21,482:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:18:32,553:298:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:18:32,558:311:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:18:37,074:347:INFO:Successfully connected RealSense camera
+2022-06-22 08:18:41,129:194:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:18:41,145:195:CRITICAL:Restarting program
+2022-06-22 08:18:45,281:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:18:50,573:298:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:18:50,577:311:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:18:55,176:347:INFO:Successfully connected RealSense camera
+2022-06-22 08:18:58,050:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:27:40,407:305:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:27:40,416:318:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:27:45,258:354:INFO:Successfully connected RealSense camera
+2022-06-22 08:27:56,047:305:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:27:56,050:318:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:28:00,727:354:INFO:Successfully connected RealSense camera
+2022-06-22 08:28:04,776:201:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:28:04,785:202:CRITICAL:Restarting program
+2022-06-22 08:28:08,618:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:28:32,367:305:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:28:32,370:318:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:28:36,868:354:INFO:Successfully connected RealSense camera
+2022-06-22 08:28:53,386:305:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:28:53,389:318:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:28:57,890:354:INFO:Successfully connected RealSense camera
+2022-06-22 08:35:40,683:305:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:35:40,692:318:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:35:46,064:354:INFO:Successfully connected RealSense camera
+2022-06-22 08:35:48,279:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:35:59,193:305:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:35:59,197:318:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:36:04,147:354:INFO:Successfully connected RealSense camera
+2022-06-22 08:36:05,846:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:39:24,763:306:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:39:24,771:319:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:39:29,340:355:INFO:Successfully connected RealSense camera
+2022-06-22 08:39:33,384:202:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 08:39:33,385:203:CRITICAL:Restarting program
+2022-06-22 08:39:37,109:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:39:45,052:306:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:39:45,056:319:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:39:49,603:355:INFO:Successfully connected RealSense camera
+2022-06-22 08:39:52,164:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:41:54,544:306:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:41:54,548:319:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:41:59,166:355:INFO:Successfully connected RealSense camera
+2022-06-22 08:41:59,169:183:WARNING:Option no_option does not exist
+2022-06-22 08:42:00,812:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 08:42:50,409:306:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 08:42:50,412:319:INFO:Successfully read configuration file and set logging levels
+2022-06-22 08:42:54,817:355:INFO:Successfully connected RealSense camera
+2022-06-22 08:42:54,820:183:WARNING:Option "no_option" does not exist
+2022-06-22 08:42:56,532:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:40:26,298:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:40:26,304:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:40:30,858:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:42:05,747:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:42:05,751:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:42:10,285:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:42:14,321:208:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 09:42:14,322:209:CRITICAL:Restarting program
+2022-06-22 09:42:19,322:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:42:19,328:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:42:22,824:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:42:22,825:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:43:00,441:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:43:00,444:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:43:04,903:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:43:08,933:208:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 09:43:08,934:209:CRITICAL:Restarting program
+2022-06-22 09:43:13,935:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:43:13,939:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:43:17,877:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:43:20,777:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:43:20,778:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:44:01,972:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:44:01,975:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:44:06,435:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:44:10,476:208:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 09:44:10,477:209:CRITICAL:Restarting program
+2022-06-22 09:44:15,478:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:44:15,483:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:44:19,760:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:44:19,762:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:45:29,914:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:45:29,918:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:45:35,335:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:45:39,357:208:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 09:45:39,358:209:CRITICAL:Restarting program
+2022-06-22 09:45:44,359:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:45:44,364:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:45:52,751:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:45:56,777:208:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 09:45:56,778:209:CRITICAL:Restarting program
+2022-06-22 09:46:01,779:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:46:01,785:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:46:14,967:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:46:14,969:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:46:14,969:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:46:36,551:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:46:36,554:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:46:40,939:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:46:47,101:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:46:47,104:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:46:51,466:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:46:55,499:208:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 09:46:55,500:209:CRITICAL:Restarting program
+2022-06-22 09:47:00,501:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:47:00,506:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:47:20,287:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:47:20,288:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:48:48,071:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:48:48,074:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:48:52,619:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:48:56,659:208:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 09:48:56,660:209:CRITICAL:Restarting program
+2022-06-22 09:49:01,660:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:49:01,665:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:49:08,687:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:49:10,360:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:56:49,420:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:56:49,428:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:56:54,299:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:56:58,323:208:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 09:56:58,324:209:CRITICAL:Restarting program
+2022-06-22 09:57:03,326:312:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 09:57:03,332:325:INFO:Successfully read configuration file and set logging levels
+2022-06-22 09:57:07,342:361:INFO:Successfully connected RealSense camera
+2022-06-22 09:57:32,061:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 09:57:32,062:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~

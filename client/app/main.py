@@ -2,7 +2,7 @@
 title:   RealSenseOPC client application
 author:  Nicholas Loehrke 
 date:    June 2022
-license: todo
+license: TODO
 """
 
 
@@ -10,7 +10,7 @@ import configparser
 import logging as log
 import sys
 import time
-
+from options import Options as op
 import cv2
 import numpy as np
 import numpy.ma as ma
@@ -49,10 +49,22 @@ BACKUP_CONFIG = {
 
 
 def on_exit(signal_type):
+    """callback to log a user exit by clicking the 'x'
+
+    :param signal_type: win32api parameter
+    :type signal_type: unknown
+    """
     log.info(USER_SHUTDOWN_MSG)
 
 
 def parse_config(file_path):
+    """function to read .ini configuration file and store contents to dictionary
+
+    :param file_path: file path to .ini file
+    :type file_path: string
+    :return: dictionary of .ini file contents
+    :rtype: dict
+    """
     file = configparser.ConfigParser()
     file.read(file_path)
     sections = file.__dict__['_sections'].copy()
@@ -69,10 +81,11 @@ def pretty_print(d, indent=0):
 
 
 def dump_options(profile):
-    '''
-    Function to write avaliable camera options to file. 
-    Use for debugging only
-    '''
+    """function to get available camera options and dump to a text file.
+       Debugging use only. 
+    :param profile: pyrealsense2 camera profile object
+    :type profile: pyrealsense2.profile
+    """
     depth_sensor = profile.get_device().first_depth_sensor()
     file = open('options.txt', 'r')
     available_f = open('avaliable-options.txt', 'w')
@@ -94,6 +107,13 @@ def dump_options(profile):
 
 
 def set_camera_options(profile, configuration):
+    """function to set all avaliable camera options from configuration file
+
+    :param profile: realsense camera profile
+    :type profile: pyrealsense2.profile
+    :param configuration: configuration dictionary
+    :type configuration: dict
+    """
     depth_sensor = profile.get_device().first_depth_sensor()
     try:
         # visual_preset
@@ -127,24 +147,63 @@ def set_camera_options(profile, configuration):
 
 
 def scale_option_value(profile, option, set_val):
+    """function to scale desired option value by constraining 
+    to available option range reported from the camera
+
+    :param profile: realsense camera profile
+    :type profile: pyrealsense2.profile
+    :param option: realsense camera option
+    :type option: string
+    :param set_val: desired set point
+    :type set_val: float
+    :return: scaled set point
+    :rtype: float
+    """
     depth_sensor = profile.get_device().first_depth_sensor()
     value_range = depth_sensor.get_option_range(getattr(rs.option, option))
-    min_val = value_range.min
-    max_val = value_range.max
+    min_val, max_val, step_size = value_range.min, value_range.max, value_range.step
+    # round set value to nearest step size
+    set_val = step_size * round(set_val / step_size) 
+    print(f'{option} min: {min_val} max: {max_val} step: {step_size}')
+    # constrain set_value within value_range
     if min_val <= set_val <= max_val:
-        return set_val
+        constrained_val = set_val
     else:
         if set_val > max_val:
             set_val = max_val
         elif set_val < min_val:
             set_val = min_val
-        return set_val
+        constrained_val = set_val
+    return constrained_val
+    
+    
+def option_valid(option):
+    """function to check if a camera option 
+
+    :param option: _description_
+    :type option: _type_
+    :return: _description_
+    :rtype: _type_
+    """
+    valid_option = hasattr(rs.option, option)
+    if valid_option is False:
+        log.warning(f'Option "{option}" does not exist')
+    return valid_option 
+    
+    
+def set_option(profile, option, set_val):
+    pass
 
 
 def critical_error(message="Unkown critical error", allow_rst=True):
-    '''
-    Function to log error message to either exit program or recall main()
-    '''
+    """function to log critical errors with the option to recall main()
+    to restart program
+
+    :param message: error message, defaults to "Unkown critical error"
+    :type message: str, optional
+    :param allow_rst: option to allow resetting of the program, defaults to True
+    :type allow_rst: bool, optional
+    """
     if allow_rst:
         log.error(message)
         log.critical(RESTART_MSG)
@@ -158,6 +217,25 @@ def critical_error(message="Unkown critical error", allow_rst=True):
 
 
 def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
+    """function to calculate the average distance within a region of interest. 
+    This is done be either averaging the depth within a region of interest, or
+    first filtering the depth data and then calculating the average
+
+    :param depth_frame: camera frame containing depth data
+    :type depth_frame: pyrealsense2.frame
+    :param polygon: polygon vertices [(x1, y1), (x2, y2)]
+    :type polygon: list
+    :param blank_image: numpy array of zeros with the same dimension as the depth_frame
+    :type blank_image: numpy.array
+    :param depth_scale: depth scale reported by the camera to convert 
+    raw depth data to known units
+    :type depth_scale: float
+    :param filter_level: spatial filtering level (1-5), defaults to 0
+    :type filter_level: int, optional
+    :return: distance at the defined region of interest,
+    or 0 if no regiong of interest is supplied
+    :rtype: float
+    """
     # convert list of coordinate tuples to numpy array
     polygon = np.array(polygon)
     if filter_level > 5:
@@ -219,6 +297,14 @@ def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
 
 
 def main():
+    """Program entry point. Basic program flow in order:
+    1. Read in configuration file settings
+    2. Connect to realsense camera
+    3. Connect to OPC server
+    4. Send data to OPC server
+    5. goto 4
+    """    
+    
     allow_restart = True
     blank_image = np.zeros((480, 848))
     log.basicConfig(filename="logger.log", filemode="a", level=log.DEBUG,
@@ -278,6 +364,21 @@ def main():
     except Exception as e:
         critical_error(e, allow_restart)
 
+    
+    
+    # testing
+                                 
+    camera_options = op(profile, sections)
+    available_options = camera_options.get_available_options()
+    config_options = camera_options.get_config_options()
+    
+    
+    
+    
+    # end testing
+    
+    
+    
     # OPC Server Connection Setup
     try:
         ip = sections['server']['ip'].strip("'")

@@ -1,6 +1,0 @@
-2022-06-21 16:28:56,966:227:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 16:28:56,967:240:INFO:Successfully read configuration file and set logging levels
-2022-06-21 16:29:12,058:150:ERROR:Failed to connect camera: No device connected
-2022-06-21 16:29:12,058:151:CRITICAL:Restarting program
-2022-06-21 16:29:17,062:227:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-21 16:29:17,062:240:INFO:Successfully read configuration file and set logging levels
