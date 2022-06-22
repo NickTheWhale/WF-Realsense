@@ -173,7 +173,6 @@ def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
                 # Compute average distnace of the region of interest
                 ROI_depth = filtered_depth_mask.mean() * depth_scale * METER_TO_FEET
             except Exception as e:
-                print(e)
                 sys.exit(1)
         else:
             depth_image = np.asanyarray(depth_frame.get_data())
@@ -259,24 +258,19 @@ def main():
         pipeline.stop()
         depth_sensor = profile.get_device().first_depth_sensor()
         depth_scale = depth_sensor.get_depth_scale()
-        # DEBUGGING
-        set_camera_options(profile, sections)
+        # create camera object to configure settings
+        camera = Options(profile, sections)
+
+        camera.get_camera_options()
+        camera.get_user_options()
+        camera.set_all_options()
+        
         pipeline.start(camera_config)
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
         critical_error(f"Failed to connect camera: {e}", allow_restart)
     except Exception as e:
         critical_error(e, allow_restart)
-
-    # testing
-
-    camera = Options(profile, sections)
-
-    camera.get_camera_options()
-    camera.get_user_options()
-    camera.set_all_options()
-
-    # end testing
 
     # OPC Server Connection Setup
     try:
