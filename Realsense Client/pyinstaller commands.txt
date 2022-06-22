@@ -1,3 +1,0 @@
--F is for onefile, -w is for no console, --clean is to clear cache
-
-pyinstaller -F -w
