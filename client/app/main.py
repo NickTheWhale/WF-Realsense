@@ -71,8 +71,6 @@ def parse_config(file_path):
     return sections
 
 
-
-
 def dump_options(profile):
     """function to get available camera options and dump to a text file.
        Debugging use only. 
@@ -264,7 +262,7 @@ def main():
         camera.get_camera_options()
         camera.get_user_options()
         camera.set_all_options()
-        
+
         pipeline.start(camera_config)
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
