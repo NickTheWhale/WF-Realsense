@@ -68,6 +68,8 @@ def parse_config(file_path):
     file = configparser.ConfigParser()
     file.read(file_path)
     sections = file.__dict__['_sections'].copy()
+    config = file.items('camera', True)
+    print(f'Test: {config}')
     return sections
 
 

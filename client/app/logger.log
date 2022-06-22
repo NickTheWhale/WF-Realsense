@@ -1,0 +1,50 @@
+2022-06-22 14:42:20,059:214:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 14:42:20,066:227:INFO:Successfully read configuration file and set logging levels
+2022-06-22 14:42:21,762:52:WARNING:Failed to set "framerate"
+2022-06-22 14:42:22,634:52:WARNING:Failed to set "region_of_interest"
+2022-06-22 14:42:22,635:52:WARNING:Failed to set "spatial_filter_level"
+2022-06-22 14:42:24,572:49:WARNING:Failed to set "visul_preset". Did you mean "visual_preset"?
+2022-06-22 14:42:24,573:52:WARNING:Failed to set "blah"
+2022-06-22 14:42:24,573:52:WARNING:Failed to set "emitter"
+2022-06-22 14:42:24,761:268:INFO:Successfully connected RealSense camera
+2022-06-22 14:42:25,161:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 14:43:09,266:215:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 14:43:09,271:228:INFO:Successfully read configuration file and set logging levels
+2022-06-22 14:43:10,940:52:WARNING:Failed to set "framerate"
+2022-06-22 14:43:11,811:52:WARNING:Failed to set "region_of_interest"
+2022-06-22 14:43:11,812:52:WARNING:Failed to set "spatial_filter_level"
+2022-06-22 14:43:13,161:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 14:43:43,296:215:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 14:43:43,299:230:WARNING:Failed to set logging level based on configuration file: 'ItemsView' object is not subscriptable
+2022-06-22 14:43:43,331:254:WARNING:local variable 'sections' referenced before assignment
+2022-06-22 14:43:44,972:112:ERROR:local variable 'sections' referenced before assignment
+2022-06-22 14:43:44,973:113:CRITICAL:Restarting program
+2022-06-22 14:43:49,975:215:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 14:43:49,977:230:WARNING:Failed to set logging level based on configuration file: 'ItemsView' object is not subscriptable
+2022-06-22 14:43:50,009:254:WARNING:local variable 'sections' referenced before assignment
+2022-06-22 14:43:51,573:112:ERROR:local variable 'sections' referenced before assignment
+2022-06-22 14:43:51,574:113:CRITICAL:Restarting program
+2022-06-22 14:43:56,575:215:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 14:43:56,579:230:WARNING:Failed to set logging level based on configuration file: 'ItemsView' object is not subscriptable
+2022-06-22 14:43:56,607:254:WARNING:local variable 'sections' referenced before assignment
+2022-06-22 14:43:58,178:112:ERROR:local variable 'sections' referenced before assignment
+2022-06-22 14:43:58,179:113:CRITICAL:Restarting program
+2022-06-22 14:44:03,181:215:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 14:44:03,185:230:WARNING:Failed to set logging level based on configuration file: 'ItemsView' object is not subscriptable
+2022-06-22 14:44:03,219:254:WARNING:local variable 'sections' referenced before assignment
+2022-06-22 14:44:04,561:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 14:44:04,563:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 14:44:04,563:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 14:44:04,564:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
+2022-06-22 14:46:14,442:215:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 14:46:14,446:228:INFO:Successfully read configuration file and set logging levels
+2022-06-22 14:46:16,123:52:WARNING:Failed to set "framerate"
+2022-06-22 14:46:17,018:52:WARNING:Failed to set "region_of_interest"
+2022-06-22 14:46:17,019:52:WARNING:Failed to set "spatial_filter_level"
+2022-06-22 14:46:18,979:49:WARNING:Failed to set "visul_preset". Did you mean "visual_preset"?
+2022-06-22 14:46:18,980:52:WARNING:Failed to set "blah"
+2022-06-22 14:46:18,984:52:WARNING:Failed to set "emitter"
+2022-06-22 14:46:19,195:269:INFO:Successfully connected RealSense camera
+2022-06-22 14:46:23,240:112:ERROR:[WinError 10061] No connection could be made because the target machine actively refused it
+2022-06-22 14:46:23,241:113:CRITICAL:Restarting program
+2022-06-22 14:46:24,457:57:INFO:~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~
