@@ -10,7 +10,7 @@ import configparser
 import logging as log
 import sys
 import time
-from options import Options as op
+from options import Options
 import cv2
 import numpy as np
 import numpy.ma as ma
@@ -71,13 +71,6 @@ def parse_config(file_path):
     return sections
 
 
-def pretty_print(d, indent=0):
-    for key, value in d.items():
-        print('\t' * indent + str(key))
-        if isinstance(value, dict):
-            pretty_print(value, indent+1)
-        else:
-            print('\t' * (indent+1) + str(value))
 
 
 def dump_options(profile):
@@ -104,95 +97,6 @@ def dump_options(profile):
             pass
     file.close()
     available_f.close()
-
-
-def set_camera_options(profile, configuration):
-    """function to set all avaliable camera options from configuration file
-
-    :param profile: realsense camera profile
-    :type profile: pyrealsense2.profile
-    :param configuration: configuration dictionary
-    :type configuration: dict
-    """
-    depth_sensor = profile.get_device().first_depth_sensor()
-    try:
-        # visual_preset
-        raw_val = float(configuration['camera']['visual_preset'])
-        set_val = scale_option_value(profile, 'visual_preset', raw_val)
-        depth_sensor.set_option(rs.option.visual_preset, set_val)
-        # preset_range = depth_sensor.get_option_range(rs.option.visual_preset)
-        # for i in range(int(preset_range.max)):
-        #     visualpreset = depth_sensor.get_option_value_description(rs.option.visual_preset, i)
-        #     print(i, visualpreset)
-        # print(configuration['camera']['visual_preset'])
-        # emitter_enabled
-        set_val = float(configuration['camera']['emitter_enabled'])
-        depth_sensor.set_option(rs.option.emitter_enabled, set_val)
-        # emitter_on_off
-        set_val = float(configuration['camera']['emitter_on_off'])
-        depth_sensor.set_option(rs.option.emitter_on_off, set_val)
-        # enable_auto_exposure
-        set_val = float(configuration['camera']['enable_auto_exposure'])
-        depth_sensor.set_option(rs.option.enable_auto_exposure, set_val)
-        # gain
-        set_val = float(configuration['camera']['gain'])
-        depth_sensor.set_option(rs.option.gain, set_val)
-        # laser_power
-        set_val = float(configuration['camera']['laser_power'])
-        depth_sensor.set_option(rs.option.laser_power, set_val)
-    except KeyError as e:
-        log.warning(e)
-    except Exception as e:
-        log.warning(f"Failed to set 1 or more camera options: {e}")
-
-
-def scale_option_value(profile, option, set_val):
-    """function to scale desired option value by constraining 
-    to available option range reported from the camera
-
-    :param profile: realsense camera profile
-    :type profile: pyrealsense2.profile
-    :param option: realsense camera option
-    :type option: string
-    :param set_val: desired set point
-    :type set_val: float
-    :return: scaled set point
-    :rtype: float
-    """
-    depth_sensor = profile.get_device().first_depth_sensor()
-    value_range = depth_sensor.get_option_range(getattr(rs.option, option))
-    min_val, max_val, step_size = value_range.min, value_range.max, value_range.step
-    # round set value to nearest step size
-    set_val = step_size * round(set_val / step_size) 
-    print(f'{option} min: {min_val} max: {max_val} step: {step_size}')
-    # constrain set_value within value_range
-    if min_val <= set_val <= max_val:
-        constrained_val = set_val
-    else:
-        if set_val > max_val:
-            set_val = max_val
-        elif set_val < min_val:
-            set_val = min_val
-        constrained_val = set_val
-    return constrained_val
-    
-    
-def option_valid(option):
-    """function to check if a camera option 
-
-    :param option: _description_
-    :type option: _type_
-    :return: _description_
-    :rtype: _type_
-    """
-    valid_option = hasattr(rs.option, option)
-    if valid_option is False:
-        log.warning(f'Option "{option}" does not exist')
-    return valid_option 
-    
-    
-def set_option(profile, option, set_val):
-    pass
 
 
 def critical_error(message="Unkown critical error", allow_rst=True):
@@ -303,8 +207,8 @@ def main():
     3. Connect to OPC server
     4. Send data to OPC server
     5. goto 4
-    """    
-    
+    """
+
     allow_restart = True
     blank_image = np.zeros((480, 848))
     log.basicConfig(filename="logger.log", filemode="a", level=log.DEBUG,
@@ -364,21 +268,16 @@ def main():
     except Exception as e:
         critical_error(e, allow_restart)
 
-    
-    
     # testing
-                                 
-    camera_options = op(profile, sections)
-    available_options = camera_options.get_available_options()
-    config_options = camera_options.get_config_options()
-    
-    
-    
-    
+
+    camera = Options(profile, sections)
+
+    camera.get_camera_options()
+    camera.get_user_options()
+    camera.set_all_options()
+
     # end testing
-    
-    
-    
+
     # OPC Server Connection Setup
     try:
         ip = sections['server']['ip'].strip("'")
@@ -475,8 +374,8 @@ if __name__ == "__main__":
 
 
 # deprecated
-'''
-def parse_config_old(file):
+
+'''def parse_config_old(file):
     """
     Function to parse data from configuration file. Sets values to 'None' or common
     values if unable to retrieve data 
@@ -554,5 +453,100 @@ def parse_config_old(file):
             critical_error(f'Failed to read configuration file: {e}')
         return config_dict
     else:
-        return False
-        '''
+        return False'''
+
+
+'''def set_camera_options(profile, configuration):
+    """function to set all avaliable camera options from configuration file
+
+    :param profile: realsense camera profile
+    :type profile: pyrealsense2.profile
+    :param configuration: configuration dictionary
+    :type configuration: dict
+    """
+    depth_sensor = profile.get_device().first_depth_sensor()
+    try:
+        # visual_preset
+        raw_val = float(configuration['camera']['visual_preset'])
+        set_val = scale_option_value(profile, 'visual_preset', raw_val)
+        depth_sensor.set_option(rs.option.visual_preset, set_val)
+        # preset_range = depth_sensor.get_option_range(rs.option.visual_preset)
+        # for i in range(int(preset_range.max)):
+        #     visualpreset = depth_sensor.get_option_value_description(rs.option.visual_preset, i)
+        #     print(i, visualpreset)
+        # print(configuration['camera']['visual_preset'])
+        # emitter_enabled
+        set_val = float(configuration['camera']['emitter_enabled'])
+        depth_sensor.set_option(rs.option.emitter_enabled, set_val)
+        # emitter_on_off
+        set_val = float(configuration['camera']['emitter_on_off'])
+        depth_sensor.set_option(rs.option.emitter_on_off, set_val)
+        # enable_auto_exposure
+        set_val = float(configuration['camera']['enable_auto_exposure'])
+        depth_sensor.set_option(rs.option.enable_auto_exposure, set_val)
+        # gain
+        set_val = float(configuration['camera']['gain'])
+        depth_sensor.set_option(rs.option.gain, set_val)
+        # laser_power
+        set_val = float(configuration['camera']['laser_power'])
+        depth_sensor.set_option(rs.option.laser_power, set_val)
+    except KeyError as e:
+        log.warning(e)
+    except Exception as e:
+        log.warning(f"Failed to set 1 or more camera options: {e}")
+
+
+def scale_option_value(profile, option, set_val):
+    """function to scale desired option value by constraining 
+    to available option range reported from the camera
+
+    :param profile: realsense camera profile
+    :type profile: pyrealsense2.profile
+    :param option: realsense camera option
+    :type option: string
+    :param set_val: desired set point
+    :type set_val: float
+    :return: scaled set point
+    :rtype: float
+    """
+    depth_sensor = profile.get_device().first_depth_sensor()
+    value_range = depth_sensor.get_option_range(getattr(rs.option, option))
+    min_val, max_val, step_size = value_range.min, value_range.max, value_range.step
+    # round set value to nearest step size
+    set_val = step_size * round(set_val / step_size)
+    # constrain set_value within value_range
+    if min_val <= set_val <= max_val:
+        constrained_val = set_val
+    else:
+        if set_val > max_val:
+            set_val = max_val
+        elif set_val < min_val:
+            set_val = min_val
+        constrained_val = set_val
+    return constrained_val
+
+
+def option_valid(option):
+    """function to check if a camera option 
+
+    :param option: _description_
+    :type option: _type_
+    :return: _description_
+    :rtype: _type_
+    """
+    valid_option = hasattr(rs.option, option)
+    if valid_option is False:
+        log.warning(f'Option "{option}" does not exist')
+    return valid_option
+
+
+def set_option(profile, option, set_val):
+    pass'''
+
+'''def pretty_print(d, indent=0):
+    for key, value in d.items():
+        print('\t' * indent + str(key))
+        if isinstance(value, dict):
+            pretty_print(value, indent+1)
+        else:
+            print('\t' * (indent+1) + str(value))'''
