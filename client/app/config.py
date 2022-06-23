@@ -34,7 +34,7 @@ class Config():
         if len(validity) > 0:
             raise RuntimeError(
                 f'"{file_name} is missing required configuration data: {validity}"')
-
+        
     def get_value(self, section, key):
         return self.__data[section][key]
 
@@ -49,3 +49,8 @@ class Config():
                     if key not in self.__data[section]:
                         missing.append((section, key))
         return missing
+
+    @property
+    def data(self):
+        return self.__data
+    

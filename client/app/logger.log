@@ -1,1004 +1,148 @@
-2022-06-23 10:09:41,230:189:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:09:41,238:203:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:09:42,916:76:WARNING:Failed to set "framerate"
-2022-06-23 10:09:43,769:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:09:43,771:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:09:45,616:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:09:45,643:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:09:45,670:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:09:45,671:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:09:45,698:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:09:45,725:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:09:45,726:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:09:45,726:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:09:45,727:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:09:45,728:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:09:45,755:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:09:45,782:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:09:45,809:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:09:45,837:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:09:45,865:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:09:45,866:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:09:45,893:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:09:45,919:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:09:45,946:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:09:45,947:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:09:45,948:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:09:45,949:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:09:45,976:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:09:46,003:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:09:46,031:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:09:46,059:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:09:46,245:246:INFO:Successfully connected RealSense camera
-2022-06-23 10:09:46,259:258:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:09:46,260:275:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:09:55,164:59:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
+2022-06-23 15:18:22,606:184:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-23 15:18:22,606:204:INFO:Successfully set logging levels
+2022-06-23 15:18:24,291:76:WARNING:Failed to set "framerate"
+2022-06-23 15:18:25,162:76:WARNING:Failed to set "region_of_interest"
+2022-06-23 15:18:25,162:76:WARNING:Failed to set "spatial_filter_level"
+2022-06-23 15:18:27,298:166:DEBUG:CAMERA SETTING: exposure: 33000.0
+2022-06-23 15:18:27,332:166:DEBUG:CAMERA SETTING: gain: 16.0
+2022-06-23 15:18:27,351:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
+2022-06-23 15:18:27,351:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
+2022-06-23 15:18:27,383:166:DEBUG:CAMERA SETTING: laser_power: 150.0
+2022-06-23 15:18:27,429:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
+2022-06-23 15:18:27,429:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
+2022-06-23 15:18:27,429:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
+2022-06-23 15:18:27,445:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
+2022-06-23 15:18:27,467:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
+2022-06-23 15:18:27,498:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
+2022-06-23 15:18:27,552:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
+2022-06-23 15:18:27,586:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
+2022-06-23 15:18:27,617:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
+2022-06-23 15:18:27,652:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
+2022-06-23 15:18:27,652:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
+2022-06-23 15:18:27,667:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
+2022-06-23 15:18:27,698:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
+2022-06-23 15:18:27,730:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
+2022-06-23 15:18:27,730:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
+2022-06-23 15:18:27,730:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
+2022-06-23 15:18:27,730:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
+2022-06-23 15:18:27,752:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
+2022-06-23 15:18:27,783:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
+2022-06-23 15:18:27,814:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
+2022-06-23 15:18:27,846:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
+2022-06-23 15:18:28,002:236:INFO:Successfully connected RealSense camera
+2022-06-23 15:18:28,017:248:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-23 15:18:28,017:265:INFO:Successfully retrieved nodes from OPC server
+2022-06-23 15:18:28,017:276:DEBUG:Entering Loop
+2022-06-23 15:18:30,518:69:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
 
-2022-06-23 10:13:41,825:190:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:13:41,830:204:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:13:43,501:76:WARNING:Failed to set "framerate"
-2022-06-23 10:13:44,376:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:13:44,378:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:13:46,250:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:13:46,279:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:13:46,307:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:13:46,308:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:13:46,336:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:13:46,365:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:13:46,366:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:13:46,367:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:13:46,367:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:13:46,368:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:13:46,397:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:13:46,425:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:13:46,453:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:13:46,481:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:13:46,510:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:13:46,511:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:13:46,539:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:13:46,568:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:13:46,595:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:13:46,597:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:13:46,597:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:13:46,598:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:13:46,626:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:13:46,654:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:13:46,683:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:13:46,712:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:13:46,897:247:INFO:Successfully connected RealSense camera
-2022-06-23 10:13:46,911:259:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:13:46,912:276:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:13:48,475:59:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
+2022-06-23 15:22:50,042:184:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-23 15:22:50,042:201:INFO:Successfully set logging levels
+2022-06-23 15:22:51,743:76:WARNING:Failed to set "framerate"
+2022-06-23 15:22:52,672:76:WARNING:Failed to set "region_of_interest"
+2022-06-23 15:22:52,672:76:WARNING:Failed to set "spatial_filter_level"
+2022-06-23 15:22:54,762:166:DEBUG:CAMERA SETTING: exposure: 33000.0
+2022-06-23 15:22:54,793:166:DEBUG:CAMERA SETTING: gain: 16.0
+2022-06-23 15:22:54,815:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
+2022-06-23 15:22:54,815:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
+2022-06-23 15:22:54,849:166:DEBUG:CAMERA SETTING: laser_power: 150.0
+2022-06-23 15:22:54,880:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
+2022-06-23 15:22:54,880:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
+2022-06-23 15:22:54,880:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
+2022-06-23 15:22:54,880:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
+2022-06-23 15:22:54,880:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
+2022-06-23 15:22:54,899:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
+2022-06-23 15:22:54,931:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
+2022-06-23 15:22:54,962:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
+2022-06-23 15:22:54,993:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
+2022-06-23 15:22:55,015:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
+2022-06-23 15:22:55,015:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
+2022-06-23 15:22:55,047:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
+2022-06-23 15:22:55,078:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
+2022-06-23 15:22:55,100:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
+2022-06-23 15:22:55,100:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
+2022-06-23 15:22:55,100:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
+2022-06-23 15:22:55,100:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
+2022-06-23 15:22:55,131:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
+2022-06-23 15:22:55,162:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
+2022-06-23 15:22:55,194:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
+2022-06-23 15:22:55,216:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
+2022-06-23 15:22:55,379:233:INFO:Successfully connected RealSense camera
+2022-06-23 15:22:55,379:245:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-23 15:22:55,394:262:INFO:Successfully retrieved nodes from OPC server
+2022-06-23 15:22:55,394:273:DEBUG:Entering Loop
+2022-06-23 15:23:30,431:69:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
 
-2022-06-23 10:20:27,151:191:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:20:32,699:191:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:20:42,476:191:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:20:42,482:209:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:20:44,145:76:WARNING:Failed to set "framerate"
-2022-06-23 10:20:44,874:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
+2022-06-23 15:24:50,149:186:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-23 15:24:50,149:205:INFO:Successfully set logging levels
+2022-06-23 15:24:51,832:76:WARNING:Failed to set "framerate"
+2022-06-23 15:24:52,687:76:WARNING:Failed to set "region_of_interest"
+2022-06-23 15:24:52,687:76:WARNING:Failed to set "spatial_filter_level"
+2022-06-23 15:24:54,721:166:DEBUG:CAMERA SETTING: exposure: 33000.0
+2022-06-23 15:24:54,749:166:DEBUG:CAMERA SETTING: gain: 16.0
+2022-06-23 15:24:54,777:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
+2022-06-23 15:24:54,778:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
+2022-06-23 15:24:54,806:166:DEBUG:CAMERA SETTING: laser_power: 150.0
+2022-06-23 15:24:54,833:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
+2022-06-23 15:24:54,833:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
+2022-06-23 15:24:54,833:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
+2022-06-23 15:24:54,833:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
+2022-06-23 15:24:54,833:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
+2022-06-23 15:24:54,864:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
+2022-06-23 15:24:54,894:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
+2022-06-23 15:24:54,910:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
+2022-06-23 15:24:54,941:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
+2022-06-23 15:24:54,973:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
+2022-06-23 15:24:54,973:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
+2022-06-23 15:24:55,010:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
+2022-06-23 15:24:55,042:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
+2022-06-23 15:24:55,073:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
+2022-06-23 15:24:55,073:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
+2022-06-23 15:24:55,073:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
+2022-06-23 15:24:55,073:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
+2022-06-23 15:24:55,095:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
+2022-06-23 15:24:55,126:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
+2022-06-23 15:24:55,158:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
+2022-06-23 15:24:55,195:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
+2022-06-23 15:24:55,383:237:INFO:Successfully connected RealSense camera
+2022-06-23 15:24:55,395:249:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-23 15:24:55,395:264:INFO:Successfully retrieved nodes from OPC server
+2022-06-23 15:24:55,395:275:DEBUG:Entering Loop
+2022-06-23 15:25:01,680:70:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
 
-2022-06-23 10:36:13,929:191:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:36:19,639:191:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:36:31,503:191:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:36:43,500:191:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:36:43,504:219:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:36:45,171:76:WARNING:Failed to set "framerate"
-2022-06-23 10:36:46,043:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:36:46,044:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:36:47,126:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:37:14,384:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:37:14,389:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:37:15,984:76:WARNING:Failed to set "framerate"
-2022-06-23 10:37:16,866:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:37:16,868:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:37:18,783:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:37:18,811:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:37:18,846:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:37:18,847:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:37:18,875:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:37:18,904:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:37:18,905:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:37:18,905:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:37:18,906:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:37:18,907:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:37:18,935:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:37:18,964:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:37:18,993:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:37:19,022:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:37:19,050:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:37:19,051:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:37:19,080:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:37:19,107:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:37:19,136:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:37:19,137:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:37:19,138:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:37:19,139:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:37:19,167:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:37:19,195:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:37:19,224:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:37:19,253:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:37:19,441:250:INFO:Successfully connected RealSense camera
-2022-06-23 10:37:19,455:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:37:19,456:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:37:22,901:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:37:57,539:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:38:04,217:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:38:32,933:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:38:32,937:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:38:34,607:76:WARNING:Failed to set "framerate"
-2022-06-23 10:38:35,458:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:38:35,459:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:38:37,372:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:38:37,400:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:38:37,427:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:38:37,428:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:38:37,453:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:38:37,480:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:38:37,482:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:38:37,483:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:38:37,484:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:38:37,484:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:38:37,512:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:38:37,538:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:38:37,565:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:38:37,600:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:38:37,626:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:38:37,627:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:38:37,655:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:38:37,681:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:38:37,709:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:38:37,710:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:38:37,711:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:38:37,711:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:38:37,739:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:38:37,766:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:38:37,794:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:38:37,821:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:38:38,008:250:INFO:Successfully connected RealSense camera
-2022-06-23 10:38:38,023:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:38:38,025:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:38:47,461:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:38:50,106:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:38:50,111:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:38:51,698:76:WARNING:Failed to set "framerate"
-2022-06-23 10:38:52,484:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:39:46,535:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:39:46,540:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:39:48,273:76:WARNING:Failed to set "framerate"
-2022-06-23 10:39:49,126:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:39:49,127:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:39:51,012:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:39:51,040:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:39:51,068:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:39:51,069:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:39:51,096:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:39:51,125:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:39:51,126:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:39:51,128:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:39:51,128:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:39:51,129:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:39:51,156:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:39:51,185:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:39:51,216:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:39:51,244:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:39:51,273:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:39:51,274:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:39:51,303:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:39:51,332:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:39:51,360:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:39:51,362:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:39:51,362:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:39:51,363:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:39:51,391:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:39:51,419:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:39:51,448:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:39:51,476:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:39:51,663:250:INFO:Successfully connected RealSense camera
-2022-06-23 10:39:51,678:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:39:51,680:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:39:52,630:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:40:16,664:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:40:16,669:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:40:18,256:76:WARNING:Failed to set "framerate"
-2022-06-23 10:40:19,141:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:40:19,142:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:40:21,063:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:40:21,091:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:40:21,120:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:40:21,121:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:40:21,149:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:40:21,177:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:40:21,178:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:40:21,179:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:40:21,180:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:40:21,180:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:40:21,209:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:40:21,238:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:40:21,266:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:40:21,294:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:40:21,322:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:40:21,323:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:40:21,351:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:40:21,380:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:40:21,409:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:40:21,410:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:40:21,411:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:40:21,412:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:40:21,441:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:40:21,470:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:40:21,499:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:40:21,529:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:40:21,717:250:INFO:Successfully connected RealSense camera
-2022-06-23 10:40:21,732:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:40:21,733:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:40:23,220:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:43:55,024:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:43:55,028:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:43:56,697:76:WARNING:Failed to set "framerate"
-2022-06-23 10:43:57,563:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:43:57,564:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:43:59,443:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:43:59,443:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:45:44,358:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:45:44,367:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:45:46,038:76:WARNING:Failed to set "framerate"
-2022-06-23 10:45:46,888:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:45:46,889:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:45:48,755:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:45:48,782:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:45:48,809:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:45:48,809:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:45:48,836:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:45:48,863:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:45:48,864:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:45:48,865:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:45:48,866:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:45:48,866:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:45:48,893:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:45:48,921:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:45:48,948:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:45:48,977:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:45:49,003:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:45:49,005:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:45:49,032:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:45:49,058:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:45:49,086:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:45:49,087:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:45:49,088:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:45:49,088:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:45:49,116:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:45:49,144:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:45:49,172:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:45:49,198:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:45:49,384:250:INFO:Successfully connected RealSense camera
-2022-06-23 10:45:49,398:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:45:49,400:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:46:23,507:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:48:00,809:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:48:00,814:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:48:02,479:76:WARNING:Failed to set "framerate"
-2022-06-23 10:48:03,339:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:48:03,340:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:48:04,242:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:48:10,799:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:48:10,803:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:48:12,408:76:WARNING:Failed to set "framerate"
-2022-06-23 10:48:13,263:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:48:13,264:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:48:15,111:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:48:15,138:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:48:15,166:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:48:15,167:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:48:15,194:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:48:15,221:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:48:15,222:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:48:15,223:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:48:15,224:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:48:15,224:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:48:15,251:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:48:15,278:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:48:15,306:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:48:15,333:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:48:15,360:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:48:15,361:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:48:15,387:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:48:15,413:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:48:15,441:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:48:15,442:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:48:15,443:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:48:15,443:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:48:15,470:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:48:15,497:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:48:15,525:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:48:15,552:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:48:15,738:250:INFO:Successfully connected RealSense camera
-2022-06-23 10:48:15,752:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:48:15,753:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:49:19,021:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:49:19,027:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:49:32,826:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:49:51,584:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:49:51,589:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:49:53,179:76:WARNING:Failed to set "framerate"
-2022-06-23 10:49:54,035:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:49:54,036:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:49:55,944:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:49:55,984:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:49:56,027:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:49:56,028:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:49:56,059:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:49:56,086:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:49:56,087:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:49:56,088:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:49:56,088:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:49:56,089:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:49:56,116:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:49:56,145:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:49:56,173:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:49:56,202:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:49:56,238:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:49:56,239:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:49:56,276:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:49:56,315:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:49:56,352:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:49:56,353:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:49:56,354:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:49:56,355:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:49:56,386:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:49:56,413:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:49:56,441:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:49:56,441:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:51:02,501:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:51:02,506:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:51:04,191:76:WARNING:Failed to set "framerate"
-2022-06-23 10:51:05,106:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:51:05,107:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:51:05,865:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:51:19,100:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:51:19,105:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:51:20,703:76:WARNING:Failed to set "framerate"
-2022-06-23 10:51:21,582:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:51:21,583:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:51:23,492:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:51:23,519:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:51:23,546:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:51:23,547:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:51:23,575:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:51:23,603:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:51:23,604:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:51:23,604:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:51:23,605:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:51:23,606:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:51:23,634:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:51:23,662:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:51:23,690:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:51:23,719:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:51:23,748:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:51:23,750:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:51:23,788:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:51:23,818:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:51:23,848:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:51:23,849:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:51:23,850:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:51:23,851:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:51:23,878:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:51:23,905:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:51:23,933:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:51:23,961:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:51:24,147:250:INFO:Successfully connected RealSense camera
-2022-06-23 10:51:24,162:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:51:24,163:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:51:36,629:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:51:36,635:208:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:51:38,193:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:52:33,908:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:52:33,912:208:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:52:35,592:76:WARNING:Failed to set "framerate"
-2022-06-23 10:52:35,984:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:54:01,506:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:54:17,009:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:54:17,014:208:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:54:18,680:76:WARNING:Failed to set "framerate"
-2022-06-23 10:54:19,573:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:54:19,575:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:54:21,561:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:54:21,588:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:54:21,616:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:54:21,617:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:54:21,644:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:54:21,672:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:54:21,673:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:54:21,674:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:54:21,674:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:54:21,675:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:54:21,703:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:54:21,731:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:54:21,759:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:54:21,787:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:54:21,816:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:54:21,817:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:54:21,845:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:54:21,873:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:54:21,901:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:54:21,902:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:54:21,903:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:54:21,904:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:54:21,932:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:54:21,961:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:54:21,988:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:54:22,017:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 10:54:22,203:251:INFO:Successfully connected RealSense camera
-2022-06-23 10:54:22,225:263:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 10:54:22,227:280:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 10:54:23,072:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:54:45,825:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:54:45,830:208:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:54:47,419:76:WARNING:Failed to set "framerate"
-2022-06-23 10:54:48,282:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:54:48,283:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:54:50,206:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:54:50,234:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:54:50,263:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:54:50,263:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:54:50,291:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:54:50,319:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:54:50,320:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:54:50,321:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:54:50,321:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:54:50,322:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:54:50,349:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:54:50,378:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:54:50,406:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:54:50,434:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:54:50,461:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:54:50,462:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:54:50,490:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:54:50,519:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:54:50,547:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:54:50,548:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:54:50,549:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:54:50,549:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:54:50,578:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:54:56,132:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:54:56,135:206:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:54:57,730:76:WARNING:Failed to set "framerate"
-2022-06-23 10:54:58,586:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:54:58,586:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:55:00,486:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 10:55:00,513:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 10:55:00,541:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 10:55:00,542:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 10:55:00,571:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 10:55:00,599:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 10:55:00,600:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 10:55:00,601:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 10:55:00,602:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 10:55:00,602:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 10:55:00,630:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 10:55:00,659:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 10:55:00,689:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 10:55:00,717:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 10:55:00,745:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 10:55:00,745:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 10:55:00,773:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 10:55:00,802:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 10:55:00,831:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 10:55:00,832:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 10:55:00,832:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 10:55:00,833:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 10:55:00,861:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 10:55:00,889:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 10:55:00,917:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 10:55:00,946:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:56:39,202:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:56:39,207:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 10:56:40,875:76:WARNING:Failed to set "framerate"
-2022-06-23 10:56:41,750:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 10:56:41,751:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 10:56:41,800:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 10:57:22,447:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:57:28,209:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:58:22,082:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:58:35,893:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 10:59:18,126:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:01:32,948:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:01:32,956:210:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:01:34,625:76:WARNING:Failed to set "framerate"
-2022-06-23 11:01:35,359:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:01:40,043:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:01:46,885:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:03:28,294:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:03:28,300:210:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:03:29,965:76:WARNING:Failed to set "framerate"
-2022-06-23 11:03:30,829:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:03:30,830:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:03:32,729:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:03:32,759:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:03:32,788:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:03:32,790:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:03:32,817:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:03:32,845:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:03:32,846:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:03:32,847:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:03:32,847:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:03:32,849:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:03:32,876:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:03:32,905:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:03:32,933:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:03:32,962:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:03:32,990:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:03:32,991:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:03:33,018:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:03:33,046:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:03:33,074:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:03:33,075:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:03:33,075:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:03:33,076:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:03:33,103:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:03:33,132:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:03:33,162:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:03:33,191:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:03:33,380:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:03:42,941:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:03:42,945:210:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:03:44,535:76:WARNING:Failed to set "framerate"
-2022-06-23 11:03:45,088:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:05:11,454:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:05:11,460:210:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:05:13,122:76:WARNING:Failed to set "framerate"
-2022-06-23 11:05:13,976:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:05:13,977:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:05:15,989:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:05:16,016:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:05:16,043:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:05:16,043:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:05:25,014:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:05:25,019:209:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:05:26,609:76:WARNING:Failed to set "framerate"
-2022-06-23 11:05:26,996:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:09:56,958:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:10:12,114:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:10:17,255:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:10:35,204:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:10:48,381:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:14:17,763:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:17:11,885:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:17:11,889:209:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:17:13,558:76:WARNING:Failed to set "framerate"
-2022-06-23 11:17:14,409:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:17:14,410:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:17:16,404:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:17:16,431:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:17:16,458:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:17:16,459:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:17:16,487:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:17:16,514:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:17:16,515:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:17:16,516:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:17:16,517:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:17:16,518:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:17:16,544:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:17:16,572:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:17:16,600:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:17:16,628:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:17:16,656:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:17:16,657:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:17:16,689:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:17:16,728:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:17:16,766:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:17:16,768:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:17:16,772:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:17:16,773:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:17:16,812:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:17:16,849:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:17:16,877:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:17:16,906:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:17:17,094:252:INFO:Successfully connected RealSense camera
-2022-06-23 11:17:17,109:264:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:17:17,110:281:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:17:53,688:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:17:56,723:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:17:56,727:209:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:17:58,317:76:WARNING:Failed to set "framerate"
-2022-06-23 11:17:59,181:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:17:59,182:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:17:59,424:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:18:01,221:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:18:01,223:209:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:18:02,808:76:WARNING:Failed to set "framerate"
-2022-06-23 11:18:03,489:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:18:23,917:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:18:23,921:209:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:18:24,996:76:WARNING:Failed to set "framerate"
-2022-06-23 11:18:25,593:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:18:25,595:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:18:27,458:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:18:27,485:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:18:27,512:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:18:27,513:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:18:27,540:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:18:27,567:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:18:27,567:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:18:27,568:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:18:27,569:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:18:27,569:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:18:27,596:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:18:27,623:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:18:27,650:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:18:27,677:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:18:27,703:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:18:27,705:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:18:27,732:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:18:27,759:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:18:27,786:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:18:27,787:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:18:27,787:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:18:27,788:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:18:27,816:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:18:27,843:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:18:27,870:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:18:27,898:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:18:28,083:252:INFO:Successfully connected RealSense camera
-2022-06-23 11:18:28,099:264:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:18:28,100:281:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:18:45,328:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:18:48,213:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:18:48,221:209:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:18:49,599:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:19:26,809:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:19:32,476:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:20:36,376:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:20:36,380:209:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:20:38,040:76:WARNING:Failed to set "framerate"
-2022-06-23 11:20:38,892:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:20:38,893:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:20:40,789:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:20:40,816:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:20:40,843:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:20:40,844:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:20:40,872:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:20:40,900:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:20:40,901:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:20:40,902:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:20:40,902:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:20:40,903:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:20:40,931:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:20:40,960:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:20:40,989:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:20:41,018:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:20:41,047:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:20:41,048:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:20:41,077:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:20:41,105:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:20:41,135:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:20:41,136:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:20:41,137:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:20:41,138:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:20:41,166:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:20:41,196:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:20:41,225:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:20:41,253:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:20:41,440:252:INFO:Successfully connected RealSense camera
-2022-06-23 11:20:41,455:264:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:20:41,456:281:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:20:41,863:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:20:52,873:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:20:52,877:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:20:54,475:76:WARNING:Failed to set "framerate"
-2022-06-23 11:20:55,333:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:20:55,334:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:20:57,227:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:20:57,255:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:20:57,283:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:20:57,284:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:20:57,311:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:20:57,339:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:20:57,340:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:20:57,340:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:20:57,341:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:20:57,341:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:20:57,369:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:20:57,397:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:20:57,424:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:20:57,452:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:20:57,479:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:20:57,480:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:20:57,508:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:20:57,536:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:20:57,564:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:20:57,565:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:20:57,566:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:20:57,566:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:20:57,594:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:20:57,622:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:20:57,651:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:20:57,679:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:20:57,866:250:INFO:Successfully connected RealSense camera
-2022-06-23 11:20:57,880:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:20:57,881:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:21:00,840:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:21:09,161:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:21:25,244:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:22:19,510:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:23:33,566:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:24:44,582:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:25:01,853:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:25:08,923:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:25:36,383:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:26:07,916:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:26:50,024:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:27:30,736:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:27:45,143:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:28:05,244:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:29:47,449:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:29:53,186:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:30:08,890:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:30:46,248:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:30:46,253:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:30:47,926:76:WARNING:Failed to set "framerate"
-2022-06-23 11:30:48,782:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:30:48,783:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:30:50,634:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:30:50,661:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:30:50,688:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:30:50,689:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:30:50,716:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:30:50,745:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:30:50,745:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:30:50,746:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:30:50,747:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:30:50,747:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:30:50,774:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:30:50,802:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:30:50,828:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:30:50,856:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:30:50,885:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:30:50,886:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:30:50,913:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:30:50,940:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:30:50,968:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:30:50,969:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:30:50,970:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:30:50,971:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:30:50,998:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:30:51,026:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:30:51,053:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:30:51,081:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:30:51,267:250:INFO:Successfully connected RealSense camera
-2022-06-23 11:30:51,282:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:30:51,283:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:31:32,213:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:31:37,341:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:31:37,346:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:31:38,934:76:WARNING:Failed to set "framerate"
-2022-06-23 11:31:39,798:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:31:39,799:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:31:41,697:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:31:41,725:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:31:41,753:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:31:41,754:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:31:41,782:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:31:41,810:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:31:41,811:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:31:41,812:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:31:41,812:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:31:41,813:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:31:41,841:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:31:41,869:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:31:41,898:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:31:41,926:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:31:41,962:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:31:41,963:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:31:41,991:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:31:42,019:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:31:42,047:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:31:42,048:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:31:42,048:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:31:42,049:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:31:42,077:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:31:42,105:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:31:42,134:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:31:42,162:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:31:42,351:250:INFO:Successfully connected RealSense camera
-2022-06-23 11:31:42,367:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:31:42,368:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:32:00,246:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:32:05,150:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:32:05,155:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:32:06,744:76:WARNING:Failed to set "framerate"
-2022-06-23 11:32:07,614:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:32:07,615:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:32:09,516:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:32:09,543:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:32:09,569:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:32:09,570:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:32:09,598:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:32:09,624:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:32:09,625:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:32:09,626:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:32:09,626:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:32:09,627:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:32:09,654:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:32:09,683:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:32:09,711:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:32:09,740:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:32:09,768:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:32:09,769:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:32:09,797:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:32:09,825:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:32:09,853:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:32:09,854:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:32:09,855:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:32:09,856:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:32:09,884:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:32:09,911:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:32:09,939:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:32:09,967:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:32:10,153:250:INFO:Successfully connected RealSense camera
-2022-06-23 11:32:10,168:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:32:10,168:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:32:22,237:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:32:24,924:179:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:32:24,930:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:32:26,583:76:WARNING:Failed to set "framerate"
-2022-06-23 11:32:27,442:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:32:27,443:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:32:29,306:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:32:29,333:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:32:29,361:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:32:29,361:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:32:29,388:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:32:29,416:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:32:29,416:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:32:29,417:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:32:29,418:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:32:29,418:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:32:29,445:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:32:29,472:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:32:29,500:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:32:29,527:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:32:29,554:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:32:29,555:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:32:29,582:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:32:29,610:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:32:29,638:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:32:29,638:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:32:29,639:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:32:29,640:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:32:29,667:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:32:29,694:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:32:29,720:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:32:29,749:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:32:29,934:250:INFO:Successfully connected RealSense camera
-2022-06-23 11:32:29,949:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:32:29,950:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:32:32,573:60:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:33:11,090:190:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:33:11,095:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:33:12,760:76:WARNING:Failed to set "framerate"
-2022-06-23 11:33:13,614:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:33:13,615:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:33:15,493:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:33:15,521:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:33:15,548:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:33:15,549:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:33:15,576:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:33:15,604:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:33:15,605:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:33:15,606:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:33:15,606:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:33:15,607:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:33:15,634:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:33:15,662:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:33:15,689:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:33:15,717:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:33:15,745:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:33:15,746:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:33:15,774:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:33:15,802:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:33:15,829:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:33:15,830:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:33:15,831:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:33:15,831:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:33:15,859:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:33:15,887:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:33:15,915:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:33:15,943:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:33:16,132:250:INFO:Successfully connected RealSense camera
-2022-06-23 11:33:16,147:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:33:16,148:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:33:21,301:71:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:34:47,905:191:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:34:47,910:208:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:34:49,582:76:WARNING:Failed to set "framerate"
-2022-06-23 11:34:50,434:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:34:50,435:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:34:52,299:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:34:52,325:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:34:52,352:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:34:52,353:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:34:52,381:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:34:52,408:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:34:52,409:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:34:52,410:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:34:52,410:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:34:52,411:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:34:52,438:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:34:52,465:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:34:52,494:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:34:52,522:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:34:52,550:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:34:52,551:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:34:52,578:72:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
-
-2022-06-23 11:35:09,354:190:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
-2022-06-23 11:35:09,358:207:INFO:Successfully read configuration file and set logging levels
-2022-06-23 11:35:10,944:76:WARNING:Failed to set "framerate"
-2022-06-23 11:35:11,790:76:WARNING:Failed to set "region_of_interest"
-2022-06-23 11:35:11,791:76:WARNING:Failed to set "spatial_filter_level"
-2022-06-23 11:35:13,642:166:DEBUG:CAMERA SETTING: exposure: 33000.0
-2022-06-23 11:35:13,669:166:DEBUG:CAMERA SETTING: gain: 16.0
-2022-06-23 11:35:13,696:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
-2022-06-23 11:35:13,697:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
-2022-06-23 11:35:13,723:166:DEBUG:CAMERA SETTING: laser_power: 150.0
-2022-06-23 11:35:13,751:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
-2022-06-23 11:35:13,752:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
-2022-06-23 11:35:13,752:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
-2022-06-23 11:35:13,753:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
-2022-06-23 11:35:13,753:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
-2022-06-23 11:35:13,780:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
-2022-06-23 11:35:13,808:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
-2022-06-23 11:35:13,835:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
-2022-06-23 11:35:13,861:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
-2022-06-23 11:35:13,889:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
-2022-06-23 11:35:13,890:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
-2022-06-23 11:35:13,917:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
-2022-06-23 11:35:13,944:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
-2022-06-23 11:35:13,973:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
-2022-06-23 11:35:13,974:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
-2022-06-23 11:35:13,975:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
-2022-06-23 11:35:13,976:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
-2022-06-23 11:35:14,007:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
-2022-06-23 11:35:14,034:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
-2022-06-23 11:35:14,061:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
-2022-06-23 11:35:14,089:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
-2022-06-23 11:35:14,275:250:INFO:Successfully connected RealSense camera
-2022-06-23 11:35:14,289:262:INFO:Successfully connected to opc.tcp://localhost:4840
-2022-06-23 11:35:14,290:279:INFO:Successfully retrieved nodes from OPC server
-2022-06-23 11:35:16,077:71:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
+2022-06-23 15:25:47,842:186:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-23 15:25:47,842:205:INFO:Successfully set logging levels
+2022-06-23 15:25:49,444:76:WARNING:Failed to set "framerate"
+2022-06-23 15:25:50,323:76:WARNING:Failed to set "region_of_interest"
+2022-06-23 15:25:50,323:76:WARNING:Failed to set "spatial_filter_level"
+2022-06-23 15:25:52,244:166:DEBUG:CAMERA SETTING: exposure: 33000.0
+2022-06-23 15:25:52,271:166:DEBUG:CAMERA SETTING: gain: 16.0
+2022-06-23 15:25:52,300:166:DEBUG:CAMERA SETTING: enable_auto_exposure: 0.0
+2022-06-23 15:25:52,300:166:DEBUG:CAMERA SETTING: visual_preset: 3.0
+2022-06-23 15:25:52,329:166:DEBUG:CAMERA SETTING: laser_power: 150.0
+2022-06-23 15:25:52,357:166:DEBUG:CAMERA SETTING: emitter_enabled: 1.0
+2022-06-23 15:25:52,358:166:DEBUG:CAMERA SETTING: frames_queue_size: 16.0
+2022-06-23 15:25:52,359:168:DEBUG:CAMERA SETTING: asic_temperature could not be retrieved
+2022-06-23 15:25:52,359:166:DEBUG:CAMERA SETTING: error_polling_enabled: 1.0
+2022-06-23 15:25:52,361:168:DEBUG:CAMERA SETTING: projector_temperature could not be retrieved
+2022-06-23 15:25:52,388:166:DEBUG:CAMERA SETTING: output_trigger_enabled: 0.0
+2022-06-23 15:25:52,416:166:DEBUG:CAMERA SETTING: depth_units: 0.0010000000474974513
+2022-06-23 15:25:52,445:166:DEBUG:CAMERA SETTING: stereo_baseline: 95.02674865722656
+2022-06-23 15:25:52,473:166:DEBUG:CAMERA SETTING: inter_cam_sync_mode: 0.0
+2022-06-23 15:25:52,502:166:DEBUG:CAMERA SETTING: emitter_on_off: 0.0
+2022-06-23 15:25:52,503:166:DEBUG:CAMERA SETTING: global_time_enabled: 1.0
+2022-06-23 15:25:52,530:166:DEBUG:CAMERA SETTING: emitter_always_on: 0.0
+2022-06-23 15:25:52,559:166:DEBUG:CAMERA SETTING: thermal_compensation: 1.0
+2022-06-23 15:25:52,587:166:DEBUG:CAMERA SETTING: hdr_enabled: 0.0
+2022-06-23 15:25:52,588:166:DEBUG:CAMERA SETTING: sequence_name: 0.0
+2022-06-23 15:25:52,589:166:DEBUG:CAMERA SETTING: sequence_size: 2.0
+2022-06-23 15:25:52,590:166:DEBUG:CAMERA SETTING: sequence_id: 0.0
+2022-06-23 15:25:52,618:166:DEBUG:CAMERA SETTING: auto_exposure_limit: 200000.0
+2022-06-23 15:25:52,647:166:DEBUG:CAMERA SETTING: auto_gain_limit: 248.0
+2022-06-23 15:25:52,676:166:DEBUG:CAMERA SETTING: auto_exposure_limit_toggle: 0.0
+2022-06-23 15:25:52,703:166:DEBUG:CAMERA SETTING: auto_gain_limit_toggle: 0.0
+2022-06-23 15:25:52,890:237:INFO:Successfully connected RealSense camera
+2022-06-23 15:25:52,906:249:INFO:Successfully connected to opc.tcp://localhost:4840
+2022-06-23 15:25:52,907:264:INFO:Successfully retrieved nodes from OPC server
+2022-06-23 15:25:52,907:275:DEBUG:Entering Loop
+2022-06-23 15:27:03,672:70:INFO:~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~
 

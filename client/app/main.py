@@ -7,11 +7,10 @@ license: TODO
 
 
 import configparser
-from config import Config
 import logging as log
 import sys
 import time
-from options import Options
+
 import cv2
 import numpy as np
 import numpy.ma as ma
@@ -21,43 +20,43 @@ import pyrealsense2 as rs
 import win32api
 from opcua import ua
 
+from camera import Options
+from config import Config
+
 # CONSTANTS
 WAIT_BEFORE_RESTARTING = 5  # seconds. set to 0 for no wait time
 METER_TO_FEET = 3.28084
-SHUTDOWN_MSG = "Exiting program"
 STARTUP_MSG = "~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~"
 RESTART_MSG = "Restarting program"
 USER_SHUTDOWN_MSG = "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
-ALLOW_RESTART = True
 WIDTH = 848
 HEIGHT = 480
-BACKUP_CONFIG = {
-    # server
-    "ip": 'opc.tcp://localhost:4840',
-    # camera
-    "framerate": '30',
-    "emitter_enabled": '1.0',
-    "emitter_on_off": '0.0',
-    "enable_auto_exposure": '1.0',
-    "gain": '16.0',
-    "laser_power": '150.0',
-    "region_of_interest": '[(283, 160), (565, 160), (565, 320), (283, 320), (283, 160)]',
-    "spatial_filter_level": '2',
-    # logging
-    "logging_level": 'info',
-    "opcua_logging_level": 'warning',
-    # application
-    "allow_restart": '1.0'
-}
+
+# BACKUP_CONFIG = {
+#     # server
+#     "ip": 'opc.tcp://localhost:4840',
+#     # camera
+#     "framerate": '30',
+#     "emitter_enabled": '1.0',
+#     "emitter_on_off": '0.0',
+#     "enable_auto_exposure": '1.0',
+#     "gain": '16.0',
+#     "laser_power": '150.0',
+#     "region_of_interest": '[(283, 160), (565, 160), (565, 320), (283, 320), (283, 160)]',
+#     "spatial_filter_level": '2',
+#     # logging
+#     "logging_level": 'info',
+#     "opcua_logging_level": 'warning'
+# }
 
 required_data = {
     "server":
     {
         "ip": None
     },
-        "nodes":
-            {
-                "node": None
+    "nodes":
+    {
+        "node": None
     }
 }
 
@@ -71,18 +70,18 @@ def on_exit(signal_type):
     log.info(USER_SHUTDOWN_MSG)
 
 
-def parse_config(file_path):
-    """function to read .ini configuration file and store contents to dictionary
+# def parse_config(file_path):
+#     """function to read .ini configuration file and store contents to dictionary
 
-    :param file_path: file path to .ini file
-    :type file_path: string
-    :return: dictionary of .ini file contents
-    :rtype: dict
-    """
-    file = configparser.ConfigParser()
-    file.read(file_path)
-    sections = file.__dict__['_sections'].copy()
-    return sections
+#     :param file_path: file path to .ini file
+#     :type file_path: string
+#     :return: dictionary of .ini file contents
+#     :rtype: dict
+#     """
+#     file = configparser.ConfigParser()
+#     file.read(file_path)
+#     sections = file.__dict__['_sections'].copy()
+#     return sections
 
 
 def critical_error(message="Unkown critical error", allow_rst=True):
@@ -94,16 +93,11 @@ def critical_error(message="Unkown critical error", allow_rst=True):
     :param allow_rst: option to allow resetting of the program, defaults to True
     :type allow_rst: bool, optional
     """
-    if allow_rst:
-        log.error(message)
-        log.critical(RESTART_MSG)
-        if bool(WAIT_BEFORE_RESTARTING):
-            time.sleep(WAIT_BEFORE_RESTARTING)
-        main()
-    else:
-        log.error(message)
-        log.critical(SHUTDOWN_MSG)
-        sys.exit(1)
+    log.error(message)
+    log.critical(RESTART_MSG)
+    if WAIT_BEFORE_RESTARTING > 0:
+        time.sleep(WAIT_BEFORE_RESTARTING)
+    main()
 
 
 def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
@@ -153,8 +147,20 @@ def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
 
                 # Compute average distnace of the region of interest
                 ROI_depth = filtered_depth_mask.mean() * depth_scale * METER_TO_FEET
-            except Exception as e:
-                sys.exit(1)
+            except Exception:
+                depth_image = np.asanyarray(depth_frame.get_data())
+                # Compute mask from polygon vertices
+                mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
+                mask = mask.astype('bool')
+                mask = np.invert(mask)
+
+                # Apply mask to depth data and ignore invalid/zero distances
+                depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
+                depth_mask = ma.masked_invalid(depth_mask)
+                depth_mask = ma.masked_equal(depth_mask, 0)
+
+                # Compute average distance of the region of interest
+                ROI_depth = depth_mask.mean() * depth_scale * METER_TO_FEET
         else:
             depth_image = np.asanyarray(depth_frame.get_data())
             # Compute mask from polygon vertices
@@ -183,52 +189,45 @@ def main():
     5. goto 4
     """
 
-    allow_restart = True
-    blank_image = np.zeros((HEIGHT, WIDTH))
+    ##############################################################################
+    #                                   SETUP                                    #
+    ##############################################################################
+
     log.basicConfig(filename="logger.log", filemode="a", level=log.DEBUG,
                     format='%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
     log.info(STARTUP_MSG)
+
+    blank_image = np.zeros((HEIGHT, WIDTH))
 
     win32api.SetConsoleCtrlHandler(on_exit, True)
     # Read Configuration File. set values from config->backup->hardcoded
 
     config = Config('config.ini', required_data)
 
-    sections = parse_config('config.ini')
-
     try:
-        log_level = getattr(
-            log, sections['logging']['logging_level'].upper(), None)
+        # main logger
+        log_level = getattr(log, config.get_value(
+            'logging', 'logging_level').upper(), log.DEBUG)
         log.getLogger().setLevel(log_level)
-        opcua_log_level = getattr(
-            log, sections['logging']['opcua_logging_level'].upper(), None)
+        # opcua logger
+        opcua_log_level = getattr(log, config.get_value(
+            'logging', 'opcua_logging_level').upper(), log.DEBUG)
         log.getLogger(opcua.__name__).setLevel(opcua_log_level)
-        allow_restart = bool(sections['application']['allow_restart'])
-        log.info("Successfully read configuration file and set logging levels")
-    except Exception as e:
+
+        log.info("Successfully set logging levels")
+    except KeyError as e:
+        log.getLogger().setLevel(log.DEBUG)
+        log.getLogger(opcua.__name__).setLevel(log.INFO)
         log.warning(
-            f"Failed to set logging level based on configuration file: {e}")
-        try:
-            log_level = getattr(
-                log, BACKUP_CONFIG['logging_level'].upper(), None)
-            log.getLogger().setLevel(log_level)
-            opcua_log_level = getattr(
-                log, BACKUP_CONFIG['opcua_logging_level'].upper(), None)
-            log.getLogger(opcua.__name__).setLevel(opcua_log_level)
-            allow_restart = bool(BACKUP_CONFIG['allow_restart'])
-        except Exception as e:
-            log.warning(f"Failed to set logging level from backup config: {e}")
-            log.getLogger().setLevel(log.INFO)
-            log.getLogger(opcua.__name__).setLevel(log.WARNING)
-            allow_restart = True
-            log.info("Successfully set logging levels: INFO, WARNING")
+            f'Failed to set logging levels from configuration file: {e}')
 
     # Intel Realsense Setup
     try:
         pipeline = rs.pipeline()
         camera_config = rs.config()
         try:
-            w, h, f = WIDTH, HEIGHT, int(sections['camera']['framerate'])
+            w, h, f = WIDTH, HEIGHT, int(
+                config.get_value('camera', 'framerate'))
         except Exception as e:
             log.warning(e)
             w, h, f = WIDTH, HEIGHT, 30
@@ -238,7 +237,7 @@ def main():
         depth_sensor = profile.get_device().first_depth_sensor()
         depth_scale = depth_sensor.get_depth_scale()
         # create camera object to configure settings
-        camera = Options(profile, sections)
+        camera = Options(profile, config.data)
 
         camera.get_camera_options()
         camera.get_user_options()
@@ -250,46 +249,42 @@ def main():
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
         critical_error(
-            f"Failed to connect camera: RuntimeError: {e}", allow_restart)
+            f"Failed to connect camera: RuntimeError: {e}")
     except Exception as e:
-        critical_error(e, allow_restart)
+        critical_error(e)
 
     # OPC Server Connection Setup
     try:
-        ip = sections['server']['ip'].strip("'")
+        ip = config.get_value('server', 'ip').strip("'").strip('"')
         client = opcua.Client(ip)
         client.connect()
         log.info(f"Successfully connected to {ip}")
-    except KeyError:
-        client = opcua.Client(BACKUP_CONFIG['ip'].strip("'"))
     except ConnectionRefusedError as e:
-        critical_error(e, allow_restart)
+        critical_error(e)
     except Exception as e:
-        critical_error(e, allow_restart)
+        critical_error(e)
     else:
         try:
             depth_node = client.get_node(
-                sections['server']['depth_node'].strip("'").strip('"'))
+                config.get_value('server', 'depth_node').strip("'").strip('"'))
             status_node = client.get_node(
-                sections['server']['status_node'].strip("'").strip('"'))
+                config.get_value('server', 'status_node').strip("'").strip('"'))
             still_alive_node = client.get_node(
-                sections['server']['still_alive_node'].strip("'").strip('"'))
+                config.get_value('server', 'still_alive_node').strip("'").strip('"'))
             extra_node = client.get_node(
-                sections['server']['extra_node'].strip("'").strip('"'))
+                config.get_value('server', 'extra_node').strip("'").strip('"'))
             log.info("Successfully retrieved nodes from OPC server")
         except Exception as e:
-            critical_error(f'Failed to retrieve nodes: {e}', allow_restart)
+            critical_error(f'Failed to retrieve nodes: {e}')
 
     offset_time = time.time()
 
     tick = False
 
-    # Hardware reset
-    # ctx = rs.context()
-    # devices = ctx.query_devices()
-    # for dev in devices:
-    #     dev.hardware_reset()
-    print('loop')
+    ##############################################################################
+    #                                    LOOP                                    #
+    ##############################################################################
+    log.debug('Entering Loop')
     while True:
         try:
             frames = pipeline.wait_for_frames()
@@ -298,23 +293,19 @@ def main():
                 continue
         except RuntimeError as e:
             critical_error(
-                f'Error while retrieving camera frames: {e}', allow_restart)
+                f'Error while retrieving camera frames: {e}')
         except Exception as e:
             critical_error(
-                f'Error while retrieving camera frames: {e}', allow_restart)
+                f'Error while retrieving camera frames: {e}')
         else:
             try:
-                polygon = list(eval(sections['camera']['region_of_interest']))
-                try:
-                    filter_level = int(
-                        sections['camera']['spatial_filter_level'])
-                except KeyError as e:
-                    filter_level = int(BACKUP_CONFIG['spatial_filter_level'])
-                    log.warn(e)
+                polygon = list(eval(config.get_value(
+                    'camera', 'region_of_interest')))
+                filter_level = int(
+                    config.get_value('camera', 'spatial_filter_level'))
                 roi_depth = ROI_depth(
                     depth_frame, polygon, blank_image, depth_scale, filter_level)
 
-                distance = depth_frame.get_distance(424, 240) * 3.28084
                 depth_array = depth_frame.data
                 depth_array = np.asanyarray(depth_array)
 
@@ -340,7 +331,7 @@ def main():
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                 extra_node.set_value(dv)
             except Exception as e:
-                critical_error(e, allow_restart)
+                critical_error(e)
 
         time.sleep(0.001)
 
@@ -391,9 +382,7 @@ if __name__ == "__main__":
             "visual_preset": 0.0,
             # logging
             "logging_level": "INFO",
-            "opcua_logging_level": "WARNING",
-            # application
-            "allow_restart": 1.0
+            "opcua_logging_level": "WARNING"
 
         }
         # Read configuration file
@@ -526,3 +515,33 @@ def set_option(profile, option, set_val):
             pretty_print(value, indent+1)
         else:
             print('\t' * (indent+1) + str(value))'''
+
+# Hardware reset
+# ctx = rs.context()
+# devices = ctx.query_devices()
+# for dev in devices:
+#     dev.hardware_reset()
+
+# try:
+#     log_level = getattr(
+#         log, sections['logging']['logging_level'].upper(), None)
+#     log.getLogger().setLevel(log_level)
+#     opcua_log_level = getattr(
+#         log, sections['logging']['opcua_logging_level'].upper(), None)
+#     log.getLogger(opcua.__name__).setLevel(opcua_log_level)
+#     log.info("Successfully read configuration file and set logging levels")
+# except Exception as e:
+#     log.warning(
+#         f"Failed to set logging level based on configuration file: {e}")
+#     try:
+#         log_level = getattr(
+#             log, BACKUP_CONFIG['logging_level'].upper(), None)
+#         log.getLogger().setLevel(log_level)
+#         opcua_log_level = getattr(
+#             log, BACKUP_CONFIG['opcua_logging_level'].upper(), None)
+#         log.getLogger(opcua.__name__).setLevel(opcua_log_level)
+#     except Exception as e:
+#         log.warning(f"Failed to set logging level from backup config: {e}")
+#         log.getLogger().setLevel(log.INFO)
+#         log.getLogger(opcua.__name__).setLevel(log.WARNING)
+#         log.info("Successfully set logging levels: INFO, WARNING")
