@@ -7,6 +7,7 @@ license: TODO
 
 
 import configparser
+from config import Config
 import logging as log
 import sys
 import time
@@ -26,7 +27,7 @@ METER_TO_FEET = 3.28084
 SHUTDOWN_MSG = "Exiting program"
 STARTUP_MSG = "~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~"
 RESTART_MSG = "Restarting program"
-USER_SHUTDOWN_MSG = "~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~"
+USER_SHUTDOWN_MSG = "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
 ALLOW_RESTART = True
 WIDTH = 848
 HEIGHT = 480
@@ -49,12 +50,23 @@ BACKUP_CONFIG = {
     "allow_restart": '1.0'
 }
 
+required_data = {
+        "server":
+            {
+                "ip": None
+            },
+        "nodes":
+            {
+                "node": None
+            }
+    }
+
 
 def on_exit(signal_type):
     """callback to log a user exit by clicking the 'x'
 
     :param signal_type: win32api parameter
-    :type signal_type: unknown
+    :type signal_type: int
     """
     log.info(USER_SHUTDOWN_MSG)
 
@@ -70,35 +82,7 @@ def parse_config(file_path):
     file = configparser.ConfigParser()
     file.read(file_path)
     sections = file.__dict__['_sections'].copy()
-    config = file.items('camera', True)
-    print(f'Test: {config}')
     return sections
-
-
-def dump_options(profile):
-    """function to get available camera options and dump to a text file.
-       Debugging use only. 
-    :param profile: pyrealsense2 camera profile object
-    :type profile: pyrealsense2.profile
-    """
-    depth_sensor = profile.get_device().first_depth_sensor()
-    file = open('options.txt', 'r')
-    available_f = open('avaliable-options.txt', 'w')
-    available_f.write("Available options for setting/getting\n")
-    available_f.write('\n')
-    available_f.close()
-    available_f = open('avaliable-options.txt', 'a')
-    for option in file:
-        option = option.strip()
-        try:
-            val = depth_sensor.get_option(getattr(rs.option, option))
-            log.debug(f'{option} {val}')
-            available_f.write(option)
-            available_f.write('\n')
-        except (RuntimeError, AttributeError):
-            pass
-    file.close()
-    available_f.close()
 
 
 def critical_error(message="Unkown critical error", allow_rst=True):
@@ -207,8 +191,12 @@ def main():
 
     win32api.SetConsoleCtrlHandler(on_exit, True)
     # Read Configuration File. set values from config->backup->hardcoded
+    
+    config = Config('config.ini', required_data)    
+    
+    sections = parse_config('config.ini')
+
     try:
-        sections = parse_config('config.ini')
         log_level = getattr(
             log, sections['logging']['logging_level'].upper(), None)
         log.getLogger().setLevel(log_level)
@@ -255,11 +243,14 @@ def main():
         camera.get_camera_options()
         camera.get_user_options()
         camera.set_all_options()
+        camera.log_camera_settings()
 
         pipeline.start(camera_config)
+
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
-        critical_error(f"Failed to connect camera: {e}", allow_restart)
+        critical_error(
+            f"Failed to connect camera: RuntimeError: {e}", allow_restart)
     except Exception as e:
         critical_error(e, allow_restart)
 
@@ -298,7 +289,7 @@ def main():
     # devices = ctx.query_devices()
     # for dev in devices:
     #     dev.hardware_reset()
-
+    print('loop')
     while True:
         try:
             frames = pipeline.wait_for_frames()
