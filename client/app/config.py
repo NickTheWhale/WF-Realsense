@@ -18,11 +18,11 @@ class Config():
             raise FileNotFoundError(f'"{file_name}" was not found')
 
         self.__data = config_file.__dict__['_sections'].copy()
-        
+
         validity = self.is_valid()
         if len(validity) > 0:
-            raise RuntimeError(f'"{file_name} is missing required configuration data: {validity}"')
-            
+            raise RuntimeError(
+                f'"{file_name} is missing required configuration data: {validity}"')
 
     def get_value(self, section, key):
         return self.__data[section][key]

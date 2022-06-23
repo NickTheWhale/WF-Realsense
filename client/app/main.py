@@ -51,15 +51,15 @@ BACKUP_CONFIG = {
 }
 
 required_data = {
-        "server":
-            {
-                "ip": None
-            },
+    "server":
+    {
+        "ip": None
+    },
         "nodes":
             {
                 "node": None
-            }
     }
+}
 
 
 def on_exit(signal_type):
@@ -191,9 +191,9 @@ def main():
 
     win32api.SetConsoleCtrlHandler(on_exit, True)
     # Read Configuration File. set values from config->backup->hardcoded
-    
-    config = Config('config.ini', required_data)    
-    
+
+    config = Config('config.ini', required_data)
+
     sections = parse_config('config.ini')
 
     try:
