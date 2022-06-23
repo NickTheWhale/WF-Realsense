@@ -10,6 +10,17 @@ import configparser
 
 class Config():
     def __init__(self, file_name, required_data):
+        """creates config object
+
+        :param file_name: name of file
+        :type file_name: string
+        :param required_data: nested dictionary with section titles and key. Values
+        be anything or None
+        :type required_data: dict
+        :raises FileNotFoundError: if unable to open file
+        :raises RuntimeError: if there is a discrepency between the configuration
+        file data and the requried data dict
+        """
         config_file = configparser.ConfigParser()
         file_list = config_file.read(file_name)
         self.__required_data = required_data
