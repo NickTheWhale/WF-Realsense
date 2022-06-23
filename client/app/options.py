@@ -1,5 +1,5 @@
 """
-title:   RealSenseOPC client application
+title:   RealSenseOPC client application options class
 author:  Nicholas Loehrke 
 date:    June 2022
 license: TODO
@@ -13,6 +13,13 @@ import pyrealsense2 as rs
 
 class Options():
     def __init__(self, profile, config):
+        """create an Options() object to get and set camera settings
+
+        :param profile: realsense camera profile
+        :type profile: pyrealsense2.profile
+        :param config: configuration dictionary
+        :type config: dict
+        """
         self.__profile = profile
         self.__config = config
         self.__camera_options = []
@@ -20,6 +27,11 @@ class Options():
         self.__depth_sensor = self.__profile.get_device().first_depth_sensor()
 
     def get_camera_options(self):
+        """queries depth sensor and retrieves all supported options
+
+        :return: camera options
+        :rtype: list
+        """
         cam_ops = self.__depth_sensor.get_supported_options()
         for op in cam_ops:
             op = op.name

@@ -1,0 +1,3 @@
+2022-06-22 19:05:41,543:217:INFO:~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~
+2022-06-22 19:05:41,544:232:WARNING:Failed to set logging level based on configuration file: No section: 'camera'
+2022-06-22 19:05:41,554:256:WARNING:local variable 'sections' referenced before assignment

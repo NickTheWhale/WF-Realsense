@@ -28,6 +28,8 @@ STARTUP_MSG = "~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~"
 RESTART_MSG = "Restarting program"
 USER_SHUTDOWN_MSG = "~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~~"
 ALLOW_RESTART = True
+WIDTH = 848
+HEIGHT = 480
 BACKUP_CONFIG = {
     # server
     "ip": 'opc.tcp://localhost:4840',
@@ -145,7 +147,6 @@ def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
     if filter_level > 5:
         filter_level = 5
     if len(polygon) > 0:
-        colorizer = rs.colorizer()
         if filter_level > 0:
             try:
                 # Compute filtered depth image
@@ -166,10 +167,6 @@ def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
                 filtered_depth_mask = ma.masked_invalid(filtered_depth_mask)
                 filtered_depth_mask = ma.masked_equal(filtered_depth_mask, 0)
 
-                filtered_depth_colormap = np.asanyarray(
-                    colorizer.colorize(filtered_depth_frame).get_data())
-                cv2.imshow('Filtered Mask', filtered_depth_colormap)
-                cv2.waitKey(1)
                 # Compute average distnace of the region of interest
                 ROI_depth = filtered_depth_mask.mean() * depth_scale * METER_TO_FEET
             except Exception as e:
@@ -185,12 +182,6 @@ def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
             depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
             depth_mask = ma.masked_invalid(depth_mask)
             depth_mask = ma.masked_equal(depth_mask, 0)
-
-            depth_color_map = np.asanyarray(
-                colorizer.colorize(depth_frame).get_data())
-
-            cv2.imshow('Depth colormap', depth_color_map)
-            cv2.waitKey(1)
 
             # Compute average distance of the region of interest
             ROI_depth = depth_mask.mean() * depth_scale * METER_TO_FEET
@@ -209,7 +200,7 @@ def main():
     """
 
     allow_restart = True
-    blank_image = np.zeros((480, 848))
+    blank_image = np.zeros((HEIGHT, WIDTH))
     log.basicConfig(filename="logger.log", filemode="a", level=log.DEBUG,
                     format='%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
     log.info(STARTUP_MSG)
@@ -249,10 +240,10 @@ def main():
         pipeline = rs.pipeline()
         camera_config = rs.config()
         try:
-            w, h, f = 848, 480, int(sections['camera']['framerate'])
+            w, h, f = WIDTH, HEIGHT, int(sections['camera']['framerate'])
         except Exception as e:
             log.warning(e)
-            w, h, f = 848, 480, 30
+            w, h, f = WIDTH, HEIGHT, 30
         camera_config.enable_stream(rs.stream.depth, w, h, rs.format.z16, f)
         profile = pipeline.start(camera_config)
         pipeline.stop()
@@ -391,8 +382,8 @@ if __name__ == "__main__":
             "status_node": None,
             "still_alive_node": None,
             # camera
-            "width": 848,
-            "height": 480,
+            "width": WIDTH,
+            "height": HEIGHT,
             "framerate": 30,
             "emitter_enabled": 1.0,
             "emitter_on_off": 0.0,
@@ -423,8 +414,8 @@ if __name__ == "__main__":
             config_dict["still_alive_node"] = config_file.get('server', 'still_alive_node', fallback=None).replace("'", "").replace('"', "")
             config_dict["extra_node"] = config_file.get('server', 'extra_node', fallback=None).replace("'", "").replace('"', "")
             # Camera
-            config_dict["width"] = config_file.getint('camera', 'width', fallback=848)
-            config_dict["height"] = config_file.getint('camera', 'height', fallback=480)
+            config_dict["width"] = config_file.getint('camera', 'width', fallback=WIDTH)
+            config_dict["height"] = config_file.getint('camera', 'height', fallback=HEIGHT)
             config_dict["framerate"] = config_file.getint('camera', 'framerate', fallback=30)
             config_dict["emitter_enabled"] = config_file.getfloat('camera', 'emitter_enabled', fallback=1.0)
             config_dict["emitter_on_off"] = config_file.getfloat('camera', 'emitter_on_off', fallback=0.0)
