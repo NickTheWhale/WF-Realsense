@@ -7,6 +7,7 @@ license: TODO
 
 import difflib as diff
 import logging as log
+import time
 
 import pyrealsense2 as rs
 
@@ -160,9 +161,21 @@ class Options():
                 return value
         return None
     
-    def log_camera_settings(self):
+    def log_settings(self):
         for setting in self.__depth_sensor.get_supported_options():
             try:
                 log.debug(f'CAMERA SETTING: {setting.name}: {self.__depth_sensor.get_option(setting)}')
             except RuntimeError:
                 log.debug(f'CAMERA SETTING: {setting.name} could not be retrieved')
+
+    def reset(self):
+        ctx= rs.context()
+        devices = ctx.query_devices()
+        for dev in devices:
+            print(f'this is dev {dev}')
+            dev.hardware_reset()
+            time.sleep(4)   
+    
+    @property
+    def asic_temperature(self):
+        return self.get_camera_value('asic_temperature')

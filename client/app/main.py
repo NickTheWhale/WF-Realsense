@@ -7,7 +7,9 @@ license: TODO
 
 
 import configparser
+from distutils.log import debug
 import logging as log
+import random
 import sys
 import time
 
@@ -24,32 +26,19 @@ from camera import Options
 from config import Config
 
 # CONSTANTS
-WAIT_BEFORE_RESTARTING = 5  # seconds. set to 0 for no wait time
 METER_TO_FEET = 3.28084
-STARTUP_MSG = "~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~~"
-RESTART_MSG = "Restarting program"
-USER_SHUTDOWN_MSG = "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
 WIDTH = 848
 HEIGHT = 480
 
-# BACKUP_CONFIG = {
-#     # server
-#     "ip": 'opc.tcp://localhost:4840',
-#     # camera
-#     "framerate": '30',
-#     "emitter_enabled": '1.0',
-#     "emitter_on_off": '0.0',
-#     "enable_auto_exposure": '1.0',
-#     "gain": '16.0',
-#     "laser_power": '150.0',
-#     "region_of_interest": '[(283, 160), (565, 160), (565, 320), (283, 320), (283, 160)]',
-#     "spatial_filter_level": '2',
-#     # logging
-#     "logging_level": 'info',
-#     "opcua_logging_level": 'warning'
-# }
+DEBUG = True
+WAIT_BEFORE_RESTARTING = 5  # seconds. set to 0 for no wait time
 
-required_data = {
+MSG_STARTUP =        "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
+MSG_RESTART =        "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
+MSG_USER_SHUTDOWN =  "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
+MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
+
+REQUIRED_DATA = {
     "server":
     {
         "ip": None
@@ -67,24 +56,10 @@ def on_exit(signal_type):
     :param signal_type: win32api parameter
     :type signal_type: int
     """
-    log.info(USER_SHUTDOWN_MSG)
+    log.info(MSG_USER_SHUTDOWN)
 
 
-# def parse_config(file_path):
-#     """function to read .ini configuration file and store contents to dictionary
-
-#     :param file_path: file path to .ini file
-#     :type file_path: string
-#     :return: dictionary of .ini file contents
-#     :rtype: dict
-#     """
-#     file = configparser.ConfigParser()
-#     file.read(file_path)
-#     sections = file.__dict__['_sections'].copy()
-#     return sections
-
-
-def critical_error(message="Unkown critical error", allow_rst=True):
+def critical_error(message="Unkown critical error", allow_restart=True):
     """function to log critical errors with the option to recall main()
     to restart program
 
@@ -94,10 +69,14 @@ def critical_error(message="Unkown critical error", allow_rst=True):
     :type allow_rst: bool, optional
     """
     log.error(message)
-    log.critical(RESTART_MSG)
-    if WAIT_BEFORE_RESTARTING > 0:
-        time.sleep(WAIT_BEFORE_RESTARTING)
-    main()
+    if allow_restart:
+        log.critical(MSG_RESTART)
+        if WAIT_BEFORE_RESTARTING > 0:
+            time.sleep(WAIT_BEFORE_RESTARTING)
+        main()
+    else:
+        log.critical(MSG_ERROR_SHUTDOWN)
+        sys.exit(1)
 
 
 def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
@@ -193,17 +172,21 @@ def main():
     #                                   SETUP                                    #
     ##############################################################################
 
-    log.basicConfig(filename="logger.log", filemode="a", level=log.DEBUG,
-                    format='%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
-    log.info(STARTUP_MSG)
+    if debug:
+        log.basicConfig(level=log.DEBUG,
+                        format='%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
+    else:
+        log.basicConfig(filename="logger.log", filemode="a", level=log.DEBUG,
+                        format='%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
+    log.info(MSG_STARTUP)
 
     blank_image = np.zeros((HEIGHT, WIDTH))
 
     win32api.SetConsoleCtrlHandler(on_exit, True)
-    # Read Configuration File. set values from config->backup->hardcoded
-
-    config = Config('config.ini', required_data)
-
+    try:
+        config = Config('config.ini', REQUIRED_DATA)
+    except configparser.DuplicateOptionError as e:
+        critical_error(f'Duplicate option found in configuration file: {e}')
     try:
         # main logger
         log_level = getattr(log, config.get_value(
@@ -242,7 +225,7 @@ def main():
         camera.get_camera_options()
         camera.get_user_options()
         camera.set_all_options()
-        camera.log_camera_settings()
+        camera.log_settings()
 
         pipeline.start(camera_config)
 
@@ -265,19 +248,16 @@ def main():
         critical_error(e)
     else:
         try:
-            depth_node = client.get_node(
-                config.get_value('server', 'depth_node').strip("'").strip('"'))
-            status_node = client.get_node(
-                config.get_value('server', 'status_node').strip("'").strip('"'))
-            still_alive_node = client.get_node(
-                config.get_value('server', 'still_alive_node').strip("'").strip('"'))
-            extra_node = client.get_node(
-                config.get_value('server', 'extra_node').strip("'").strip('"'))
+            roi_depth_node = client.get_node(config.get_value('nodes', 'roi_depth_node'))
+            roi_accuracy_node = client.get_node(config.get_value('nodes', 'roi_accuracy_node'))
+            roi_select_node = client.get_node(config.get_value('nodes', 'roi_select_node'))
+            status_node = client.get_node(config.get_value('nodes', 'status_node'))
+            picture_trigger_node = client.get_node(config.get_value('nodes', 'picture_trigger_node'))
+            alive_node = client.get_node(config.get_value('nodes', 'alive_node'))
+            
             log.info("Successfully retrieved nodes from OPC server")
         except Exception as e:
             critical_error(f'Failed to retrieve nodes: {e}')
-
-    offset_time = time.time()
 
     tick = False
 
@@ -306,30 +286,40 @@ def main():
                 roi_depth = ROI_depth(
                     depth_frame, polygon, blank_image, depth_scale, filter_level)
 
-                depth_array = depth_frame.data
-                depth_array = np.asanyarray(depth_array)
-
                 # Send data to PLC
+                
+                # depth            
                 dv = roi_depth
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                depth_node.set_value(dv)
-
-                dv = time.time() - offset_time
+                roi_depth_node.set_value(dv)
+                
+                # accuracy
+                dv = random.random() * 100
+                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                roi_accuracy_node.set_value(dv)
+                
+                # roi select
+                dv = random.random() * 100
+                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                roi_select_node.set_value(dv)
+                
+                # status
+                dv = camera.asic_temperature
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                 status_node.set_value(dv)
-
-                tick = not tick
-                dv = tick
+                
+                # trigger
+                # dv = random.random() > 0.5
+                # dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
+                # picture_trigger_node.set_value(dv)
+                
+                # alive
+                dv = random.random() > 0.5
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
-                still_alive_node.set_value(dv)
-
-                arr = []
-                for i in range(100):
-                    arr.append(depth_frame.get_distance(i+270, 240) * 3.28084)
-
-                dv = arr
-                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                extra_node.set_value(dv)
+                alive_node.set_value(dv)
+                
+                log.debug(picture_trigger_node.get_value())
+                
             except Exception as e:
                 critical_error(e)
 
@@ -545,3 +535,34 @@ def set_option(profile, option, set_val):
 #         log.getLogger().setLevel(log.INFO)
 #         log.getLogger(opcua.__name__).setLevel(log.WARNING)
 #         log.info("Successfully set logging levels: INFO, WARNING")
+
+
+# BACKUP_CONFIG = {
+#     # server
+#     "ip": 'opc.tcp://localhost:4840',
+#     # camera
+#     "framerate": '30',
+#     "emitter_enabled": '1.0',
+#     "emitter_on_off": '0.0',
+#     "enable_auto_exposure": '1.0',
+#     "gain": '16.0',
+#     "laser_power": '150.0',
+#     "region_of_interest": '[(283, 160), (565, 160), (565, 320), (283, 320), (283, 160)]',
+#     "spatial_filter_level": '2',
+#     # logging
+#     "logging_level": 'info',
+#     "opcua_logging_level": 'warning'
+# }
+
+# def parse_config(file_path):
+#     """function to read .ini configuration file and store contents to dictionary
+
+#     :param file_path: file path to .ini file
+#     :type file_path: string
+#     :return: dictionary of .ini file contents
+#     :rtype: dict
+#     """
+#     file = configparser.ConfigParser()
+#     file.read(file_path)
+#     sections = file.__dict__['_sections'].copy()
+#     return sections

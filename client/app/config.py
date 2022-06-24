@@ -22,7 +22,10 @@ class Config():
         file data and the requried data dict
         """
         config_file = configparser.ConfigParser()
-        file_list = config_file.read(file_name)
+        try:
+            file_list = config_file.read(file_name)
+        except configparser.DuplicateOptionError as e:
+            raise e
         self.__required_data = required_data
 
         if len(file_list) <= 0:
@@ -36,7 +39,7 @@ class Config():
                 f'"{file_name} is missing required configuration data: {validity}"')
         
     def get_value(self, section, key):
-        return self.__data[section][key]
+        return self.__data[section][key].strip("'").strip('"')
 
     def is_valid(self):
         missing = []
