@@ -1,17 +1,10 @@
-import sys
-import os
-from tkinter import Tk, Label, Button
+from datetime import datetime
 
-def restart_program():
-    """Restarts the current program.
-    Note: this function does not return. Any cleanup action (like
-    saving data) must be done before calling this function."""
-    python = sys.executable
-    os.execl(python, python, * sys.argv)
+# datetime object containing current date and time
+now = datetime.now()
+ 
+print("now =", now)
 
-root = Tk()
-
-Label(root, text="Hello World!").pack()
-Button(root, text="Restart", command=restart_program).pack()
-
-root.mainloop()
+# dd/mm/YY H:M:S
+dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+print("date and time =", dt_string)	

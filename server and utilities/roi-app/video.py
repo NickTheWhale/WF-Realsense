@@ -35,3 +35,11 @@ class VideoCapture:
     @property
     def opened(self):
         return self.__video.isOpened()
+
+    @property
+    def frame(self):
+        ret, frame = self.__video.read()
+        if ret:
+            return frame
+        else:
+            None

@@ -99,7 +99,7 @@ class MaskWidget():
                 return np.array(self.__coordinates)
         return False
 
-    def text_coordinate(self, text_length):
+    def text_coordinate(self):
         '''
         Method to calculate depth text placement. 
         Averages vertext positions of polygon and returns the 
@@ -238,7 +238,7 @@ def main():
 
                 # Draw depth text
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                text_pos = mask_widget.text_coordinate(len(str(ROI_depth)))
+                text_pos = mask_widget.text_coordinate()
 
                 cv2.putText(depth_colormap, f'{ROI_depth:0.2f}',
                             (text_pos), font, 1, (38, 37, 37), 2, cv2.LINE_AA)
