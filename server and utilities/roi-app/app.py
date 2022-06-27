@@ -1,32 +1,34 @@
 import os
 import sys
+import time
 import tkinter as tk
+import tkinter.filedialog as tkFileDialog
 import webbrowser
-from tkinter import messagebox, ttk
 from datetime import datetime
+from tkinter import messagebox, ttk
+import cv2
 
+import numpy as np
+import numpy.ma as ma
 import PIL.Image
 import PIL.ImageTk
 
-from video import VideoCapture
 from mask import MaskWidget
+from video import VideoCapture
 
+# constants
 DOC_WEBSITE = "https://dev.intelrealsense.com/docs"
 GITHUB_WEBSITE = "https://github.com/NickTheWhale/WF-Realsense"
 MASK_OUTPUT_FILE_NAME = "mask.txt"
 
+HEIGHT = 480
+WIDTH = 848
+METER_TO_FEET = 3.28084
+
 
 class App(tk.Tk):
-    def __init__(self, window_title, video_source=0):
+    def __init__(self, window_title):
         super().__init__()
-        # delay before recalling update_video()
-        self.__update_delay = 10
-
-        # open video source
-        self.__video_source = video_source
-        self.__video = VideoCapture(self.__video_source)
-        self.__frame = None
-        self.__photo = None
 
         # create main gui window
         self.title(window_title)
@@ -34,14 +36,41 @@ class App(tk.Tk):
         self.__main_frame.grid(column=0, row=0, sticky="N S E W")
         self.resizable(False, False)
 
-        # initialize widgets
+        # video variables
+        self.__depth_frame = None
+        self.__image = None
+        self.__blank_image = np.zeros((HEIGHT, WIDTH))
+        self.__filter_level = 1
+        self.__update_delay = 10
+        self.__roi_depth = 0
+        self.__roi_min = 0
+        self.__roi_max = 0
+        self.__roi_accuracy = 0
+        self.__roi_deviation = 0
+        self.__roi_invalid = 0
+        self.__fps = 0
+
+        try:
+            self.__camera = VideoCapture(WIDTH, HEIGHT, 30)
+        except RuntimeError as e:
+            raise RuntimeError(
+                f"Could not find camera, check connections: {e}")
+
+        # initialize widgets. must be called in this order since each method sets
+        # up instance variables/objects used in other methods
         self.__mask_widget = MaskWidget()
         self.__init_menu()
+        self.__init_info()
         self.__init_video()
-        self.__init_settings()
         self.__init_terminal()
+        self.__init_settings()
 
-        self.update_video()
+        # initial call to update depth stream. each subsequent call is made recursively
+        self.loop()
+
+    ###################################################################################
+    #                                   WIDGET SETUP                                  #
+    ###################################################################################
 
     def __init_menu(self):
         # ROOT MENU
@@ -93,63 +122,135 @@ class App(tk.Tk):
         self.bind_all("<Control-z>", self.__menu_undo)
         self.bind_all("<Control-r>", self.__menu_reset)
 
+    def __init_info(self):
+        # frame
+        self.__depth_info_frame = ttk.Frame(self.__main_frame, width=200)
+        self.__depth_info_frame.grid(row=0, column=0, rowspan=2)
+
+        self.__depth_info = ttk.Label(self.__depth_info_frame,
+                                      text="         CAMERA INFO HERE        ")
+        self.__depth_info.grid(row=0, column=0)
+
     def __init_video(self):
         # frame
         self.__video_frame = ttk.Frame(self.__main_frame)
-        self.__video_frame.grid(row=1, column=0)
+        self.__video_frame.grid(row=0, column=1)
 
-        # video image
-        self.__canvas = tk.Canvas(
-            self.__video_frame, width=self.__video.width, height=self.__video.height, cursor="tcross")
-        self.__canvas.bind("<Motion>", self.__mask_widget.get_coordinates)
-        self.__canvas.bind("<Button-1>", self.__mask_widget.get_coordinates)
-        self.__canvas.bind("<Button-3>", self.__mask_widget.get_coordinates)
-        self.__canvas.grid(row=0, column=0)
+        # video label
+        self.__video_label = tk.Label(self.__video_frame, cursor="tcross")
+
+        self.__video_label.bind("<Motion>", self.__mask_widget.get_coordinates)
+        self.__video_label.bind(
+            "<Button-1>", self.__mask_widget.get_coordinates)
+        self.__video_label.bind(
+            "<Button-3>", self.__mask_widget.get_coordinates)
+
+        self.__video_label.grid(row=0, column=0)
 
     def __init_settings(self):
         # frame
         self.__settings_frame = ttk.Frame(self.__main_frame)
-        self.__settings_frame.grid(row=1, column=1, rowspan=2)
+        self.__settings_frame.grid(row=0, column=2, rowspan=2)
 
         # settings
-        self.__settings_menu = ttk.Label(
-            self.__settings_frame, text="SETTINGS MENU HERE")
+        self.__settings_menu = ttk.Label(self.__settings_frame,
+                                         text="         SETTINGS MENU HERE         ")
         self.__settings_menu.grid(row=0, column=0)
 
     def __init_terminal(self):
         # frame
         self.__output_frame = ttk.Frame(self.__main_frame)
-        self.__output_frame.grid(row=2, column=0)
+        self.__output_frame.grid(row=1, column=1)
 
         # terminal
-        self.__output_field = tk.Text(
-            self.__output_frame, width=78, height=10, yscrollcommand=True)
+        self.__output_field = tk.Text(self.__output_frame,
+                                      width=105,
+                                      height=10,
+                                      yscrollcommand=True,
+                                      state="disabled")
         self.__output_field.grid(row=0, column=0)
 
-    def update_video(self):
-        if self.__video.opened:
-            ret, self.__frame = self.__video.get_frame()
-            if ret:
-                self.__mask_widget.draw(self.__frame)
-                self.__photo = PIL.ImageTk.PhotoImage(
-                    image=PIL.Image.fromarray(self.__frame))
-                self.__canvas.create_image(
-                    0, 0, image=self.__photo, anchor=tk.NW)
-        self.__main_frame.after(self.__update_delay, self.update_video)
+    def update_stats(self):
+        # get frame and polygon
+        poly_ret, poly = self.__mask_widget.polygon()
+        depth_frame = self.__depth_frame
+        if depth_frame is not None:
+            if poly_ret and poly is not None:
+                if len(poly) > 0:
+                    depth_image = np.asanyarray(depth_frame.get_data())
+
+                    # compute mask
+                    blank_image = np.zeros((HEIGHT, WIDTH))
+                    mask = cv2.fillPoly(blank_image, pts=[poly], color=1)
+                    mask = mask.astype('bool')
+                    mask = np.invert(mask)
+
+                    # unfiltered mask
+                    depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
+
+                    total = ma.count(depth_mask)
+                    invalid = (depth_mask == 0).sum()
+                    i = self.__roi_percent_invalid = invalid / total * 100
+
+                    # filtered mask
+                    depth_mask = ma.masked_invalid(depth_mask)
+                    depth_mask = ma.masked_equal(depth_mask, 0)
+
+                    d = self.__roi_depth = depth_mask.mean() * self.__camera.depth_scale * METER_TO_FEET
+                    h = self.__roi_max = depth_mask.max() * self.__camera.depth_scale * METER_TO_FEET
+                    l = self.__roi_min = depth_mask.min() * self.__camera.depth_scale * METER_TO_FEET
+                    s = self.__roi_deviation = depth_mask.std() * self.__camera.depth_scale * \
+                        METER_TO_FEET
+
+                    output_text = f"Depth: {d:0.3f}   Max: {h:0.3f}   Min: {l:0.3f}   Std.: {s:0.3f}   Valid: {i:.1f}\n"
+
+                    # update terminal output
+                    self.__output_field.configure(state="normal")
+                    self.__output_field.insert(tk.INSERT, output_text)
+                    self.__output_field.see("end")
+                    self.__output_field.configure(state="disabled")
+
+    def loop(self):
+        # get frame
+        ret, depth_frame = self.__camera.get_depth_frame()
+        if ret and depth_frame is not None:
+            self.__depth_frame = depth_frame
+            depth_color_frame = self.__camera.colorizer.colorize(depth_frame)
+            color_image = np.asanyarray(depth_color_frame.get_data())
+
+            self.__mask_widget.draw(color_image)
+
+            # update image
+            img = PIL.Image.fromarray(color_image)
+            imgtk = PIL.ImageTk.PhotoImage(image=img)
+            self.__image = imgtk
+
+            self.__video_label.imgtk = imgtk
+            self.__video_label.configure(image=imgtk)
+            self.__video_label.update()   # update main frame?
+
+            # update stats
+            self.update_stats()
+
+        # recall
+        self.__main_frame.after(self.__update_delay, self.loop)
 
     ###################################################################################
     #                                  MENU CALLBACKS                                 #
     ###################################################################################
 
     def __menu_save_settings(self):
-        raise NotImplementedError
+        path = tkFileDialog.asksaveasfilename(initialdir="C:/",
+                                              filetypes=(("image files", "*.bmp"),
+                                                         ("all files", "*.*")))
+        print(path)
 
     def __menu_save_mask(self):
         with open(MASK_OUTPUT_FILE_NAME, 'w') as file:
             file.write(str(self.__mask_widget.coordinates))
 
     def __menu_save_image(self):
-        if self.__photo is not None:
+        if self.__image is not None:
             # determine if application is a script file or frozen exe
             if getattr(sys, 'frozen', False):
                 application_path = os.path.dirname(sys.executable)
@@ -157,7 +258,7 @@ class App(tk.Tk):
                 application_path = os.path.dirname(__file__)
             timestamp = datetime.now()
             timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
-            imgpil = PIL.ImageTk.getimage(self.__photo)
+            imgpil = PIL.ImageTk.getimage(self.__image)
             imgpil.save(
                 f'{application_path}\\snapshots\\{timestamp}.bmp', "BMP")
             imgpil.close()

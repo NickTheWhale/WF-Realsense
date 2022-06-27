@@ -1,10 +1,25 @@
-from datetime import datetime
+import time
+from tkinter import *
+from tkinter import ttk
 
-# datetime object containing current date and time
-now = datetime.now()
- 
-print("now =", now)
+root = Tk()
+log = Text(root, state='disabled', width=80, height=24, wrap='none')
+log.grid()
 
-# dd/mm/YY H:M:S
-dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-print("date and time =", dt_string)	
+def writeToLog(msg):
+    numlines = int(log.index('end - 1 line').split('.')[0])
+    log['state'] = 'normal'
+    if numlines==24:
+        log.delete(1.0, 2.0)
+    if log.index('end-1c')!='1.0':
+        log.insert('end', '\n')
+    log.insert('end', msg)
+    log['state'] = 'disabled'
+    
+def writeTime():
+    writeToLog(time.time())
+    root.after(100, writeTime)
+    
+root.after(100, writeTime)
+
+root.mainloop()
