@@ -52,6 +52,7 @@ REQUIRED_DATA = {
     }
 }
 
+
 def on_exit(signal_type):
     """callback to log a user exit by clicking the 'x'
 
@@ -73,7 +74,7 @@ def take_picture(image):
         # GET TIMESTAMP FOR FILE NAME
         timestamp = datetime.now()
         timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
-        
+
         # SAVE IMAGE
         image.save(f'{path}\\snapshots\\{timestamp}.jpg')
         # sleep thread to prevent saving a bunch of pictures
@@ -83,7 +84,7 @@ def take_picture(image):
         # sleep thread to prevent saving a bunch of pictures
         time.sleep(5)
         log.debug(f'Failed to take picture: {e}')
-    
+
 
 def depth_frame_to_image(depth_frame):
     try:
@@ -285,18 +286,23 @@ def main():
         critical_error(e)
     else:
         try:
-            roi_depth_node = client.get_node(config.get_value('nodes',
-                                                              'roi_depth_node'))
-            roi_accuracy_node = client.get_node(config.get_value('nodes',
-                                                                 'roi_accuracy_node'))
-            roi_select_node = client.get_node(config.get_value('nodes',
-                                                               'roi_select_node'))
-            status_node = client.get_node(config.get_value('nodes',
-                                                           'status_node'))
-            picture_trigger_node = client.get_node(config.get_value('nodes',
-                                                                    'picture_trigger_node'))
-            alive_node = client.get_node(config.get_value('nodes',
-                                                          'alive_node'))
+            roi_depth_node = client.get_node(
+                str(config.get_value('nodes', 'roi_depth_node')))
+            
+            roi_accuracy_node = client.get_node(
+                str(config.get_value('nodes', 'roi_accuracy_node')))
+            
+            roi_select_node = client.get_node(
+                str(config.get_value('nodes', 'roi_select_node')))
+            
+            status_node = client.get_node(
+                str(config.get_value('nodes', 'status_node')))
+            
+            picture_trigger_node = client.get_node(
+                str(config.get_value('nodes', 'picture_trigger_node')))
+            
+            alive_node = client.get_node(
+                str(config.get_value('nodes', 'alive_node')))
 
             log.info("Successfully retrieved nodes from OPC server")
         except Exception as e:
@@ -371,7 +377,8 @@ def main():
                     picture_trigger_node.set_value(dv)
                     ret, img = depth_frame_to_image(depth_frame)
                     if ret:
-                        picture_thread = threading.Thread(target=take_picture, args=[img])
+                        picture_thread = threading.Thread(
+                            target=take_picture, args=[img])
                         if not picture_thread.is_alive():
                             picture_thread.start()
 
