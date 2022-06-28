@@ -21,7 +21,6 @@ import numpy.ma as ma
 import opcua
 import opcua.ua.uatypes
 import PIL.Image
-import PIL.ImageTk
 import pyrealsense2 as rs
 import win32api
 from opcua import ua
