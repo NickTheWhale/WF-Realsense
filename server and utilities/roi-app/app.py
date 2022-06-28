@@ -1,7 +1,7 @@
 import os
 import sys
-import time
 import tkinter as tk
+from ttkthemes import ThemedStyle
 import tkinter.filedialog as tkFileDialog
 import webbrowser
 from datetime import datetime
@@ -32,10 +32,12 @@ class App(tk.Tk):
 
         # create main gui window
         self.title(window_title)
-        self.__main_frame = ttk.Frame(self, )
+        self.__main_frame = ttk.Frame(self)
         self.__main_frame.grid(column=0, row=0, sticky="N S E W")
         self.resizable(False, False)
-
+        # self.__style = ThemedStyle(self)
+        # self.__style.theme_use('arc')
+        
         # video variables
         self.__depth_frame = None
         self.__image = None
@@ -169,6 +171,12 @@ class App(tk.Tk):
                                       yscrollcommand=True,
                                       state="disabled")
         self.__output_field.grid(row=0, column=0)
+        
+        # scrollbar
+        self.__output_scroll = ttk.Scrollbar(self.__output_frame, 
+                                             command=self.__output_field.yview)
+        self.__output_scroll.grid(row=0, column=1, sticky="NSEW")
+        self.__output_field["yscrollcommand"] = self.__output_scroll.set
 
     def update_stats(self):
         # get frame and polygon
@@ -202,7 +210,7 @@ class App(tk.Tk):
                     s = self.__roi_deviation = depth_mask.std() * self.__camera.depth_scale * \
                         METER_TO_FEET
 
-                    output_text = f"Depth: {d:0.3f}   Max: {h:0.3f}   Min: {l:0.3f}   Std.: {s:0.3f}   Valid: {i:.1f}\n"
+                    output_text = f"Depth: {d:0.3f}   Max: {h:0.3f}   Min: {l:0.3f}   Std.: {s:0.3f}   Invalid: {i:.1f}\n"
 
                     # update terminal output
                     self.__output_field.configure(state="normal")

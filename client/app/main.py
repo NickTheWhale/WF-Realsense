@@ -7,10 +7,12 @@ license: TODO
 
 
 import configparser
-from distutils.log import debug
+from datetime import datetime
 import logging as log
+import os
 import random
 import sys
+import threading
 import time
 
 import cv2
@@ -18,6 +20,8 @@ import numpy as np
 import numpy.ma as ma
 import opcua
 import opcua.ua.uatypes
+import PIL.Image
+import PIL.ImageTk
 import pyrealsense2 as rs
 import win32api
 from opcua import ua
@@ -33,9 +37,9 @@ HEIGHT = 480
 DEBUG = True
 WAIT_BEFORE_RESTARTING = 5  # seconds. set to 0 for no wait time
 
-MSG_STARTUP =        "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
-MSG_RESTART =        "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
-MSG_USER_SHUTDOWN =  "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
+MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
+MSG_RESTART = "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
+MSG_USER_SHUTDOWN = "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
 REQUIRED_DATA = {
@@ -49,7 +53,6 @@ REQUIRED_DATA = {
     }
 }
 
-
 def on_exit(signal_type):
     """callback to log a user exit by clicking the 'x'
 
@@ -57,6 +60,41 @@ def on_exit(signal_type):
     :type signal_type: int
     """
     log.info(MSG_USER_SHUTDOWN)
+
+
+def take_picture(image):
+    log.debug('Taking picture...')
+    try:
+        # GET FILE PATH
+        if getattr(sys, 'frozen', False):
+            path = os.path.dirname(sys.executable)
+        elif __file__:
+            path = os.path.dirname(__file__)
+
+        # GET TIMESTAMP FOR FILE NAME
+        timestamp = datetime.now()
+        timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
+        
+        # SAVE IMAGE
+        image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+        # sleep thread to prevent saving a bunch of pictures
+        time.sleep(5)
+        log.debug('Took picture')
+    except Exception as e:
+        # sleep thread to prevent saving a bunch of pictures
+        time.sleep(5)
+        log.debug(f'Failed to take picture: {e}')
+    
+
+def depth_frame_to_image(depth_frame):
+    try:
+        color_frame = rs.colorizer().colorize(depth_frame)
+        color_array = np.asanyarray(color_frame.get_data())
+        color_image = PIL.Image.fromarray(color_array)
+        return (True, color_image)
+    except Exception as e:
+        log.warning(f'Failed to convert depth frame to image: {e}')
+        return (False, None)
 
 
 def critical_error(message="Unkown critical error", allow_restart=True):
@@ -172,7 +210,7 @@ def main():
     #                                   SETUP                                    #
     ##############################################################################
 
-    if debug:
+    if DEBUG:
         log.basicConfig(level=log.DEBUG,
                         format='%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
     else:
@@ -248,18 +286,22 @@ def main():
         critical_error(e)
     else:
         try:
-            roi_depth_node = client.get_node(config.get_value('nodes', 'roi_depth_node'))
-            roi_accuracy_node = client.get_node(config.get_value('nodes', 'roi_accuracy_node'))
-            roi_select_node = client.get_node(config.get_value('nodes', 'roi_select_node'))
-            status_node = client.get_node(config.get_value('nodes', 'status_node'))
-            picture_trigger_node = client.get_node(config.get_value('nodes', 'picture_trigger_node'))
-            alive_node = client.get_node(config.get_value('nodes', 'alive_node'))
-            
+            roi_depth_node = client.get_node(config.get_value('nodes',
+                                                              'roi_depth_node'))
+            roi_accuracy_node = client.get_node(config.get_value('nodes',
+                                                                 'roi_accuracy_node'))
+            roi_select_node = client.get_node(config.get_value('nodes',
+                                                               'roi_select_node'))
+            status_node = client.get_node(config.get_value('nodes',
+                                                           'status_node'))
+            picture_trigger_node = client.get_node(config.get_value('nodes',
+                                                                    'picture_trigger_node'))
+            alive_node = client.get_node(config.get_value('nodes',
+                                                          'alive_node'))
+
             log.info("Successfully retrieved nodes from OPC server")
         except Exception as e:
             critical_error(f'Failed to retrieve nodes: {e}')
-
-    tick = False
 
     ##############################################################################
     #                                    LOOP                                    #
@@ -286,40 +328,54 @@ def main():
                 roi_depth = ROI_depth(
                     depth_frame, polygon, blank_image, depth_scale, filter_level)
 
-                # Send data to PLC
-                
-                # depth            
+                ################################################
+                #                   SEND DATA                  #
+                ################################################
+
+                # depth
                 dv = roi_depth
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                 roi_depth_node.set_value(dv)
-                
+
                 # accuracy
                 dv = random.random() * 100
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                 roi_accuracy_node.set_value(dv)
-                
+
                 # roi select
                 dv = random.random() * 100
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                 roi_select_node.set_value(dv)
-                
+
                 # status
                 dv = camera.asic_temperature
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                 status_node.set_value(dv)
-                
-                # trigger
-                # dv = random.random() > 0.5
-                # dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
-                # picture_trigger_node.set_value(dv)
-                
-                # alive
-                dv = random.random() > 0.5
-                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
-                alive_node.set_value(dv)
-                
-                log.debug(picture_trigger_node.get_value())
-                
+
+                ##############################################
+                #                  SEND ALIVE                #
+                ##############################################
+
+                if not alive_node.get_value():
+                    dv = True
+                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
+                    alive_node.set_value(dv)
+
+                ##############################################
+                #                SAVE PICTURE                #
+                ##############################################
+
+                pic_trig = picture_trigger_node.get_value()
+                if pic_trig:
+                    dv = False
+                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
+                    picture_trigger_node.set_value(dv)
+                    ret, img = depth_frame_to_image(depth_frame)
+                    if ret:
+                        picture_thread = threading.Thread(target=take_picture, args=[img])
+                        if not picture_thread.is_alive():
+                            picture_thread.start()
+
             except Exception as e:
                 critical_error(e)
 

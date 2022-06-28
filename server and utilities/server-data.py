@@ -45,29 +45,46 @@ def main():
     alive_node = opc_db.add_variable(idx, "alive_node", 0, ua.VariantType.Boolean)
     alive_node.set_writable(writable=True)
     
-
-    count = 0
-    while True:
+    dead_count = 0
+    picture_count = 0
+    
+    while True:   
+        # get tag values
         depth = roi_depth_node.get_value()
         accuracy = roi_accuracy_node.get_value()
         status = status_node.get_value()
         picture = picture_trigger_node.get_value()
         alive = alive_node.get_value()
         roi_select = roi_select_node.get_value()
-
-        print(f'Depth: {depth:.2f} | Accuracy: {accuracy:.2f} | '
-              f'Status: {status:.2f} | Picture: {picture:.2f} | '
-              f'Alive: {alive:.2f} | ROI select: {roi_select:.2f}')
-
-        if count > 10:
-            count = 0
+        
+        picture_count += 1
+        
+        if picture_count == 1:
             dv = True
             dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
             picture_trigger_node.set_value(dv)
-        else:
+        elif picture_count != 1:
             dv = False
             dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
             picture_trigger_node.set_value(dv)
+        if picture_count > 20:
+            picture_count = 0
+        
+        # check if client is alive
+        if alive:
+            dead_count = 0
+            dv = alive = False
+            dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
+            alive_node.set_value(dv)
+        else:
+            dead_count += 1
+        
+        # print tag values
+        print(f'Depth: {depth:.2f} | Accuracy: {accuracy:.2f} | '
+              f'Status: {status:.2f} | Picture: {picture:.2f} | '
+              f'Alive: {alive:.2f} | ROI select: {roi_select:.2f} | '
+              f'Dead: {dead_count} | PicCount: {picture_count}')
+        
         time.sleep(0.5)
 
 

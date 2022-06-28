@@ -1,25 +1,37 @@
-import time
-from tkinter import *
-from tkinter import ttk
+import tkinter
+import tkinter.ttk as ttk
 
-root = Tk()
-log = Text(root, state='disabled', width=80, height=24, wrap='none')
-log.grid()
+class TextScrollCombo(ttk.Frame):
 
-def writeToLog(msg):
-    numlines = int(log.index('end - 1 line').split('.')[0])
-    log['state'] = 'normal'
-    if numlines==24:
-        log.delete(1.0, 2.0)
-    if log.index('end-1c')!='1.0':
-        log.insert('end', '\n')
-    log.insert('end', msg)
-    log['state'] = 'disabled'
-    
-def writeTime():
-    writeToLog(time.time())
-    root.after(100, writeTime)
-    
-root.after(100, writeTime)
+    def __init__(self, *args, **kwargs):
 
-root.mainloop()
+        super().__init__(*args, **kwargs)
+
+    # ensure a consistent GUI size
+        self.grid_propagate(False)
+    # implement stretchability
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+    # create a Text widget
+        self.txt = tkinter.Text(self)
+        self.txt.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
+
+    # create a Scrollbar and associate it with txt
+        scrollb = ttk.Scrollbar(self, command=self.txt.yview)
+        scrollb.grid(row=0, column=1, sticky='nsew')
+        self.txt['yscrollcommand'] = scrollb.set
+
+main_window = tkinter.Tk()
+
+combo = TextScrollCombo(main_window)
+combo.pack(fill="both", expand=True)
+combo.config(width=600, height=600)
+
+combo.txt.config(font=("consolas", 12), undo=True, wrap='word')
+combo.txt.config(borderwidth=3, relief="sunken")
+
+style = ttk.Style()
+style.theme_use('clam')
+
+main_window.mainloop()
