@@ -9,7 +9,7 @@ import configparser
 
 
 class Config():
-    def __init__(self, file_name, required_data):
+    def __init__(self, file_name, required_data=None):
         """creates config object
 
         :param file_name: name of file
@@ -26,22 +26,38 @@ class Config():
             file_list = config_file.read(file_name)
         except configparser.DuplicateOptionError as e:
             raise e
-        self.__required_data = required_data
 
         if len(file_list) <= 0:
             raise FileNotFoundError(f'"{file_name}" was not found')
 
         self.__data = config_file.__dict__['_sections'].copy()
 
-        validity = self.is_valid()
-        if len(validity) > 0:
-            raise RuntimeError(
-                f'"{file_name} is missing required configuration data: {validity}"')
-        
+        if required_data is not None:
+            self.__required_data = required_data
+            validity = self.is_valid()
+            if len(validity) > 0:
+                raise RuntimeError(
+                    f'"{file_name} is missing required configuration data: {validity}"')
+
     def get_value(self, section, key):
+        """gets config file value at specified location and strips
+        single and double quotes
+
+        :param section: values section title
+        :type section: string
+        :param key: values key title
+        :type key: string
+        :return: value
+        :rtype: string
+        """
         return self.__data[section][key].strip("'").strip('"')
 
     def is_valid(self):
+        """checks if configuration file contains the required data
+
+        :return: validity
+        :rtype: bool
+        """
         missing = []
         for section in self.__required_data:
             if section == 'nodes':
@@ -55,5 +71,9 @@ class Config():
 
     @property
     def data(self):
+        """configuration file contents
+
+        :return: config file dictionary 
+        :rtype: dict
+        """
         return self.__data
-    

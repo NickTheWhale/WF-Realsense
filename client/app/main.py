@@ -7,17 +7,15 @@ license: TODO
 
 
 import configparser
-from datetime import datetime
 import logging as log
 import os
 import random
 import sys
 import threading
 import time
+from datetime import datetime
 
-import cv2
 import numpy as np
-import numpy.ma as ma
 import opcua
 import opcua.ua.uatypes
 import PIL.Image
@@ -25,7 +23,7 @@ import pyrealsense2 as rs
 import win32api
 from opcua import ua
 
-from camera import Options
+from camera import Camera
 from config import Config
 
 # CONSTANTS
@@ -79,7 +77,7 @@ def take_picture(image):
         image.save(f'{path}\\snapshots\\{timestamp}.jpg')
         # sleep thread to prevent saving a bunch of pictures
         time.sleep(5)
-        log.debug('Took picture')
+        log.debug(f'Took picture: "{timestamp}"')
     except Exception as e:
         # sleep thread to prevent saving a bunch of pictures
         time.sleep(5)
@@ -117,86 +115,6 @@ def critical_error(message="Unkown critical error", allow_restart=True):
         sys.exit(1)
 
 
-def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
-    """function to calculate the average distance within a region of interest. 
-    This is done be either averaging the depth within a region of interest, or
-    first filtering the depth data and then calculating the average
-
-    :param depth_frame: camera frame containing depth data
-    :type depth_frame: pyrealsense2.frame
-    :param polygon: polygon vertices [(x1, y1), (x2, y2)]
-    :type polygon: list
-    :param blank_image: numpy array of zeros with the same dimension as the depth_frame
-    :type blank_image: numpy.array
-    :param depth_scale: depth scale reported by the camera to convert 
-    raw depth data to known units
-    :type depth_scale: float
-    :param filter_level: spatial filtering level (1-5), defaults to 0
-    :type filter_level: int, optional
-    :return: distance at the defined region of interest,
-    or 0 if no regiong of interest is supplied
-    :rtype: float
-    """
-    # convert list of coordinate tuples to numpy array
-    polygon = np.array(polygon)
-    if filter_level > 5:
-        filter_level = 5
-    if len(polygon) > 0:
-        if filter_level > 0:
-            try:
-                # Compute filtered depth image
-                spatial = rs.spatial_filter()
-                spatial.set_option(rs.option.holes_fill, filter_level)
-                filtered_depth_frame = spatial.process(depth_frame)
-                filtered_depth_image = np.asanyarray(
-                    filtered_depth_frame.get_data())
-
-                # Compute mask form polygon vertices
-                mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
-                mask = mask.astype('bool')
-                mask = np.invert(mask)
-
-                # Apply mask to filtered depth data and ignore invalid/zero distances
-                filtered_depth_mask = ma.array(
-                    filtered_depth_image, mask=mask, fill_value=0)
-                filtered_depth_mask = ma.masked_invalid(filtered_depth_mask)
-                filtered_depth_mask = ma.masked_equal(filtered_depth_mask, 0)
-
-                # Compute average distnace of the region of interest
-                ROI_depth = filtered_depth_mask.mean() * depth_scale * METER_TO_FEET
-            except Exception:
-                depth_image = np.asanyarray(depth_frame.get_data())
-                # Compute mask from polygon vertices
-                mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
-                mask = mask.astype('bool')
-                mask = np.invert(mask)
-
-                # Apply mask to depth data and ignore invalid/zero distances
-                depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
-                depth_mask = ma.masked_invalid(depth_mask)
-                depth_mask = ma.masked_equal(depth_mask, 0)
-
-                # Compute average distance of the region of interest
-                ROI_depth = depth_mask.mean() * depth_scale * METER_TO_FEET
-        else:
-            depth_image = np.asanyarray(depth_frame.get_data())
-            # Compute mask from polygon vertices
-            mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
-            mask = mask.astype('bool')
-            mask = np.invert(mask)
-
-            # Apply mask to depth data and ignore invalid/zero distances
-            depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
-            depth_mask = ma.masked_invalid(depth_mask)
-            depth_mask = ma.masked_equal(depth_mask, 0)
-
-            # Compute average distance of the region of interest
-            ROI_depth = depth_mask.mean() * depth_scale * METER_TO_FEET
-        return ROI_depth
-    else:
-        return 0
-
-
 def main():
     """Program entry point. Basic program flow in order:
     1. Read in configuration file settings
@@ -218,9 +136,8 @@ def main():
                         format='%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
     log.info(MSG_STARTUP)
 
-    blank_image = np.zeros((HEIGHT, WIDTH))
-
     win32api.SetConsoleCtrlHandler(on_exit, True)
+
     try:
         config = Config('config.ini', REQUIRED_DATA)
     except configparser.DuplicateOptionError as e:
@@ -244,28 +161,11 @@ def main():
 
     # Intel Realsense Setup
     try:
-        pipeline = rs.pipeline()
-        camera_config = rs.config()
-        try:
-            w, h, f = WIDTH, HEIGHT, int(
-                config.get_value('camera', 'framerate'))
-        except Exception as e:
-            log.warning(e)
-            w, h, f = WIDTH, HEIGHT, 30
-        camera_config.enable_stream(rs.stream.depth, w, h, rs.format.z16, f)
-        profile = pipeline.start(camera_config)
-        pipeline.stop()
-        depth_sensor = profile.get_device().first_depth_sensor()
-        depth_scale = depth_sensor.get_depth_scale()
-        # create camera object to configure settings
-        camera = Options(profile, config.data)
-
-        camera.get_camera_options()
-        camera.get_user_options()
-        camera.set_all_options()
-        camera.log_settings()
-
-        pipeline.start(camera_config)
+        w, h, f = WIDTH, HEIGHT, int(config.get_value('camera', 'framerate'))
+        camera = Camera(config.data, width=w, height=h, framerate=f)
+        camera.options.write_all_settings()
+        camera.options.log_settings()
+        camera.start()
 
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
@@ -288,19 +188,19 @@ def main():
         try:
             roi_depth_node = client.get_node(
                 str(config.get_value('nodes', 'roi_depth_node')))
-            
+
             roi_accuracy_node = client.get_node(
                 str(config.get_value('nodes', 'roi_accuracy_node')))
-            
+
             roi_select_node = client.get_node(
                 str(config.get_value('nodes', 'roi_select_node')))
-            
+
             status_node = client.get_node(
                 str(config.get_value('nodes', 'status_node')))
-            
+
             picture_trigger_node = client.get_node(
                 str(config.get_value('nodes', 'picture_trigger_node')))
-            
+
             alive_node = client.get_node(
                 str(config.get_value('nodes', 'alive_node')))
 
@@ -314,8 +214,7 @@ def main():
     log.debug('Entering Loop')
     while True:
         try:
-            frames = pipeline.wait_for_frames()
-            depth_frame = frames.get_depth_frame()
+            depth_frame = camera.depth_frame
             if not depth_frame:
                 continue
         except RuntimeError as e:
@@ -330,8 +229,8 @@ def main():
                     'camera', 'region_of_interest')))
                 filter_level = int(
                     config.get_value('camera', 'spatial_filter_level'))
-                roi_depth = ROI_depth(
-                    depth_frame, polygon, blank_image, depth_scale, filter_level)
+                roi_depth = camera.ROI_depth(polygon=polygon,
+                                             filter_level=filter_level)
 
                 ################################################
                 #                   SEND DATA                  #
@@ -567,6 +466,85 @@ def set_option(profile, option, set_val):
             pretty_print(value, indent+1)
         else:
             print('\t' * (indent+1) + str(value))'''
+
+'''def ROI_depth(depth_frame, polygon, blank_image, depth_scale, filter_level=0):
+    """function to calculate the average distance within a region of interest. 
+    This is done be either averaging the depth within a region of interest, or
+    first filtering the depth data and then calculating the average
+
+    :param depth_frame: camera frame containing depth data
+    :type depth_frame: pyrealsense2.frame
+    :param polygon: polygon vertices [(x1, y1), (x2, y2)]
+    :type polygon: list
+    :param blank_image: numpy array of zeros with the same dimension as the depth_frame
+    :type blank_image: numpy.array
+    :param depth_scale: depth scale reported by the camera to convert 
+    raw depth data to known units
+    :type depth_scale: float
+    :param filter_level: spatial filtering level (1-5), defaults to 0
+    :type filter_level: int, optional
+    :return: distance at the defined region of interest,
+    or 0 if no regiong of interest is supplied
+    :rtype: float
+    """
+    # convert list of coordinate tuples to numpy array
+    polygon = np.array(polygon)
+    if filter_level > 5:
+        filter_level = 5
+    if len(polygon) > 0:
+        if filter_level > 0:
+            try:
+                # Compute filtered depth image
+                spatial = rs.spatial_filter()
+                spatial.set_option(rs.option.holes_fill, filter_level)
+                filtered_depth_frame = spatial.process(depth_frame)
+                filtered_depth_image = np.asanyarray(
+                    filtered_depth_frame.get_data())
+
+                # Compute mask form polygon vertices
+                mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
+                mask = mask.astype('bool')
+                mask = np.invert(mask)
+
+                # Apply mask to filtered depth data and ignore invalid/zero distances
+                filtered_depth_mask = ma.array(
+                    filtered_depth_image, mask=mask, fill_value=0)
+                filtered_depth_mask = ma.masked_invalid(filtered_depth_mask)
+                filtered_depth_mask = ma.masked_equal(filtered_depth_mask, 0)
+
+                # Compute average distnace of the region of interest
+                ROI_depth = filtered_depth_mask.mean() * depth_scale * METER_TO_FEET
+            except Exception:
+                depth_image = np.asanyarray(depth_frame.get_data())
+                # Compute mask from polygon vertices
+                mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
+                mask = mask.astype('bool')
+                mask = np.invert(mask)
+
+                # Apply mask to depth data and ignore invalid/zero distances
+                depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
+                depth_mask = ma.masked_invalid(depth_mask)
+                depth_mask = ma.masked_equal(depth_mask, 0)
+
+                # Compute average distance of the region of interest
+                ROI_depth = depth_mask.mean() * depth_scale * METER_TO_FEET
+        else:
+            depth_image = np.asanyarray(depth_frame.get_data())
+            # Compute mask from polygon vertices
+            mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
+            mask = mask.astype('bool')
+            mask = np.invert(mask)
+
+            # Apply mask to depth data and ignore invalid/zero distances
+            depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
+            depth_mask = ma.masked_invalid(depth_mask)
+            depth_mask = ma.masked_equal(depth_mask, 0)
+
+            # Compute average distance of the region of interest
+            ROI_depth = depth_mask.mean() * depth_scale * METER_TO_FEET
+        return ROI_depth
+    else:
+        return 0'''
 
 # Hardware reset
 # ctx = rs.context()

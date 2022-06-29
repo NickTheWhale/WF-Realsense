@@ -7,13 +7,13 @@ import numpy.ma as ma
 METER_TO_FEET = 3.28084
 
 class VideoCapture:
-    def __init__(self, width=848, heigt=480, framerate=30):
+    def __init__(self, width=848, height=480, framerate=30):
         # depth stream setup
         try:
             self.__pipeline = rs.pipeline()
             self.__camera_config = rs.config()
             self.__width = width
-            self.__height = heigt
+            self.__height = height
             self.__framerate = framerate
             self.__camera_config.enable_stream(rs.stream.depth, 
                                             self.__width, 
