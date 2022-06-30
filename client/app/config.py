@@ -40,8 +40,7 @@ class Config():
                     f'"{file_name}" is missing required configuration data: "{validity}"')
 
     def get_value(self, section, key):
-        """gets config file value at specified location and strips
-        single and double quotes
+        """gets config file value at specified location
 
         :param section: values section title
         :type section: string
@@ -50,7 +49,7 @@ class Config():
         :return: value
         :rtype: string
         """
-        return self.__data[section][key].strip("'").strip('"')
+        return self.__data[section][key]
 
     def is_valid(self):
         """checks if configuration file contains the required data
