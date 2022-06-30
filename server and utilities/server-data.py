@@ -32,12 +32,12 @@ def main():
 
     # roi select
     roi_select_node = opc_db.add_variable(
-        idx, "roi_select_node", 0, ua.VariantType.Int16)
+        idx, "roi_select_node", 0, ua.VariantType.Float)
     roi_select_node.set_writable(writable=True)
 
     # status
     status_node = opc_db.add_variable(
-        idx, "status_node", 0, ua.VariantType.Int16)
+        idx, "status_node", 0, ua.VariantType.Float)
     status_node.set_writable(writable=True)
 
     # trigger

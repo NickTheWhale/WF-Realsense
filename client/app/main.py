@@ -273,13 +273,13 @@ def main():
                 roi_accuracy_node.set_value(dv)
 
                 # roi select
-                dv = round(random.random() * 100)
-                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Int16))
+                dv = random.random() * 100
+                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                 roi_select_node.set_value(dv)
 
                 # status
-                dv = round(camera.asic_temperature)
-                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Int16))
+                dv = camera.asic_temperature
+                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                 status_node.set_value(dv)
 
                 ##############################################
