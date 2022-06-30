@@ -1,5 +1,5 @@
 """
-title:   RealSenseOPC client application options class
+title:   RealSenseOPC Camera and CameraOptions classes
 author:  Nicholas Loehrke 
 date:    June 2022
 license: TODO
@@ -8,6 +8,9 @@ license: TODO
 import difflib as diff
 import logging as log
 import time
+import PIL.Image
+import threading
+from datetime import datetime
 
 import cv2
 import numpy as np
@@ -47,12 +50,13 @@ class Camera():
 
         # options object used to alter camera settings. all settings must
         #   be configured before calling the start() method of the camera
-        self.options = Options(self.__profile, config)
+        self.options = CameraOptions(self.__profile, config)
 
         # camera attributes
         self.__frameset = None
         self.__depth_frame = None
         self.__connected = False
+        self.__saving_image = False
         # roi attributes
         self.__blank_image = np.zeros((height, width))
 
@@ -72,9 +76,9 @@ class Camera():
                 accel = fs.as_motion_frame().get_motion_data()
                 return True, accel.x, accel.y, accel.z
         except RuntimeError:
-            return False, None, None, None        
+            return False, None, None, None
         except Exception:
-            return False, None, None, None        
+            return False, None, None, None
         return False, None, None, None
 
     def __depth_callback(self, fs):
@@ -89,7 +93,7 @@ class Camera():
         self.__frame_number = self.__depth_frame.frame_number
 
     def __disconnect_callback(self, info):
-        """called when a camera device is connected or disconnected. Updates
+        """called when a camera device is connected or disconnected. Updates  
         self.__connected
 
         :param info: rs.event
@@ -111,7 +115,6 @@ class Camera():
         :return: depth at roi, or 0.0 if unable to compute
         :rtype: float
         """
-        # convert list of coordinate tuples to numpy array
         if self.__depth_frame is not None:
             polygon = np.array(polygon)
             if filter_level > 5:
@@ -140,7 +143,7 @@ class Camera():
                     filtered_depth_mask = ma.masked_equal(
                         filtered_depth_mask, 0)
 
-                    # Compute average distnace of the region of interest
+                    # Compute average distance of the region of interest
                     ROI_depth = filtered_depth_mask.mean() * self.__depth_scale * METER_TO_FEET
                 else:
                     depth_image = np.asanyarray(self.__depth_frame.get_data())
@@ -194,8 +197,17 @@ class Camera():
         """
         return self.__connected
 
+    @property
+    def saving_image(self):
+        """flag to determine if a thread is saving a picture
 
-class Options():
+        :return: save_image flag
+        :rtype: bool
+        """
+        return self.__saving_image
+
+
+class CameraOptions():
     def __init__(self, profile, config):
         """create an Options() object to get and set camera settings
 
@@ -249,7 +261,6 @@ class Options():
                 if hasattr(rs.option, set_op):
                     if self.writable(set_op):
                         self.set_rs_option(set_op)
-
             else:
                 closest_match = diff.get_close_matches(
                     set_op, self.__camera_options, cutoff=0.7)

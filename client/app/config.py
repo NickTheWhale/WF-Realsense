@@ -37,7 +37,7 @@ class Config():
             validity = self.is_valid()
             if len(validity) > 0:
                 raise RuntimeError(
-                    f'"{file_name} is missing required configuration data: {validity}"')
+                    f'"{file_name}" is missing required configuration data: "{validity}"')
 
     def get_value(self, section, key):
         """gets config file value at specified location and strips
