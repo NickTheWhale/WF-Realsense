@@ -6,7 +6,6 @@ license: TODO
 """
 
 
-
 import configparser
 import logging as log
 import os
