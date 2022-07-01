@@ -24,7 +24,7 @@ position_threshold = 2
 def setup_camera(config, width, height, framerate=0):
     camera = Camera(config.data, width, height, framerate)
 
-    camera.start()
+    camera.start_callback()
     return camera
 
 

@@ -64,7 +64,7 @@ class Camera():
         # roi attributes
         self.__blank_image = np.zeros((height, width))
 
-    def start(self):
+    def start_callback(self):
         self.__profile = self.__pipeline.start(
             self.__pipeline_config, self.__depth_callback)
         self.__connected = True

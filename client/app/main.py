@@ -213,7 +213,7 @@ def main():
         camera = Camera(config.data, width=w, height=h, framerate=f)
         camera.options.write_all_settings()
         camera.options.log_settings()
-        camera.start()
+        camera.start_callback()
 
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
@@ -270,7 +270,6 @@ def main():
     log.debug('Entering Loop')
 
     while True:
-        time.sleep(sleep_time / 1000)
         # check for valid depth frame
         try:
             depth_frame = camera.depth_frame
@@ -342,6 +341,7 @@ def main():
             except Exception as e:
                 critical_error(e)
 
+        time.sleep(sleep_time / 1000)
 
 if __name__ == "__main__":
     main()
