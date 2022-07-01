@@ -20,11 +20,11 @@ import opcua
 import opcua.ua.uatypes
 import PIL.Image
 import pyrealsense2 as rs
-import win32api
 from opcua import ua
 
 from camera import Camera
 from config import Config
+
 # GLOBALS
 global taking_picture
 taking_picture = False
@@ -69,15 +69,6 @@ REQUIRED_DATA = {
 }
 
 
-def on_exit(signal_type):
-    """callback to log a user exit by clicking the 'x'
-
-    :param signal_type: win32api parameter
-    :type signal_type: int
-    """
-    log.info(MSG_USER_SHUTDOWN)
-
-
 def take_picture(image):
     log.debug('Taking picture...')
     try:
@@ -91,11 +82,20 @@ def take_picture(image):
         timestamp = datetime.now()
         timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
 
-        # SAVE IMAGE
-        image.save(f'{path}\\snapshots\\{timestamp}.jpg')
-        # sleep thread to prevent saving a bunch of pictures
-        time.sleep(5)
-        log.info(f'Took picture: "{timestamp}"')
+        if dir_exists(path=path, name='snapshots'):
+            # SAVE IMAGE
+            image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+            # sleep thread to prevent saving a bunch of pictures
+            time.sleep(5)
+            log.info(f'Took picture: "{timestamp}"')
+        else:
+            snapshot_path = path + '\\snapshots\\'
+            os.mkdir(snapshot_path)
+            # SAVE IMAGE
+            image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+            # sleep thread to prevent saving a bunch of pictures
+            time.sleep(5)
+            log.info(f'Took picture: "{timestamp}"')
     except Exception as e:
         # sleep thread to prevent saving a bunch of pictures
         time.sleep(5)
@@ -105,7 +105,28 @@ def take_picture(image):
         taking_picture = False
 
 
+def dir_exists(path: str, name: str) -> bool:
+    """check if directory 'name' exists within 'path'
+
+    :param path: full parent path name
+    :type path: string
+    :param name: name of directory to check
+    :type name: string
+    :return: if 'name' exists
+    :rtype: bool
+    """
+    dir = os.listdir(path=path)
+    return name in dir
+
+
 def depth_frame_to_image(depth_frame):
+    """attempts to convert 'depth_frame' to a color image
+
+    :param depth_frame: depth frame to convert
+    :type depth_frame: pyrealsense2.depth_frame
+    :return: (status, color image)
+    :rtype: (bool, PIL.Image)
+    """
     try:
         color_frame = rs.colorizer().colorize(depth_frame)
         color_array = np.asanyarray(color_frame.get_data())
@@ -125,14 +146,14 @@ def critical_error(message="Unkown critical error", allow_restart=True):
     :param allow_rst: option to allow resetting of the program, defaults to True
     :type allow_rst: bool, optional
     """
-    log.error(message)
+    log.error(message, exc_info=True)
     if allow_restart:
-        log.critical(MSG_RESTART, exc_info=True)
+        log.critical(MSG_RESTART)
         if WAIT_BEFORE_RESTARTING > 0:
             time.sleep(WAIT_BEFORE_RESTARTING)
         main()
     else:
-        log.critical(MSG_ERROR_SHUTDOWN, exc_info=True)
+        log.critical(MSG_ERROR_SHUTDOWN)
         sys.exit(1)
 
 
@@ -160,23 +181,24 @@ def main():
                         format='%(asctime)s:%(levelname)s:%(message)s')
     log.info(MSG_STARTUP)
 
-    win32api.SetConsoleCtrlHandler(on_exit, True)
-
     try:
-        config = Config('config.ini', REQUIRED_DATA)
+        config = Config('configuration.ini', REQUIRED_DATA)
     except configparser.DuplicateOptionError as e:
         critical_error(f'Duplicate option found in configuration file: {e}')
     except RuntimeError as e:
         critical_error(e, False)
+    except FileNotFoundError as e:
+        critical_error(e, False)
     else:
         try:
             # main logger
-            log_level = getattr(log, config.get_value(
-                'logging', 'logging_level').upper(), log.DEBUG)
+            lvl = config.get_value('logging', 'logging_level').upper()
+            log_level = getattr(log, lvl, log.DEBUG)
             log.getLogger().setLevel(log_level)
+
             # opcua logger
-            opcua_log_level = getattr(log, config.get_value(
-                'logging', 'opcua_logging_level').upper(), log.DEBUG)
+            lvl = config.get_value('logging', 'opcua_logging_level').upper()
+            opcua_log_level = getattr(log, lvl, log.DEBUG)
             log.getLogger(opcua.__name__).setLevel(opcua_log_level)
             log.info("Successfully set logging levels")
         except KeyError as e:
@@ -237,8 +259,19 @@ def main():
     ##############################################################################
     #                                    LOOP                                    #
     ##############################################################################
+
+    try:
+        sleep_time = config.get_value('application', 'sleep_time')
+    except KeyError:
+        sleep_time = 0.001
+    else:
+        sleep_time = float(sleep_time)
+
     log.debug('Entering Loop')
+
     while True:
+        time.sleep(sleep_time / 1000)
+        # check for valid depth frame
         try:
             depth_frame = camera.depth_frame
             if not depth_frame:
@@ -308,8 +341,6 @@ def main():
 
             except Exception as e:
                 critical_error(e)
-
-        time.sleep(0.001)
 
 
 if __name__ == "__main__":

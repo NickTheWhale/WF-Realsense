@@ -1,0 +1,5 @@
+numpy==1.22.4
+opcua==0.98.13
+opencv_python==4.5.3.56
+Pillow==9.2.0
+pyrealsense2==2.50.0.3812

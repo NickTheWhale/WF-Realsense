@@ -8,9 +8,6 @@ license: TODO
 import difflib as diff
 import logging as log
 import time
-import PIL.Image
-import threading
-from datetime import datetime
 
 import cv2
 import numpy as np
@@ -22,13 +19,19 @@ METER_TO_FEET = 3.28084
 
 
 class Camera():
-    def __init__(self, config, width=848, height=480, framerate=0):
-        """create an Options() object to get and set camera settings
+    def __init__(self, config: dict, width=848, height=480, framerate=0):
+        """create a Camera object to interface with camera. 
+        Creating a Camera object also creates a CameraOptions object
+        used for setting and getting camera settings
 
-        :param profile: realsense camera profile
-        :type profile: pyrealsense2.profile
         :param config: configuration dictionary
         :type config: dict
+        :param width: depth stream width, defaults to 848
+        :type width: int, optional
+        :param height: depth stream height, defaults to 480
+        :type height: int, optional
+        :param framerate: depth stream framerate, defaults to auto-negotiation
+        :type framerate: int, optional
         """
         # connect to camera
         self.__context = rs.context()
@@ -57,6 +60,7 @@ class Camera():
         self.__depth_frame = None
         self.__connected = False
         self.__saving_image = False
+        self.__frame_number = 0
         # roi attributes
         self.__blank_image = np.zeros((height, width))
 
@@ -68,6 +72,18 @@ class Camera():
     def stop(self):
         self.__pipeline.stop()
         self.__connected = False
+
+    def reset(self):
+        """performs a hardware reset on every available device
+        """
+        if self.__connected:
+            self.stop()
+        ctx = rs.context()
+        devices = ctx.query_devices()
+        for dev in devices:
+            log.info(f'Resetting device: {dev}')
+            dev.hardware_reset()
+            time.sleep(4)
 
     def accel_data(self):
         try:
@@ -115,7 +131,8 @@ class Camera():
         :return: depth at roi, or 0.0 if unable to compute
         :rtype: float
         """
-        if self.__depth_frame is not None:
+        depth_frame = self.__depth_frame
+        if depth_frame is not None:
             polygon = np.array(polygon)
             if filter_level > 5:
                 filter_level = 5
@@ -124,7 +141,7 @@ class Camera():
                     # Compute filtered depth image
                     spatial = rs.spatial_filter()
                     spatial.set_option(rs.option.holes_fill, filter_level)
-                    filtered_depth_frame = spatial.process(self.__depth_frame)
+                    filtered_depth_frame = spatial.process(depth_frame)
                     filtered_depth_image = np.asanyarray(
                         filtered_depth_frame.get_data())
 
@@ -146,7 +163,7 @@ class Camera():
                     # Compute average distance of the region of interest
                     ROI_depth = filtered_depth_mask.mean() * self.__depth_scale * METER_TO_FEET
                 else:
-                    depth_image = np.asanyarray(self.__depth_frame.get_data())
+                    depth_image = np.asanyarray(depth_frame.get_data())
                     # Compute mask from polygon vertices
                     mask = cv2.fillPoly(self.__blank_image,
                                         pts=[polygon], color=1)
@@ -206,6 +223,15 @@ class Camera():
         """
         return self.__saving_image
 
+    @property
+    def frame_number(self) -> int:
+        """return frame number from last depth callback
+
+        :return: frame number
+        :rtype: int
+        """
+        return self.__frame_number
+
 
 class CameraOptions():
     def __init__(self, profile, config):
@@ -221,6 +247,14 @@ class CameraOptions():
         self.__camera_options = []
         self.__user_options = []
         self.__depth_sensor = self.__profile.get_device().first_depth_sensor()
+
+    def write_all_settings(self):
+        """combines get_camera_options(), get_user_options(), and 
+        set_all_options() into one method
+        """
+        self.get_camera_options()
+        self.get_user_options()
+        self.set_all_options()
 
     def get_camera_options(self):
         """queries depth sensor and retrieves all supported options
@@ -242,8 +276,10 @@ class CameraOptions():
         :rtype: list
         """
         usr_ops = self.__config['camera']
+        cam_ops = self.__camera_options
         for op in usr_ops:
-            self.__user_options.append(op)
+            if op in cam_ops:
+                self.__user_options.append(op)
         return self.__user_options
 
     def set_all_options(self):
@@ -356,6 +392,9 @@ class CameraOptions():
         return None
 
     def log_settings(self):
+        """iterates through supported camera options and logs the
+        option name and value
+        """
         for setting in self.__depth_sensor.get_supported_options():
             try:
                 log.debug(
@@ -363,23 +402,3 @@ class CameraOptions():
             except RuntimeError:
                 log.debug(
                     f'CAMERA SETTING: {setting.name} could not be retrieved')
-
-    def reset(self):
-        ctx = rs.context()
-        devices = ctx.query_devices()
-        for dev in devices:
-            print(f'this is dev {dev}')
-            dev.hardware_reset()
-            time.sleep(4)
-
-    def write_all_settings(self):
-        """combines get_camera_options(), get_user_options(), and 
-        set_all_options() into one method
-        """
-        self.get_camera_options()
-        self.get_user_options()
-        self.set_all_options()
-
-    @property
-    def asic_temperature(self):
-        return self.get_camera_value('asic_temperature')

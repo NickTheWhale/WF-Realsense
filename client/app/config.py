@@ -6,6 +6,9 @@ license: TODO
 """
 
 import configparser
+import logging as log
+
+MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
 
 class Config():
@@ -39,9 +42,8 @@ class Config():
                 raise RuntimeError(
                     f'"{file_name}" is missing required configuration data: "{validity}"')
 
-    def get_value(self, section, key):
-        """gets config file value at specified location and strips
-        single and double quotes
+    def get_value(self, section: str, key: str) -> str:
+        """gets config file value at specified location
 
         :param section: values section title
         :type section: string
@@ -50,7 +52,11 @@ class Config():
         :return: value
         :rtype: string
         """
-        return self.__data[section][key].strip("'").strip('"')
+        try:
+            return self.__data[section][key]
+        except KeyError as e:
+            log.error(f'Failed to get value from "[{section}]: {key}"')
+            raise KeyError
 
     def is_valid(self):
         """checks if configuration file contains the required data

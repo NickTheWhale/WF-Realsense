@@ -4,6 +4,9 @@ import opcua
 from opcua import ua
 
 
+LOOP_TIME = 50 # amount of time to wait every loop in milliseconds
+
+
 def main():
     server = opcua.Server()
     server.set_server_name("Realsense OCP")
@@ -72,7 +75,7 @@ def main():
             dv = False
             dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
             picture_trigger_node.set_value(dv)
-        if picture_count > 20:
+        if picture_count > 15000 // LOOP_TIME:
             picture_count = 0
 
         # check if client is alive
@@ -90,34 +93,8 @@ def main():
               f'Alive: {alive:.2f} | ROI select: {roi_select:.2f} | '
               f'Dead: {dead_count} | PicCount: {picture_count}')
 
-        time.sleep(0.5)
+        time.sleep(LOOP_TIME / 1000)
 
 
 if __name__ == "__main__":
     main()
-
-    # old stuff
-
-    # depth_tag = opc_db.add_variable(
-    #     idx, "Realsense Depth", 0, ua.VariantType.Float)
-    # depth_tag.set_writable(writable=True)
-    # depth_tag.set_value(0)
-
-    # timer_tag = opc_db.add_variable(idx, "Counter", 0, ua.VariantType.Float)
-    # timer_tag.set_writable(writable=True)
-    # timer_tag.set_value(0)
-
-    # client_tick_tag = opc_db.add_variable(
-    #     idx, "Client Tick", 0, ua.VariantType.Boolean)
-    # client_tick_tag.set_writable(writable=True)
-    # client_tick_tag.set_value(0)
-
-    # array_tag = opc_db.add_variable(
-    #     idx, "Realsense Depth Array", 0, ua.VariantType.Float)
-    # array_tag.set_writable(writable=True)
-    # array_tag.set_value(0)
-
-    # depth = depth_tag.get_value()
-    # timer = timer_tag.get_value()
-    # tick = client_tick_tag.get_value()
-    # array = array_tag.get_value()
