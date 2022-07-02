@@ -1,4 +1,3 @@
-  GNU nano 4.8                                             client-data-nocam.py                                                       
 import opcua
 from opcua import ua
 import opcua.ua.uatypes
