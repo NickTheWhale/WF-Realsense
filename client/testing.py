@@ -23,7 +23,6 @@ position_threshold = 2
 
 def setup_camera(config, width, height, framerate=0):
     camera = Camera(config.data, width, height, framerate)
-
     camera.start_callback()
     return camera
 
@@ -39,14 +38,15 @@ def has_moved(x, y, z):
         moved = False
     return moved
 
+
 def main():
     config = Config('config.ini', REQUIRED_DATA)
     camera = setup_camera(config, 848, 480, 30)
 
     try:
         ret, s_x, s_y, s_z = camera.accel_data()
+        print("getting starting position")
         while not ret:
-            print("getting starting position")
             ret, s_x, s_y, s_z = camera.accel_data()
 
         print(s_x, s_y, s_z)
@@ -60,7 +60,7 @@ def main():
                 ret, x, y, z = camera.accel_data()
 
                 ta = sqrt(abs(x*x + y*y + z*z))
-                
+
                 if ret:
                     if has_moved(x, y, z):
                         print("camera has moved from original position")

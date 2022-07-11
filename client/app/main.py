@@ -70,6 +70,12 @@ REQUIRED_DATA = {
 
 
 def take_picture(image):
+    """saves picture to 'snapshots' directory. Creates
+    directory if not found
+
+    :param image: image
+    :type image: image
+    """
     log.debug('Taking picture...')
     try:
         # GET FILE PATH
@@ -157,6 +163,27 @@ def critical_error(message="Unkown critical error", allow_restart=True):
         sys.exit(1)
 
 
+def roi_box(roi):
+    """calculate bounding box from list of coordinates.
+    If provide roi is not valid, the bounding box defaults
+    to [106, 60, 742, 420]
+
+    :param roi: list of (x, y) coordinates
+    :type roi: list
+    :return: bounding box coordinates
+    :rtype: tuple
+    """
+    if len(roi) >= 2:
+        x = [x[0] for x in roi]
+        y = [x[1] for x in roi]
+
+        x1, y1, x2, y2 = min(x), min(y), max(x), max(y)
+
+    else:
+        x1, y1, x2, y2 = 106, 60, 742, 420
+    return x1, y1, x2, y2
+
+
 def main():
     """Program entry point. Basic program flow in order:
     1. Read in configuration file settings
@@ -207,13 +234,28 @@ def main():
             log.warning(f'Failed to set logging levels from config file: '
                         f'{e} not found in config file')
 
-    # Intel Realsense Setup
+    ##############################################################################
+    #                                  CAMERA                                    #
+    ##############################################################################
+
     try:
+        # setup camera stream
         w, h, f = WIDTH, HEIGHT, int(config.get_value('camera', 'framerate'))
         camera = Camera(config.data, width=w, height=h, framerate=f)
         camera.options.write_all_settings()
         camera.options.log_settings()
         camera.start_callback()
+
+        # set exposure roi from config file
+        enable_roi_exposure = bool(float(config.get_value(
+            'camera', 'region_of_interest_auto_exposure')))
+
+        if enable_roi_exposure:
+            config_roi = eval(config.get_value('camera', 'region_of_interest'))
+            x1, y1, x2, y2 = roi_box(config_roi)
+            roi = rs.region_of_interest()
+            roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
+            camera.set_roi(roi)
 
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
@@ -222,7 +264,10 @@ def main():
     except Exception as e:
         critical_error(e)
 
-    # OPC Server Connection Setup
+    ##############################################################################
+    #                                    OPC                                     #
+    ##############################################################################
+
     try:
         ip = config.get_value('server', 'ip').strip("'").strip('"')
         client = opcua.Client(ip)
@@ -270,78 +315,85 @@ def main():
     log.debug('Entering Loop')
 
     while True:
-        # check for valid depth frame
-        try:
-            depth_frame = camera.depth_frame
-            if not depth_frame:
-                continue
-        except RuntimeError as e:
-            critical_error(
-                f'Error while retrieving camera frames: {e}')
-        except Exception as e:
-            critical_error(
-                f'Error while retrieving camera frames: {e}')
-        else:
+        if camera.connected:
+            # check for valid depth frame
             try:
-                polygon = list(eval(config.get_value(
-                    'camera', 'region_of_interest')))
-                filter_level = int(
-                    config.get_value('camera', 'spatial_filter_level'))
-                roi_depth = camera.ROI_depth(polygon=polygon,
-                                             filter_level=filter_level)
-
-                ################################################
-                #                   SEND DATA                  #
-                ################################################
-
-                # depth
-                dv = roi_depth
-                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                roi_depth_node.set_value(dv)
-
-                # accuracy
-                dv = random.random() * 100
-                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                roi_accuracy_node.set_value(dv)
-
-                # roi select
-                dv = random.random() * 100
-                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                roi_select_node.set_value(dv)
-
-                # status
-                dv = camera.asic_temperature
-                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                status_node.set_value(dv)
-
-                ##############################################
-                #                  SEND ALIVE                #
-                ##############################################
-
-                if not alive_node.get_value():
-                    dv = True
-                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Boolean))
-                    alive_node.set_value(dv)
-
-                ##############################################
-                #                SAVE PICTURE                #
-                ##############################################
-
-                pic_trig = picture_trigger_node.get_value()
-                global taking_picture
-                if pic_trig and not taking_picture:
-                    taking_picture = True
-                    ret, img = depth_frame_to_image(depth_frame)
-                    if ret:
-                        picture_thread = threading.Thread(
-                            target=take_picture, args=[img])
-                        if not picture_thread.is_alive():
-                            picture_thread.start()
-
+                if not camera.depth_frame:
+                    continue
+            except RuntimeError as e:
+                critical_error(
+                    f'Error while retrieving camera frames: {e}')
             except Exception as e:
-                critical_error(e)
+                critical_error(
+                    f'Error while retrieving camera frames: {e}')
+            else:
+                try:
+                    polygon = list(eval(config.get_value(
+                        'camera', 'region_of_interest')))
+                    filter_level = int(
+                        config.get_value('camera', 'spatial_filter_level'))
+                    roi_depth = camera.ROI_depth(polygon=polygon,
+                                                 filter_level=filter_level)
 
-        time.sleep(sleep_time / 1000)
+                    ##############################################
+                    #                  SEND DATA                 #
+                    ##############################################
+
+                    # depth
+                    dv = roi_depth
+                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                    roi_depth_node.set_value(dv)
+
+                    # accuracy
+                    dv = random.random() * 100
+                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                    roi_accuracy_node.set_value(dv)
+
+                    # roi select
+                    dv = random.random() * 100
+                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                    roi_select_node.set_value(dv)
+
+                    # status
+                    at = str(round(camera.asic_temperature))
+                    pt = str(round(camera.projector_temperature))
+                    dv = float(at + "." + pt)
+                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                    status_node.set_value(dv)
+
+                    ##############################################
+                    #                  SEND ALIVE                #
+                    ##############################################
+
+                    if not alive_node.get_value():
+                        dv = True
+                        dv = ua.DataValue(ua.Variant(
+                            dv, ua.VariantType.Boolean))
+                        alive_node.set_value(dv)
+
+                    ##############################################
+                    #                SAVE PICTURE                #
+                    ##############################################
+
+                    pic_trig = picture_trigger_node.get_value()
+                    global taking_picture
+                    if pic_trig and not taking_picture:
+                        taking_picture = True
+                        ret, img = depth_frame_to_image(camera.depth_frame)
+                        if ret:
+                            picture_thread = threading.Thread(
+                                target=take_picture, args=[img])
+                            if not picture_thread.is_alive():
+                                picture_thread.start()
+
+                except Exception as e:
+                    critical_error(e)
+
+            time.sleep(sleep_time / 1000)
+
+        else:
+            critical_error('Camera disconnected')
+
 
 if __name__ == "__main__":
     main()

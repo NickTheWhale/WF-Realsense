@@ -44,8 +44,6 @@ class Camera():
                                              height,
                                              rs.format.z16,
                                              framerate)
-        # accelerometer stream
-        self.__pipeline_config.enable_stream(rs.stream.accel)
         self.__profile = self.__pipeline.start(self.__pipeline_config)
         self.__pipeline.stop()
         self.__depth_sensor = self.__profile.get_device().first_depth_sensor()
@@ -64,12 +62,27 @@ class Camera():
         # roi attributes
         self.__blank_image = np.zeros((height, width))
 
+    def __depth_callback(self, fs):
+        """called when a new frameset arrives. Updates self.__depth_frame
+        and self.__frame_number
+
+        :param fs: rs.type
+        :type fs: rs.type
+        """
+        self.__frameset = fs
+        self.__depth_frame = self.__frameset.as_frameset().get_depth_frame()
+        self.__frame_number = self.__depth_frame.frame_number
+
     def start_callback(self):
-        self.__profile = self.__pipeline.start(
-            self.__pipeline_config, self.__depth_callback)
+        """start pipeline and setup new frameset callback
+        """
+        self.__profile = self.__pipeline.start(self.__pipeline_config,
+                                               self.__depth_callback)
         self.__connected = True
 
     def stop(self):
+        """stop pipeline
+        """
         self.__pipeline.stop()
         self.__connected = False
 
@@ -85,28 +98,24 @@ class Camera():
             dev.hardware_reset()
             time.sleep(4)
 
-    def accel_data(self):
-        try:
-            fs = self.__frameset
-            if fs:
-                accel = fs.as_motion_frame().get_motion_data()
-                return True, accel.x, accel.y, accel.z
-        except RuntimeError:
-            return False, None, None, None
-        except Exception:
-            return False, None, None, None
-        return False, None, None, None
+    def get_roi(self):
+        """get current auto exposure region of interest
 
-    def __depth_callback(self, fs):
-        """called when a new frameset arrives. Updates self.__depth_frame
-        and self.__frame_number
-
-        :param fs: rs.type
-        :type fs: rs.type
+        :return: bounding box coordinates
+        :rtype: tuple
         """
-        self.__frameset = fs
-        self.__depth_frame = fs.as_frameset().get_depth_frame()
-        self.__frame_number = self.__depth_frame.frame_number
+        sensor = self.__profile.get_device().first_roi_sensor()
+        roi = sensor.get_region_of_interest()
+        return (roi.min_x, roi.min_y, roi.max_x, roi.max_y)
+
+    def set_roi(self, roi):
+        """set auto exposure region of interest
+
+        :param roi: region of interest
+        :type roi: pyrealsense2.region_of_interest
+        """
+        sensor = self.__profile.get_device().first_roi_sensor()
+        sensor.set_region_of_interest(roi)
 
     def __disconnect_callback(self, info):
         """called when a camera device is connected or disconnected. Updates  
@@ -196,6 +205,16 @@ class Camera():
         return self.options.get_camera_value('asic_temperature')
 
     @property
+    def projector_temperature(self):
+        """dot projector temperature in degrees celcius. Raises 
+        RunTimeError if the camera is disconnected
+
+        :return: temperature in degrees celcius
+        :rtype: float
+        """
+        return self.options.get_camera_value('projector_temperature')
+
+    @property
     def depth_frame(self):
         """returns depth frame
 
@@ -203,6 +222,15 @@ class Camera():
         :rtype: rs.depth_frame
         """
         return self.__depth_frame
+
+    @depth_frame.setter
+    def depth_frame(self, df):
+        """set depth frame
+
+        :param df: depth frame
+        :type df: pyrealsense2.depth_frame
+        """
+        self.__depth_frame = df
 
     @property
     def connected(self):
