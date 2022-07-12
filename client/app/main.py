@@ -36,6 +36,8 @@ METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
 STATUS_INTERVAL = 2  # time in seconds to update status
+ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
+
 
 DEBUG = True  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
@@ -44,7 +46,7 @@ DEBUG = True  # true: log output goes to console, false: log output goes to .log
 #                 information
 WAIT_BEFORE_RESTARTING = 5  # seconds. set to 0 for no wait time
 
-LOG_FORMAT = '%(levelname)-10s%(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-6d %(message)s'
+LOG_FORMAT = '[%(levelname)s] %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-6d %(message)s'
 MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
 MSG_RESTART = "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
 MSG_USER_SHUTDOWN = "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
@@ -209,7 +211,7 @@ def roi_box(roi):
     :return: bounding box coordinates
     :rtype: tuple
     """
-    if len(roi) >= 2:
+    if len(roi) > 2:
         x = [x[0] for x in roi]
         y = [x[1] for x in roi]
 
@@ -258,18 +260,20 @@ def main():
     else:
         try:
             # main logger
-            lvl = config.get_value('logging', 'logging_level').upper()
+            lvl = config.get_value(
+                'logging', 'logging_level', fallback='debug').upper()
             log_level = getattr(log, lvl, log.DEBUG)
             log.getLogger().setLevel(log_level)
 
             # opcua logger
-            lvl = config.get_value('logging', 'opcua_logging_level').upper()
-            opcua_log_level = getattr(log, lvl, log.DEBUG)
+            lvl = config.get_value(
+                'logging', 'opcua_logging_level', fallback='warning').upper()
+            opcua_log_level = getattr(log, lvl, log.WARNING)
             log.getLogger(opcua.__name__).setLevel(opcua_log_level)
             log.info("Successfully set logging levels")
         except KeyError as e:
             log.getLogger().setLevel(log.DEBUG)
-            log.getLogger(opcua.__name__).setLevel(log.INFO)
+            log.getLogger(opcua.__name__).setLevel(log.WARNING)
             log.warning(f'Failed to set logging levels from config file: '
                         f'{e} not found in config file')
 
@@ -279,18 +283,21 @@ def main():
 
     try:
         # setup camera stream
-        w, h, f = WIDTH, HEIGHT, int(config.get_value('camera', 'framerate'))
-        camera = Camera(config.data, width=w, height=h, framerate=f)
+        f = int(config.get_value('camera', 'framerate', fallback='30'))
+        m = bool(float(config.get_value('camera', 'metric', fallback='0.0')))
+        camera = Camera(config.data, width=WIDTH,
+                        height=HEIGHT, framerate=f, metric=m)
         camera.options.write_all_settings()
         camera.options.log_settings()
         camera.start_callback()
 
         # set exposure roi from config file
         enable_roi_exposure = bool(float(config.get_value(
-            'camera', 'region_of_interest_auto_exposure')))
+            'camera', 'region_of_interest_auto_exposure', fallback='0.0')))
 
         if enable_roi_exposure:
-            config_roi = eval(config.get_value('camera', 'region_of_interest'))
+            config_roi = eval(config.get_value(
+                'camera', 'region_of_interest', fallback=ROI_FALLBACK))
             x1, y1, x2, y2 = roi_box(config_roi)
             roi = rs.region_of_interest()
             roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
@@ -308,7 +315,7 @@ def main():
     ##############################################################################
 
     try:
-        ip = config.get_value('server', 'ip').strip("'").strip('"')
+        ip = str(config.get_value('server', 'ip'))
         client = opcua.Client(ip)
         client.connect()
         log.info(f"Successfully connected to {ip}")
@@ -347,12 +354,13 @@ def main():
     #                                    LOOP                                    #
     ##############################################################################
 
-    try:
-        sleep_time = config.get_value('application', 'sleep_time')
-    except KeyError:
-        sleep_time = 0.001
-    else:
-        sleep_time = float(sleep_time)
+    # store repeatedly used variables
+    sleep_time = float(config.get_value(
+        'application', 'sleep_time', fallback='10'))
+    polygon = list(eval(config.get_value(
+        'camera', 'region_of_interest', fallback=ROI_FALLBACK)))
+    filter_level = int(config.get_value(
+        'camera', 'spatial_filter_level', fallback='0'))
 
     log.debug('Starting loop')
 
@@ -371,10 +379,6 @@ def main():
                     f'Error while retrieving camera frames: {e}')
             else:
                 try:
-                    polygon = list(eval(config.get_value(
-                        'camera', 'region_of_interest')))
-                    filter_level = int(
-                        config.get_value('camera', 'spatial_filter_level'))
                     roi_depth, roi_invalid, roi_deviation = camera.ROI_data(
                         polygon=polygon, filter_level=filter_level)
 

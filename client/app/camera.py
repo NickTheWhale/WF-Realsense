@@ -19,7 +19,7 @@ METER_TO_FEET = 3.28084
 
 
 class Camera():
-    def __init__(self, config: dict, width=848, height=480, framerate=0):
+    def __init__(self, config: dict, width=848, height=480, framerate=0, metric=False):
         """create a Camera object to interface with camera. 
         Creating a Camera object also creates a CameraOptions object
         used for setting and getting camera settings
@@ -54,6 +54,9 @@ class Camera():
         self.options = CameraOptions(self.__profile, config)
 
         # camera attributes
+        self.__conversion = METER_TO_FEET * self.__depth_scale
+        if metric:
+            self.__conversion = self.__depth_scale
         self.__frameset = None
         self.__depth_frame = None
         self.__connected = False
@@ -164,24 +167,23 @@ class Camera():
                     filtered_depth_mask = ma.array(filtered_depth_image,
                                                    mask=mask,
                                                    fill_value=0)
-                    
-                    
+
                     total = ma.count(filtered_depth_mask)
                     if total > 0:
                         invalid = (filtered_depth_mask == 0).sum()
                         invalid = (invalid / total) * 100
-                        deviation = filtered_depth_mask.std() * self.__depth_scale * METER_TO_FEET
+                        deviation = filtered_depth_mask.std() * self.__conversion
                     else:
                         deviation = float(0)
                         invalid = float(100)
-                        
+
                     filtered_depth_mask = ma.masked_invalid(
                         filtered_depth_mask)
                     filtered_depth_mask = ma.masked_equal(
                         filtered_depth_mask, 0)
 
                     # Compute average distance of the region of interest
-                    ROI_depth = filtered_depth_mask.mean() * self.__depth_scale * METER_TO_FEET
+                    ROI_depth = filtered_depth_mask.mean() * self.__conversion
                 else:
                     depth_image = np.asanyarray(depth_frame.get_data())
                     # Compute mask from polygon vertices
@@ -192,21 +194,21 @@ class Camera():
 
                     # Apply mask to depth data and ignore invalid/zero distances
                     depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
-                    
+
                     total = ma.count(depth_mask)
                     if total > 0:
                         invalid = (depth_mask == 0).sum()
                         invalid = (invalid / total) * 100
-                        deviation = depth_mask.std() * self.__depth_scale * METER_TO_FEET
+                        deviation = depth_mask.std() * self.__conversion
                     else:
                         deviation = float(0)
                         invalid = float(100)
-                    
+
                     depth_mask = ma.masked_invalid(depth_mask)
                     depth_mask = ma.masked_equal(depth_mask, 0)
 
                     # Compute average distance of the region of interest
-                    ROI_depth = depth_mask.mean() * self.__depth_scale * METER_TO_FEET
+                    ROI_depth = depth_mask.mean() * self.__conversion
                 # return ROI_depth
                 if isinstance(ROI_depth, np.float64):
                     return ROI_depth.item(), invalid, deviation
@@ -214,7 +216,6 @@ class Camera():
                     return float(0), invalid, deviation
         else:
             return float(0), float(100), float(0)
-
 
     def ROI_depth(self, polygon, filter_level=0):
         """calculates the average depth inside of the region of interest.
@@ -258,7 +259,7 @@ class Camera():
                         filtered_depth_mask, 0)
 
                     # Compute average distance of the region of interest
-                    ROI_depth = filtered_depth_mask.mean() * self.__depth_scale * METER_TO_FEET
+                    ROI_depth = filtered_depth_mask.mean() * self.__conversion
                 else:
                     depth_image = np.asanyarray(depth_frame.get_data())
                     # Compute mask from polygon vertices
@@ -273,7 +274,7 @@ class Camera():
                     depth_mask = ma.masked_equal(depth_mask, 0)
 
                     # Compute average distance of the region of interest
-                    ROI_depth = depth_mask.mean() * self.__depth_scale * METER_TO_FEET
+                    ROI_depth = depth_mask.mean() * self.__conversion
                 # return ROI_depth
                 if isinstance(ROI_depth, np.float64):
                     return ROI_depth.item()
@@ -281,8 +282,6 @@ class Camera():
                     return float(0)
         else:
             return float(0)
-
-    
 
     @property
     def asic_temperature(self):

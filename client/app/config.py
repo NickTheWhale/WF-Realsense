@@ -8,6 +8,8 @@ license: TODO
 import configparser
 import logging as log
 
+from traitlets import default
+
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
 
@@ -42,19 +44,25 @@ class Config():
                 raise RuntimeError(
                     f'"{file_name}" is missing required configuration data: "{validity}"')
 
-    def get_value(self, section: str, key: str) -> str:
+    def get_value(self, section: str, key: str, fallback=None) -> str:
         """gets config file value at specified location
 
         :param section: values section title
         :type section: string
         :param key: values key title
         :type key: string
+        :param fallback: fallback value if unable to find value in file
+        :type fallback: string
         :return: value
         :rtype: string
         """
         try:
             return self.__data[section][key]
         except KeyError as e:
+            if isinstance(fallback, str):
+                log.warning(
+                    f'Failed to get value from "[{section}]: {key}". Defaulting to "{fallback}"')
+                return fallback
             log.error(f'Failed to get value from "[{section}]: {key}"')
             raise KeyError
 
