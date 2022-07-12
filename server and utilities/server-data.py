@@ -28,10 +28,15 @@ def main():
         idx, "roi_depth_node", 0, ua.VariantType.Float)
     roi_depth_node.set_writable(writable=True)
 
-    # accuracy
-    roi_accuracy_node = opc_db.add_variable(
-        idx, "roi_accuracy_node", 0, ua.VariantType.Float)
-    roi_accuracy_node.set_writable(writable=True)
+    # invalid
+    roi_invalid_node = opc_db.add_variable(
+        idx, "roi_invalid_node", 0, ua.VariantType.Float)
+    roi_invalid_node.set_writable(writable=True)
+
+    # invalid
+    roi_deviation_node = opc_db.add_variable(
+        idx, "roi_deviation_node", 0, ua.VariantType.Float)
+    roi_deviation_node.set_writable(writable=True)
 
     # roi select
     roi_select_node = opc_db.add_variable(
@@ -59,7 +64,8 @@ def main():
     while True:
         # get tag values
         depth = roi_depth_node.get_value()
-        accuracy = roi_accuracy_node.get_value()
+        invalid = roi_invalid_node.get_value()
+        deviation = roi_deviation_node.get_value()
         status = status_node.get_value()
         picture = picture_trigger_node.get_value()
         alive = alive_node.get_value()
@@ -88,7 +94,7 @@ def main():
             dead_count += 1
 
         # print tag values
-        print(f'Depth: {depth:.2f} | Accuracy: {accuracy:.2f} | '
+        print(f'Depth: {depth:.2f} | Invalid: {invalid:.2f} | Deviation: {deviation:.2f} | '
               f'Status: {status:.2f} | Picture: {picture:.2f} | '
               f'Alive: {alive:.2f} | ROI select: {roi_select:.2f} | '
               f'Dead: {dead_count} | PicCount: {picture_count}')

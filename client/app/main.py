@@ -14,11 +14,13 @@ import sys
 import threading
 import time
 from datetime import datetime
+from inspect import currentframe
 
 import numpy as np
 import opcua
 import opcua.ua.uatypes
 import PIL.Image
+import PIL.ImageDraw
 import pyrealsense2 as rs
 from opcua import ua
 
@@ -33,6 +35,7 @@ taking_picture = False
 METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
+STATUS_INTERVAL = 2  # time in seconds to update status
 
 DEBUG = True  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
@@ -41,6 +44,7 @@ DEBUG = True  # true: log output goes to console, false: log output goes to .log
 #                 information
 WAIT_BEFORE_RESTARTING = 5  # seconds. set to 0 for no wait time
 
+LOG_FORMAT = '%(levelname)-10s%(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-6d %(message)s'
 MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
 MSG_RESTART = "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
 MSG_USER_SHUTDOWN = "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
@@ -69,7 +73,7 @@ REQUIRED_DATA = {
 }
 
 
-def take_picture(image):
+def take_picture(image, polygon):
     """saves picture to 'snapshots' directory. Creates
     directory if not found
 
@@ -79,17 +83,14 @@ def take_picture(image):
     log.debug('Taking picture...')
     try:
         # GET FILE PATH
-        if getattr(sys, 'frozen', False):
-            path = os.path.dirname(sys.executable)
-        elif __file__:
-            path = os.path.dirname(__file__)
-
+        path = get_program_path()
         # GET TIMESTAMP FOR FILE NAME
         timestamp = datetime.now()
         timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
 
         if dir_exists(path=path, name='snapshots'):
             # SAVE IMAGE
+            image = draw_poly(image, polygon)
             image.save(f'{path}\\snapshots\\{timestamp}.jpg')
             # sleep thread to prevent saving a bunch of pictures
             time.sleep(5)
@@ -98,6 +99,7 @@ def take_picture(image):
             snapshot_path = path + '\\snapshots\\'
             os.mkdir(snapshot_path)
             # SAVE IMAGE
+            image = draw_poly(image, polygon)
             image.save(f'{path}\\snapshots\\{timestamp}.jpg')
             # sleep thread to prevent saving a bunch of pictures
             time.sleep(5)
@@ -109,6 +111,35 @@ def take_picture(image):
     finally:
         global taking_picture
         taking_picture = False
+
+
+def get_program_path() -> str:
+    """gets full path name of program. Works if 
+    program is frozen
+
+    :return: path
+    :rtype: string
+    """
+    if getattr(sys, 'frozen', False):
+        path = os.path.dirname(sys.executable)
+    elif __file__:
+        path = os.path.dirname(__file__)
+    return path
+
+
+def draw_poly(image: PIL.Image.Image, poly: list) -> PIL.Image.Image:
+    """draw polygon on depth image
+
+    :param image: image
+    :type image: PIL.Image
+    :param poly: polygon
+    :type poly: list
+    :return: image with polygon
+    :rtype: PIL.Image.Image
+    """
+    draw = PIL.ImageDraw.Draw(image)
+    draw.polygon(poly, width=4)
+    return image
 
 
 def dir_exists(path: str, name: str) -> bool:
@@ -163,6 +194,11 @@ def critical_error(message="Unkown critical error", allow_restart=True):
         sys.exit(1)
 
 
+def get_line():
+    cf = currentframe()
+    return cf.f_back.f_lineno
+
+
 def roi_box(roi):
     """calculate bounding box from list of coordinates.
     If provide roi is not valid, the bounding box defaults
@@ -178,10 +214,13 @@ def roi_box(roi):
         y = [x[1] for x in roi]
 
         x1, y1, x2, y2 = min(x), min(y), max(x), max(y)
-
     else:
         x1, y1, x2, y2 = 106, 60, 742, 420
     return x1, y1, x2, y2
+
+
+def update_status():
+    pass
 
 
 def main():
@@ -200,12 +239,12 @@ def main():
     if DEBUG:
         log.basicConfig(
             level=log.DEBUG,
-            format='%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
+            format=LOG_FORMAT)
     else:
         log.basicConfig(filename="logger.log",
                         filemode="a",
                         level=log.DEBUG,
-                        format='%(asctime)s:%(levelname)s:%(message)s')
+                        format=LOG_FORMAT)
     log.info(MSG_STARTUP)
 
     try:
@@ -282,8 +321,11 @@ def main():
             roi_depth_node = client.get_node(
                 str(config.get_value('nodes', 'roi_depth_node')))
 
-            roi_accuracy_node = client.get_node(
-                str(config.get_value('nodes', 'roi_accuracy_node')))
+            roi_invalid_node = client.get_node(
+                str(config.get_value('nodes', 'roi_invalid_node')))
+
+            roi_deviation_node = client.get_node(
+                str(config.get_value('nodes', 'roi_deviation_node')))
 
             roi_select_node = client.get_node(
                 str(config.get_value('nodes', 'roi_select_node')))
@@ -312,8 +354,9 @@ def main():
     else:
         sleep_time = float(sleep_time)
 
-    log.debug('Entering Loop')
+    log.debug('Starting loop')
 
+    start = time.time()
     while True:
         if camera.connected:
             # check for valid depth frame
@@ -332,8 +375,8 @@ def main():
                         'camera', 'region_of_interest')))
                     filter_level = int(
                         config.get_value('camera', 'spatial_filter_level'))
-                    roi_depth = camera.ROI_depth(polygon=polygon,
-                                                 filter_level=filter_level)
+                    roi_depth, roi_invalid, roi_deviation = camera.ROI_data(
+                        polygon=polygon, filter_level=filter_level)
 
                     ##############################################
                     #                  SEND DATA                 #
@@ -344,10 +387,15 @@ def main():
                     dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                     roi_depth_node.set_value(dv)
 
-                    # accuracy
-                    dv = random.random() * 100
+                    # invalid
+                    dv = roi_invalid
                     dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                    roi_accuracy_node.set_value(dv)
+                    roi_invalid_node.set_value(dv)
+
+                    # deviation
+                    dv = roi_deviation
+                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                    roi_deviation_node.set_value(dv)
 
                     # roi select
                     dv = random.random() * 100
@@ -382,12 +430,17 @@ def main():
                         ret, img = depth_frame_to_image(camera.depth_frame)
                         if ret:
                             picture_thread = threading.Thread(
-                                target=take_picture, args=[img])
+                                target=take_picture, args=[img, polygon])
                             if not picture_thread.is_alive():
                                 picture_thread.start()
 
                 except Exception as e:
                     critical_error(e)
+
+            elapsed = time.time() - start
+            if elapsed > STATUS_INTERVAL:
+                update_status()
+                start = time.time()
 
             time.sleep(sleep_time / 1000)
 
