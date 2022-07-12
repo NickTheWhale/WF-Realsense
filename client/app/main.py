@@ -40,7 +40,7 @@ ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
 
 
 DEBUG = True  # true: log output goes to console, false: log output goes to .log file
-#                 note - if set to 'true' and the script is being run in an
+#                 note- if set to 'true' and the script is being run in an
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
 #                 information
