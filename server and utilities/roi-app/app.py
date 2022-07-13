@@ -14,8 +14,9 @@ import PIL.Image
 import PIL.ImageTk
 
 from mask import MaskWidget
-from settings_frame import AppSettings
+from appsettings import AppSettings
 from camera import VideoCapture
+from appmenu import AppMenu
 
 # constants
 DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
@@ -62,7 +63,8 @@ class App(tk.Tk):
         # initialize widgets. must be called in this order since each method sets
         # up instance variables/objects used in other methods
         self.__mask_widget = MaskWidget()
-        self.__init_menu()
+        # self.__init_menu()
+        self.__menu = AppMenu(self, tearoff=0)
         self.__init_info()
         self.__init_video()
         self.__init_terminal()
