@@ -26,6 +26,18 @@ from opcua import ua
 
 from camera import Camera
 from config import Config
+from status import StatusCodes, TEMP_WARNING, TEMP_MAX_SAFE, TEMP_CRITICAL
+
+# CONFIGURATION
+STATUS_INTERVAL = 2  # time in seconds to update status
+WAIT_BEFORE_RESTARTING = 5  # time in seconds to wait before
+#                               restarting program in the event of an error.
+#                               set to 0 for no wait time
+DEBUG = True  # true: log output goes to console, false: log output goes to .log file
+#                 note- if set to 'true' and the script is being run in an
+#                 executable form, make sure a console window pops up when
+#                 the program starts, otherwise you will not see any log
+#                 information
 
 # GLOBALS
 global taking_picture
@@ -35,21 +47,10 @@ taking_picture = False
 METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
-STATUS_INTERVAL = 2  # time in seconds to update status
 ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
-
-
-DEBUG = True  # true: log output goes to console, false: log output goes to .log file
-#                 note- if set to 'true' and the script is being run in an
-#                 executable form, make sure a console window pops up when
-#                 the program starts, otherwise you will not see any log
-#                 information
-WAIT_BEFORE_RESTARTING = 5  # seconds. set to 0 for no wait time
-
-LOG_FORMAT = '[%(levelname)s] %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-6d %(message)s'
+LOG_FORMAT = '%(levelname)-10s %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-7d %(message)s'
 MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
 MSG_RESTART = "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
-MSG_USER_SHUTDOWN = "~~~~~~~~~~~~~~~~User Exited Application~~~~~~~~~~~~~~\n"
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
 
@@ -176,7 +177,7 @@ def depth_frame_to_image(depth_frame):
         return (False, None)
 
 
-def critical_error(message="Unkown critical error", allow_restart=True):
+def critical_error(message="Unkown critical error", allow_restart=True, camera=None):
     """function to log critical errors with the option to recall main()
     to restart program
 
@@ -192,8 +193,14 @@ def critical_error(message="Unkown critical error", allow_restart=True):
             time.sleep(WAIT_BEFORE_RESTARTING)
         main()
     else:
+        if camera is not None:
+            try:
+                camera.stop()
+            except Exception:
+                pass
         log.critical(MSG_ERROR_SHUTDOWN)
-        sys.exit(1)
+        os._exit(1)
+        # sys.exit()
 
 
 def get_line():
@@ -212,17 +219,45 @@ def roi_box(roi):
     :rtype: tuple
     """
     if len(roi) > 2:
-        x = [x[0] for x in roi]
-        y = [x[1] for x in roi]
-
+        x = [i[0] for i in roi]
+        y = [i[1] for i in roi]
         x1, y1, x2, y2 = min(x), min(y), max(x), max(y)
     else:
         x1, y1, x2, y2 = 106, 60, 742, 420
     return x1, y1, x2, y2
 
 
-def update_status():
-    pass
+def get_status(camera):
+    status = StatusCodes.OK
+    try:
+        asic_temp = camera.asic_temperature
+        projector_temp = camera.projector_temperature
+
+        temp_warning = asic_temp > TEMP_WARNING or projector_temp > TEMP_WARNING
+        temp_max_safe = asic_temp > TEMP_MAX_SAFE or projector_temp > TEMP_MAX_SAFE
+        temp_critical = asic_temp > TEMP_CRITICAL or projector_temp > TEMP_CRITICAL
+
+        if temp_critical:
+            status = StatusCodes.ERROR_TEMP_CRITICAL
+        elif temp_max_safe:
+            status = StatusCodes.ERROR_TEMP_MAX_SAFE
+        elif temp_warning:
+            status = StatusCodes.ERROR_TEMP_WARNING
+
+    except Exception as e:
+        status = StatusCodes.ERROR_UPDATING_STATUS
+        log.warning(f'Failed to update status: {e}')
+        return status
+    if status != StatusCodes.OK:
+        log.warning(f'Status update: {StatusCodes.name(status)} | '
+                    f'Asic: {asic_temp} celcius Projector: {projector_temp} celcius')
+    return status
+
+
+def send_status(status_node, status_value):
+    dv = status_value
+    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+    status_node.set_value(dv)
 
 
 def main():
@@ -252,7 +287,8 @@ def main():
     try:
         config = Config('configuration.ini', REQUIRED_DATA)
     except configparser.DuplicateOptionError as e:
-        critical_error(f'Duplicate option found in configuration file: {e}')
+        critical_error(
+            f'Duplicate option found in configuration file: {e}', False)
     except RuntimeError as e:
         critical_error(e, False)
     except FileNotFoundError as e:
@@ -363,7 +399,6 @@ def main():
         'camera', 'spatial_filter_level', fallback='0'))
 
     log.debug('Starting loop')
-
     start = time.time()
     while True:
         if camera.connected:
@@ -406,13 +441,6 @@ def main():
                     dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                     roi_select_node.set_value(dv)
 
-                    # status
-                    at = str(round(camera.asic_temperature))
-                    pt = str(round(camera.projector_temperature))
-                    dv = float(at + "." + pt)
-                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                    status_node.set_value(dv)
-
                     ##############################################
                     #                  SEND ALIVE                #
                     ##############################################
@@ -428,6 +456,7 @@ def main():
                     ##############################################
 
                     pic_trig = picture_trigger_node.get_value()
+                    pic_trig = False
                     global taking_picture
                     if pic_trig and not taking_picture:
                         taking_picture = True
@@ -443,7 +472,12 @@ def main():
 
             elapsed = time.time() - start
             if elapsed > STATUS_INTERVAL:
-                update_status()
+                status_code = get_status(camera)
+                if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
+                    send_status(status_node, StatusCodes.ERROR_NO_RESTART)
+                    critical_error(
+                        f'Camera overheating (temp > {TEMP_CRITICAL} celcius)', False, camera)
+                send_status(status_node, status_code)
                 start = time.time()
 
             time.sleep(sleep_time / 1000)
