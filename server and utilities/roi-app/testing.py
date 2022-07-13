@@ -1,37 +1,82 @@
 import tkinter
-import tkinter.ttk as ttk
+import cv2
+import PIL.Image
+import PIL.ImageTk
+import time
 
-class TextScrollCombo(ttk.Frame):
 
-    def __init__(self, *args, **kwargs):
+class App:
+    def __init__(self, window, window_title, video_source=0):
+        self.window = window
+        self.window.title(window_title)
+        self.video_source = video_source
 
-        super().__init__(*args, **kwargs)
+        # open video source (by default this will try to open the computer webcam)
+        self.vid = MyVideoCapture(self.video_source)
 
-    # ensure a consistent GUI size
-        self.grid_propagate(False)
-    # implement stretchability
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
+        # Create a canvas that can fit the above video source size
+        self.canvas = tkinter.Canvas(
+            window, width=self.vid.width, height=self.vid.height)
+        self.canvas.pack()
 
-    # create a Text widget
-        self.txt = tkinter.Text(self)
-        self.txt.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
+        # Button that lets the user take a snapshot
+        self.btn_snapshot = tkinter.Button(
+            window, text="Snapshot", width=50, command=self.snapshot)
+        self.btn_snapshot.pack(anchor=tkinter.CENTER, expand=True)
 
-    # create a Scrollbar and associate it with txt
-        scrollb = ttk.Scrollbar(self, command=self.txt.yview)
-        scrollb.grid(row=0, column=1, sticky='nsew')
-        self.txt['yscrollcommand'] = scrollb.set
+        # After it is called once, the update method will be automatically called every delay milliseconds
+        self.delay = 15
+        self.update()
 
-main_window = tkinter.Tk()
+        self.window.mainloop()
 
-combo = TextScrollCombo(main_window)
-combo.pack(fill="both", expand=True)
-combo.config(width=600, height=600)
+    def snapshot(self):
+        # Get a frame from the video source
+        ret, frame = self.vid.get_frame()
 
-combo.txt.config(font=("consolas", 12), undo=True, wrap='word')
-combo.txt.config(borderwidth=3, relief="sunken")
+        if ret:
+            cv2.imwrite("frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") +
+                        ".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
-style = ttk.Style()
-style.theme_use('clam')
+    def update(self):
+        # Get a frame from the video source
+        ret, frame = self.vid.get_frame()
 
-main_window.mainloop()
+        if ret:
+            self.photo = PIL.ImageTk.PhotoImage(
+                image=PIL.Image.fromarray(frame))
+            self.canvas.create_image(0, 0, image=self.photo, anchor=tkinter.NW)
+
+        self.window.after(self.delay, self.update)
+
+
+class MyVideoCapture:
+    def __init__(self, video_source=0):
+        # Open the video source
+        self.vid = cv2.VideoCapture(video_source)
+        if not self.vid.isOpened():
+            raise ValueError("Unable to open video source", video_source)
+
+        # Get video source width and height
+        self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+    def get_frame(self):
+        if self.vid.isOpened():
+            ret, frame = self.vid.read()
+            if ret:
+                # Return a boolean success flag and the current frame converted to BGR
+                return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            else:
+                return (ret, None)
+        else:
+            return (ret, None)
+
+    # Release the video source when the object is destroyed
+    def __del__(self):
+        if self.vid.isOpened():
+            self.vid.release()
+
+
+# Create a window and pass it to the Application object
+App(tkinter.Tk(), "Tkinter and OpenCV")

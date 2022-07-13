@@ -14,10 +14,11 @@ import PIL.Image
 import PIL.ImageTk
 
 from mask import MaskWidget
-from video import VideoCapture
+from settings_frame import AppSettings
+from camera import VideoCapture
 
 # constants
-DOC_WEBSITE = "https://dev.intelrealsense.com/docs"
+DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
 GITHUB_WEBSITE = "https://github.com/NickTheWhale/WF-Realsense"
 MASK_OUTPUT_FILE_NAME = "mask.txt"
 
@@ -65,7 +66,10 @@ class App(tk.Tk):
         self.__init_info()
         self.__init_video()
         self.__init_terminal()
-        self.__init_settings()
+
+
+        # self.__init_settings()
+        self.__settings_frame = AppSettings(self.__main_frame, row=0, column=3)
 
         # initial call to update depth stream. each subsequent call is made recursively
         self.loop()
@@ -256,6 +260,7 @@ class App(tk.Tk):
     def __menu_save_mask(self):
         with open(MASK_OUTPUT_FILE_NAME, 'w') as file:
             file.write(str(self.__mask_widget.coordinates))
+            self.__settings_frame.change_text(str(self.__mask_widget.coordinates))
 
     def __menu_save_image(self):
         if self.__image is not None:
@@ -270,6 +275,57 @@ class App(tk.Tk):
             imgpil.save(
                 f'{application_path}\\snapshots\\{timestamp}.bmp', "BMP")
             imgpil.close()
+
+    def __menu_save_image_WIP(self):
+        """saves picture to 'snapshots' directory. Creates
+        directory if not found
+
+        :param image: image
+        :type image: image
+        """
+        image = self.__image
+        if image is not None:
+            # GET FILE PATH
+            path = self.get_program_path()
+            # GET TIMESTAMP FOR FILE NAME
+            timestamp = datetime.now()
+            timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
+
+            if self.dir_exists(path=path, name='snapshots'):
+                # SAVE IMAGE
+                image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+                # sleep thread to prevent saving a bunch of pictures
+            else:
+                snapshot_path = path + '\\snapshots\\'
+                os.mkdir(snapshot_path)
+                # SAVE IMAGE
+                image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+
+    def get_program_path(self) -> str:
+        """gets full path name of program. Works if 
+        program is frozen
+
+        :return: path
+        :rtype: string
+        """
+        if getattr(sys, 'frozen', False):
+            path = os.path.dirname(sys.executable)
+        elif __file__:
+            path = os.path.dirname(__file__)
+        return path
+    
+    def dir_exists(self, path: str, name: str) -> bool:
+        """check if directory 'name' exists within 'path'
+
+        :param path: full parent path name
+        :type path: string
+        :param name: name of directory to check
+        :type name: string
+        :return: if 'name' exists
+        :rtype: bool
+        """
+        dir = os.listdir(path=path)
+        return name in dir
 
     def __menu_documentation(self, url):
         return webbrowser.open(url)
