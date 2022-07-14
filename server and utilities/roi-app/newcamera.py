@@ -19,7 +19,7 @@ METER_TO_FEET = 3.28084
 
 
 class Camera():
-    def __init__(self, config: dict, width=848, height=480, framerate=0, metric=False):
+    def __init__(self, width=848, height=480, framerate=0, metric=False):
         """create a Camera object to interface with camera. 
         Creating a Camera object also creates a CameraOptions object
         used for setting and getting camera settings
@@ -48,10 +48,12 @@ class Camera():
         self.__pipeline.stop()
         self.__depth_sensor = self.__profile.get_device().first_depth_sensor()
         self.__depth_scale = self.__depth_sensor.get_depth_scale()
+        self.__colorizer = rs.colorizer()
 
         # options object used to alter camera settings. all settings must
         #   be configured before calling the start() method of the camera
-        self.options = CameraOptions(self.__profile, config)
+        
+        # self.options = CameraOptions(self.__profile, config)
 
         # camera attributes
         self.__conversion = METER_TO_FEET * self.__depth_scale
@@ -161,20 +163,24 @@ class Camera():
                     if total > 0:
                         invalid = (filtered_depth_mask == 0).sum()
                         invalid = (invalid / total) * 100
-                        deviation = filtered_depth_mask.std() * self.__conversion
-                        min = filtered_depth_mask.min() * self.__conversion
-                        max = filtered_depth_mask.max() * self.__conversion
                     else:
                         invalid = float(100)
-                        deviation = float(0)
-                        min = float(0)
-                        max = float(0)
-                        
 
                     filtered_depth_mask = ma.masked_invalid(
                         filtered_depth_mask)
                     filtered_depth_mask = ma.masked_equal(
                         filtered_depth_mask, 0)
+
+                    total = ma.count(filtered_depth_mask)
+                    if total > 0:
+                        deviation = filtered_depth_mask.std() * self.__conversion
+                        min = filtered_depth_mask.min() * self.__conversion
+                        max = filtered_depth_mask.max() * self.__conversion
+                    else:
+                        deviation = float(0)
+                        min = float(0)
+                        max = float(0)
+
 
                     # Compute average distance of the region of interest
                     ROI_depth = filtered_depth_mask.mean() * self.__conversion
@@ -193,17 +199,22 @@ class Camera():
                     if total > 0:
                         invalid = (depth_mask == 0).sum()
                         invalid = (invalid / total) * 100
-                        deviation = depth_mask.std() * self.__conversion
-                        min = filtered_depth_mask.min() * self.__conversion
-                        max = filtered_depth_mask.max() * self.__conversion
                     else:
                         invalid = float(100)
-                        deviation = float(0)
-                        min = float(0)
-                        max = float(0)
 
                     depth_mask = ma.masked_invalid(depth_mask)
                     depth_mask = ma.masked_equal(depth_mask, 0)
+                    
+                    total = ma.count(depth_mask)
+                    if total > 0:
+                        deviation = depth_mask.std() * self.__conversion
+                        min = depth_mask.min() * self.__conversion
+                        max = depth_mask.max() * self.__conversion
+                    else:    
+                        deviation = float(0)
+                        min = float(0)
+                        max = float(0)
+                    
 
                     # Compute average distance of the region of interest
                     ROI_depth = depth_mask.mean() * self.__conversion
@@ -433,6 +444,14 @@ class Camera():
         """
         return self.__frame_number
 
+    @property
+    def colorizer(self):
+        """return pyrealsense2.colorizer object
+
+        :return: colorizer object
+        :rtype: pyrealsense2.colorizer
+        """
+        return self.__colorizer
 
 class CameraOptions():
     def __init__(self, profile, config):
@@ -455,7 +474,7 @@ class CameraOptions():
         """
         self.get_camera_options()
         self.get_user_options()
-        self.set_all_options()
+        self.set_options()
 
     def get_camera_options(self):
         """queries depth sensor and retrieves all supported options
@@ -482,8 +501,11 @@ class CameraOptions():
             if op in cam_ops:
                 self.__user_options.append(op)
         return self.__user_options
+    
+    def get_option_range(self, option):
+        pass
 
-    def set_all_options(self):
+    def set_options(self):
         """checks if the user option exists in the available camera options list,
         checks if option exists within 'pyrealsense2.option', and finally checks
         if the option is writable or readonly. If an option fails to set, the 
