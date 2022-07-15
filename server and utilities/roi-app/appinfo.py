@@ -21,9 +21,6 @@ class AppInfo(tk.Frame):
                                rowspan=self.__rowspan,
                                columnspan=self.__columnspan,
                                sticky=self.__sticky)
-        # self.__info_label = tk.Label(self.__info_frame,
-        #                              text="            [CAMERA INFO HERE]            ")
-        # self.__info_label.grid(row=0, column=0)
 
     def update(self, data):
         self.__data = data

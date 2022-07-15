@@ -1,11 +1,10 @@
 import threading
 import time
+
 from appwindow import AppWindow
 
-
 # constants
-
-LOOP_DELAY = 50  # sleep time in ms between update loops
+LOOP_DELAY = 1  # sleep time in ms between update loops
 
 
 class App(threading.Thread):
@@ -16,8 +15,8 @@ class App(threading.Thread):
 
     def run(self):
         self.__app = AppWindow("ROI Utility")
-        self.__ready = True
         self.__app.protocol("WM_DELETE_WINDOW", self.__app.on_closing)
+        self.__ready = True
         self.__app.mainloop()
 
     @property
@@ -37,9 +36,10 @@ def main():
     else:
         while not app.ready:
             time.sleep(0.1)
+
         while app.is_alive():
             # print("its alive")
-            app.app_window.update()
+            app.app_window.loop()
             time.sleep(LOOP_DELAY / 1000)
         print("exited program")
 

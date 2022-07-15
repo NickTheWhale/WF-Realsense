@@ -6,22 +6,19 @@ import webbrowser
 from datetime import datetime
 from tkinter import messagebox, ttk
 
-import cv2
+import time
 import numpy as np
-import numpy.ma as ma
 import PIL.Image
 import PIL.ImageTk
 from ttkthemes import ThemedStyle
 
+from appinfo import AppInfo
 from appmenu import AppMenu
 from appsettings import AppSettings
 from appterminal import AppTerminal
 from appvideo import AppVideo
-from appinfo import AppInfo
-from camera import VideoCapture
-from newcamera import Camera
 from mask import MaskWidget
-
+from newcamera import Camera
 
 # constants
 DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
@@ -43,7 +40,7 @@ class AppWindow(tk.Tk):
         self.__main_frame = ttk.Frame(self)
         self.__main_frame.grid(column=0, row=0, sticky="N S E W")
         self.resizable(False, False)
-        
+
         # set theme
         # self.__style = ThemedStyle(self)
         # self.__style.theme_use('arc')
@@ -57,6 +54,8 @@ class AppWindow(tk.Tk):
         self.__roi_max = 0
         self.__roi_deviation = 0
         self.__roi_invalid = 0
+        self.__frame_number = 0
+        self.__loop_count = 0
 
         try:
             # self.__camera = VideoCapture(WIDTH, HEIGHT, 30)
@@ -77,8 +76,15 @@ class AppWindow(tk.Tk):
         self.__terminal_frame = AppTerminal(self, row=1, column=1)
         self.__settings_frame = AppSettings(self, row=0, column=3, rowspan=2, sticky="N")
 
-        # initial call to update depth stream. each subsequent call is made recursively
-        self.update()
+        # bindings
+        self.bind_all("<Control-q>", self.on_closing)
+        self.bind_all("<Control-z>", self.__mask_undo)
+        self.bind_all("<Control-r>", self.__mask_reset)
+        self.__start_time = time.time()
+
+    @property
+    def logger(self):
+        return self.__logger
 
     @property
     def main_frame(self):
@@ -107,18 +113,24 @@ class AppWindow(tk.Tk):
                     self.__roi_deviation = s
                     self.__roi_invalid = i
 
-                    output_text = (f'[Depth:\t{d:.3f}]\t[Max:\t{h:.3f}]\t'
-                                   f'[Min:\t{l:.3f}]\t[Std.:\t{s:.3f}]\t'
-                                   f'[Invalid:\t{i:.1f}]\n')
+    @property
+    def formatted_stats(self):
+        d = self.__roi_depth
+        h = self.__roi_max
+        l = self.__roi_min
+        s = self.__roi_deviation
+        i = self.__roi_invalid
+        return (f'[Depth:\t{d:.3f}]\t[Max:\t{h:.3f}]\t'
+                f'[Min:\t{l:.3f}]\t[Std.:\t{s:.3f}]\t'
+                f'[Invalid:\t{i:.1f}]')
 
-                    # update terminal output
-                    self.__terminal_frame.write(output_text)
-
-    def update(self):
-        # get frame
+    def loop(self):
+        # update video and roi stats()
+        self.__loop_count += 1
         depth_frame = self.__camera.depth_frame
-
-        if depth_frame is not None:
+        frame_number = self.__camera.frame_number
+        if depth_frame is not None and frame_number > self.__frame_number:
+            self.__frame_number = frame_number
             self.__depth_frame = depth_frame
             depth_color_frame = self.__camera.colorizer.colorize(depth_frame)
             color_image = np.asanyarray(depth_color_frame.get_data())
@@ -126,7 +138,9 @@ class AppWindow(tk.Tk):
             self.__mask_widget.draw(color_image)
 
             # update video
-            self.__image = self.__video_frame.set_image(color_image)
+            temp_img = self.__video_frame.set_image(color_image)
+            if temp_img is not None:
+                self.__image = temp_img
 
             data = {
                 'depth': self.__roi_depth,
@@ -135,12 +149,12 @@ class AppWindow(tk.Tk):
                 'deviation': self.__roi_deviation,
                 'invalid': self.__roi_invalid
             }
-
-            # self.__info_frame.update(data)
-
-            # update stats
             self.update_roi_stats()
-    
+
+        if self.__loop_count > 20:
+            self.__terminal_frame.write(self.formatted_stats)
+            self.__loop_count = 0
+
     def get_program_path(self) -> str:
         """gets full path name of program. Works if 
         program is frozen
@@ -224,17 +238,16 @@ class AppWindow(tk.Tk):
                 # SAVE IMAGE
                 image.save(f'{path}\\snapshots\\{timestamp}.jpg')
 
-
     def __menu_documentation(self, url):
         return webbrowser.open(url)
 
     def __menu_github(self, url):
         return webbrowser.open(url)
 
-    def __menu_reset(self, evt=None):
+    def __mask_reset(self, evt=None):
         self.__mask_widget.reset()
 
-    def __menu_undo(self, evt=None):
+    def __mask_undo(self, evt=None):
         self.__mask_widget.undo()
 
     def on_closing(self, evt=None):
@@ -242,3 +255,6 @@ class AppWindow(tk.Tk):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.destroy()
             os._exit(0)
+
+    def fake_callback(self, *args, **kwargs):
+        print("fake callback", args, kwargs)

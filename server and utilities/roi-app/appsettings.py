@@ -1,13 +1,14 @@
 import os
 import tkinter as tk
 from tkinter import ttk
+import logging
 
 
 class AppSettings(tk.Frame):
     def __init__(self, root, row, column, rowspan=1, columnspan=1, sticky="NSEW"):
         super().__init__()
         self.__root = root
-        self.__main_frame = root.main_frame
+        self.__main_frame = self.__root.main_frame
         self.__row = row
         self.__column = column
         self.__columnspan = columnspan
