@@ -1,2 +1,2 @@
 # WF-Realsense
-![alt text](/image.png)
+![Screenshot](image.png)
