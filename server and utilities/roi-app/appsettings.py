@@ -45,11 +45,10 @@ class AppSettings(ttk.Labelframe):
         self._save_button.grid(row=0, column=1, padx=5, pady=5)
         
 
-    def reset_callback(self):
+    def reset_callback(self, *args, **kwargs):
         for slider in self._sliders:
             slider.reset()
         print('reset all settings to default')
         
-    def save_callback(self):
-        self._args[0].mask_reset()
+    def save_callback(self, *args, **kwargs):
         print('settings saved')

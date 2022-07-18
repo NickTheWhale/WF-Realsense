@@ -4,12 +4,9 @@ import time
 import tkinter as tk
 import tkinter.filedialog as tkFileDialog
 import webbrowser
-from datetime import datetime
 from tkinter import messagebox, ttk
 
 import numpy as np
-import PIL.Image
-import PIL.ImageTk
 import sv_ttk
 
 from appinfo import AppInfo
@@ -27,7 +24,7 @@ MASK_OUTPUT_FILE_NAME = "mask.txt"
 
 HEIGHT = 480
 WIDTH = 848
-FRAMERATE = 15
+FRAMERATE = 30
 METER_TO_FEET = 3.28084
 
 
@@ -42,6 +39,7 @@ class AppWindow(tk.Tk):
         self._main_frame = ttk.Frame(self)
         self._main_frame.grid(column=0, row=0, sticky="NSEW")
         self.resizable(False, False)
+        self._drag_id = ''
 
         # camera/video variables
         self._filter_level = 0
@@ -53,13 +51,14 @@ class AppWindow(tk.Tk):
         self._frame_number = 0
         self._loop_count = 0
         self._new_frame_count = 0
+        self._color_image = None
 
         try:
             self._camera = Camera(width=WIDTH,
                                   height=HEIGHT,
                                   framerate=FRAMERATE,
                                   metric=False)
-            self._camera.start_callback()
+            self._camera.start()
         except RuntimeError as e:
             raise RuntimeError(
                 f"Could not find camera, check connections: {e}")
@@ -102,6 +101,7 @@ class AppWindow(tk.Tk):
         self.bind_all("<Control-q>", self.on_closing)
         self.bind_all("<Control-z>", self.mask_undo)
         self.bind_all("<Control-r>", self.mask_reset)
+        self.bind_all("<Configure>", self.dragging)
         self._start_time = time.time()
 
     @property
@@ -132,6 +132,10 @@ class AppWindow(tk.Tk):
     def settings(self):
         return self._settings_widget
 
+    @property
+    def color_image(self):
+        return self._color_image
+
     def update_roi_stats(self, depth_frame):
         # get frame and polygon
         poly_ret, poly = self._mask_widget.polygon()
@@ -160,24 +164,23 @@ class AppWindow(tk.Tk):
     def loop(self):
         # update video and roi stats()
         self._loop_count += 1
-        depth_frame = self._camera.depth_frame
-        frame_number = self._camera.frame_number
-        if depth_frame is not None and frame_number > self._frame_number:
-            self._new_frame_count += 1
-            self._frame_number = frame_number
+        if not self._video_widget.paused:
+            depth_frame = self._camera.depth_frame
+            frame_number = self._camera.frame_number
+            if depth_frame is not None and frame_number > self._frame_number:
+                self._new_frame_count += 1
+                self._frame_number = frame_number
 
-            depth_color_frame = self._camera.colorizer.colorize(depth_frame)
-            color_image = np.asanyarray(depth_color_frame.get_data())
+                depth_color_frame = self._camera.colorizer.colorize(depth_frame)
+                color_image = np.asanyarray(depth_color_frame.get_data())
 
-            self._mask_widget.draw(color_image)
+                self._mask_widget.draw(color_image)
+                self._color_image = color_image
 
-            # update video
-            self._video_widget.set_image(color_image)
-
-            self.update_roi_stats(depth_frame)
-
-        if self._new_frame_count > 20:
-            self._terminal_widget.write(self.formatted_stats)
+        if self._new_frame_count > FRAMERATE:
+            if self._mask_widget.ready:
+                self.update_roi_stats(depth_frame)
+                self._terminal_widget.write(self.formatted_stats)
             self._new_frame_count = 0
 
     def get_program_path(self) -> str:
@@ -278,8 +281,21 @@ class AppWindow(tk.Tk):
     def on_closing(self, *args, **kwargs):
         """prompt user if they are sure they want to quit when they hit the 'x'"""
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            if self._camera.connected:
+                self._camera.stop()
             self.destroy()
             os._exit(0)
 
     def fake_callback(self, *args, **kwargs):
         print("fake callback", args, kwargs)
+
+    def dragging(self, *args, **kwargs):
+        if args[0].widget is self:
+            if self._drag_id != '':
+                self.after_cancel(self._drag_id)
+            self._video_widget.pause()
+            self._drag_id = self.after(200, self.stop_drag)
+
+    def stop_drag(self):
+        self._video_widget.unpause()
+        self._drag_id = ''

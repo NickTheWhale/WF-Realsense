@@ -20,7 +20,7 @@ class AppTerminal(ttk.Labelframe):
         self.__scrolled_text = ScrolledText(self,
                                             state='disabled',
                                             height=10,
-                                            width=97)
+                                            width=98)
         self.__scrolled_text.grid(row=0, column=0, rowspan=2, sticky="NSEW")
         self.__scrolled_text.configure(font='TkFixedFont')
         self.__scrolled_text.tag_config('INFO', foreground='black')
@@ -44,7 +44,7 @@ class AppTerminal(ttk.Labelframe):
     def write(self, msg):
         if not self.__paused:
             self.__scrolled_text.configure(state='normal')
-            self.__scrolled_text.insert(tk.END, msg + '\n')
+            self.__scrolled_text.insert(tk.END, f'{msg}\n')
             self.__scrolled_text.configure(state='disabled')
             # Autoscroll to the bottom
             self.__scrolled_text.yview(tk.END)
@@ -77,7 +77,7 @@ class AppTerminal(ttk.Labelframe):
         self.__pause_button['text'] = self.__pause_symbol()
 
     def __pause_symbol(self):
-        return '▶' if self.__paused else '◼'
+        return '▶' if self.__paused else '⏸'
 
     @property
     def lines(self):

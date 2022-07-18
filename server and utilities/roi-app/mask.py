@@ -142,3 +142,7 @@ class MaskWidget():
     def line_color(self, color):
         """line color setter"""
         self.__line_color = color
+        
+    @property
+    def ready(self):
+        return True if len(self.__coordinates) > 0 and self.__right_clicked else False

@@ -80,7 +80,7 @@ class Camera():
         self.__depth_frame = self.__frameset.as_frameset().get_depth_frame()
         self.__frame_number = self.__depth_frame.frame_number
 
-    def start_callback(self):
+    def start(self):
         """start pipeline and setup new frameset callback
         """
         self.__profile = self.__pipeline.start(self.__pipeline_config,
@@ -94,8 +94,7 @@ class Camera():
         self.__connected = False
 
     def reset(self):
-        """performs a hardware reset on every available device
-        """
+        """performs a hardware reset on every available device"""
         if self.__connected:
             self.stop()
         ctx = rs.context()
@@ -104,6 +103,7 @@ class Camera():
             log.info(f'Resetting device: {dev}')
             dev.hardware_reset()
             time.sleep(4)
+        self.start()
 
     def get_roi(self):
         """get current auto exposure region of interest
