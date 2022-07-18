@@ -1,54 +1,56 @@
-import tkinter
-from tkinter.constants import *
-import logging
-import time
-from tkinter import END, N, S, E, W, Scrollbar, Text
-from tkinter import ttk
+import tkinter as tk
+import tkinter.ttk as ttk
+import sv_ttk
+
+root = tk.Tk()
+mainframe = tk.Frame(root)
 
 
-class LoggingHandlerFrame(ttk.Frame):
+# Model
 
-    class Handler(logging.Handler):
-        def __init__(self, widget):
-            logging.Handler.__init__(self)
-            self.setFormatter(logging.Formatter("%(asctime)s: %(message)s"))
-            self.widget = widget
-            self.widget.config(state='disabled')
-
-        def emit(self, record):
-            self.widget.config(state='normal')
-            self.widget.insert(END, self.format(record) + "\n")
-            self.widget.see(END)
-            self.widget.config(state='disabled')
+class Limiter(ttk.Scale):
+    """ ttk.Scale sublass that limits the precision of values. """
 
     def __init__(self, *args, **kwargs):
-        ttk.Frame.__init__(self, *args, **kwargs)
+        self.precision = kwargs.pop('precision')  # Remove non-std kwarg.
+        self.chain = kwargs.pop('command', lambda *a: None)  # Save if present.
+        super(Limiter, self).__init__(*args, command=self._value_changed, **kwargs)
 
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=0)
-        self.rowconfigure(0, weight=1)
-
-        self.scrollbar = Scrollbar(self)
-        self.scrollbar.grid(row=0, column=1, sticky=(N, S, E))
-
-        self.text = Text(self, yscrollcommand=self.scrollbar.set)
-        self.text.grid(row=0, column=0, sticky=(N, S, E, W))
-
-        self.scrollbar.config(command=self.text.yview)
-
-        self.logging_handler = LoggingHandlerFrame.Handler(self.text)
+    def _value_changed(self, newvalue):
+        newvalue = round(float(newvalue), self.precision)
+        self.winfo_toplevel().globalsetvar(self.cget('variable'), (newvalue))
+        self.chain(newvalue)  # Call user specified function.
 
 
-def loop():
-    print("hi")
-    logging.info(time.time())
-    tk.after(100, loop)
+# Sample client callback.
+def callback(newvalue):
+    print('callback({!r})'.format(newvalue))
 
+input_var = tk.DoubleVar(value=0.)
+spin = tk.Spinbox(mainframe, textvariable=input_var, wrap=True, width=10)
+slide = Limiter(mainframe, variable=input_var, orient='horizontal', length=200,
+                command=callback, precision=4)
 
-tk = tkinter.Tk()
+spin['to'] = 1.0
+spin['from'] = 0.0
+spin['increment'] = 0.01
+slide['to'] = 1.0
+slide['from'] = 0.0
+# slide['digits'] = 4
+# slide['resolution'] = 0.01
 
-log = LoggingHandlerFrame(tk)
-log.grid(row=0, column=0)
+# Layout
 
-tk.after(100, loop)
-tk.mainloop()
+weights = {'spin': 1, 'slide': 100}
+
+mainframe.grid_rowconfigure(0, weight=1)
+mainframe.grid_columnconfigure(0, weight=weights['spin'])
+mainframe.grid_columnconfigure(1, weight=weights['slide'])
+spin.grid(row=0, column=0, sticky='news')
+slide.grid(row=0, column=1, sticky='news')
+
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(0, weight=1)
+mainframe.grid(row=0, column=0)
+
+root.mainloop()

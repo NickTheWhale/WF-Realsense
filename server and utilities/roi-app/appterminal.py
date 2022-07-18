@@ -1,36 +1,26 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
 
-class AppTerminal(tk.Frame):
-    def __init__(self, root, row, column, rowspan=1, columnspan=1, sticky="NSEW"):
-        super().__init__()
-        self.__root = root
-        self.__main_frame = root.main_frame
-        self.__row = row
-        self.__column = column
-        self.__columnspan = columnspan
-        self.__rowspan = rowspan
-        self.__sticky = sticky
+class AppTerminal(ttk.Labelframe):
+    def __init__(self, *args, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+        self._root = self._args[0]
+        super().__init__(*args, **kwargs)
+        self.configure(text="terminal", border=10)
 
         self.__paused = False
 
         self.__create_widgets()
 
     def __create_widgets(self):
-        # terminal frame
-        self.__terminal_frame = tk.Frame(self.__main_frame)
-        self.__terminal_frame.grid(row=self.__row,
-                                   column=self.__column,
-                                   rowspan=self.__rowspan,
-                                   columnspan=self.__columnspan,
-                                   sticky=self.__sticky)
-
         # terminal text
-        self.__scrolled_text = ScrolledText(self.__terminal_frame,
+        self.__scrolled_text = ScrolledText(self,
                                             state='disabled',
                                             height=10,
-                                            width=103)
+                                            width=97)
         self.__scrolled_text.grid(row=0, column=0, rowspan=2, sticky="NSEW")
         self.__scrolled_text.configure(font='TkFixedFont')
         self.__scrolled_text.tag_config('INFO', foreground='black')
@@ -41,14 +31,14 @@ class AppTerminal(tk.Frame):
         self.__scrolled_text.bind('<MouseWheel>', self.on_scroll)
 
         # buttons
-        self.__pause_button = tk.Button(self.__terminal_frame,
-                                        text='◼',
-                                        command=self.flip_pause)
+        self.__pause_button = ttk.Button(self,
+                                         text='◼',
+                                         command=self.flip_pause)
         self.__pause_button.grid(row=0, column=1)
 
-        self.__clear_button = tk.Button(self.__terminal_frame,
-                                        text='🗑',
-                                        command=self.clear)
+        self.__clear_button = ttk.Button(self,
+                                         text='🗑',
+                                         command=self.clear)
         self.__clear_button.grid(row=1, column=1)
 
     def write(self, msg):

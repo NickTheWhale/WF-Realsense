@@ -1,35 +1,14 @@
 import tkinter as tk
+from tkinter import ttk
 
+class AppInfo(ttk.Labelframe):
+    def __init__(self, *args, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+        self._root = self._args[0]
+        super().__init__(*args, **kwargs)
 
-class AppInfo(tk.Frame):
-    def __init__(self, root, row, column, rowspan=1, columnspan=1, sticky="NSEW"):
-        super().__init__()
-        self.__root = root
-        self.__main_frame = root.main_frame
-        self.__row = row
-        self.__column = column
-        self.__columnspan = columnspan
-        self.__rowspan = rowspan
-        self.__sticky = sticky
+        self.configure(text="info", border=10, width=200)
 
-        self.__create_widgets()
-
-    def __create_widgets(self):
-        self.__info_frame = tk.Frame(self.__main_frame, width=200)
-        self.__info_frame.grid(row=self.__row,
-                               column=self.__column,
-                               rowspan=self.__rowspan,
-                               columnspan=self.__columnspan,
-                               sticky=self.__sticky)
-
-    def update(self, data):
-        self.__data = data
-        data_labels = []
-
-        row = 0
-        for key, value in data.items():
-            text = f'{key}: {value:.3f}'
-            data_labels.append(tk.Label(self.__info_frame,
-                                        text=text))
-            data_labels[row].grid(row=row, column=0)
-            row += 1
+        label = ttk.Label(self, text="    info here    ")
+        label.grid(row=0, column=0)

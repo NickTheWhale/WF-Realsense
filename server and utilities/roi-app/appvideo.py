@@ -1,52 +1,94 @@
-import tkinter as tk
+from tkinter import ttk
 import PIL.Image
 import PIL.ImageTk
 
-
-class AppVideo(tk.Frame):
-    def __init__(self, root, row, column, rowspan=1, columnspan=1, sticky="NSEW"):
-        super().__init__()
-        self.__root = root
-        self.__main_frame = self.__root.main_frame
-        self.__row = row
-        self.__column = column
-        self.__columnspan = columnspan
-        self.__rowspan = rowspan
-        self.__sticky = sticky
-
-        self.__paused = False
-
-        self.__create_widgets()
-
-    def __create_widgets(self):
-        # frame
-        self.__video_frame = tk.Frame(self.__main_frame)
-        self.__video_frame.grid(row=self.__row,
-                                column=self.__column,
-                                rowspan=self.__rowspan,
-                                columnspan=self.__columnspan,
-                                sticky=self.__sticky)
+class AppVideo(ttk.Labelframe):
+    def __init__(self, *args, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+        self._root = self._args[0]
+        super().__init__(*args, **kwargs)
+        
+        self.configure(text='video', border=10)
+        
+        self._paused = False
 
         # video
-        self.__video_label = tk.Label(self.__video_frame, cursor="tcross")
+        self._video_label = ttk.Label(self, cursor="tcross")
+        self._video_label.grid(row=0, column=0)
+        
+        # mask controls
+        self._mask_control_frame = ttk.Labelframe(
+            master=self,
+            text='mask controls',
+            border=10
+        )
+        self._mask_control_frame.grid(row=1, column=0)
+        
+        self._mask_reset_button = ttk.Button(
+            master=self._mask_control_frame,
+            text=u"\u21BA", # counterclockwise undo arrow
+            command=self.mask_reset,
+            width=3
+        )
+        
+        self._mask_undo_button = ttk.Button(
+            master=self._mask_control_frame,
+            text=u"\u238C", # undo unicode
+            command=self.mask_undo,
+            width=3
+        )
+        
+        self._mask_see_raw_button = ttk.Button(
+            master=self._mask_control_frame,
+            text=u"\U0001F453", # glasses unicode
+            command=self.mask_see_raw,
+            width=3
+        )
+        self._mask_reset_button.grid(row=0, column=0, padx=3)
+        self._mask_undo_button.grid(row=0, column=1, padx=3)
+        self._mask_see_raw_button.grid(row=0, column=2, padx=3)
+        
+        # video controls
+        self._video_control_frame = ttk.Labelframe(
+            master=self,
+            text='video controls',
+            border=10
+        )
+        self._video_control_frame.grid(row=1, column=1)
+        
+        self._video_pause_button = ttk.Button(
+            master=self._video_control_frame,
+            text='◼'
+        )
+        self._video_pause_button.grid(row=0, column=0)
 
         # bindings
-        self.__video_label.bind("<Motion>", self.__root.mask_widget.get_coordinates)
-        self.__video_label.bind("<Button-1>", self.__root.mask_widget.get_coordinates)
-        self.__video_label.bind("<Button-3>", self.__root.mask_widget.get_coordinates)
+        self._video_label.bind("<Motion>", self._root.mask.get_coordinates)
+        self._video_label.bind("<Button-1>", self._root.mask.get_coordinates)
+        self._video_label.bind("<Button-3>", self._root.mask.get_coordinates)
 
-        self.__video_label.grid(row=0, column=0)
 
     def set_image(self, color_image):
-        if not self.__paused:
+        if not self._paused:
             img = PIL.Image.fromarray(color_image)
             imgtk = PIL.ImageTk.PhotoImage(image=img)
 
-            self.__video_label.imgtk = imgtk
-            self.__video_label.configure(image=imgtk)
-            self.__video_label.update()
+            self._video_label.imgtk = imgtk
+            self._video_label.configure(image=imgtk)
+            self._video_label.update()
 
-        return imgtk
-
+        
     def toggle_paused(self):
-        self.__paused = not self.__paused
+        self._paused = not self._paused
+        symbol = '▶' if self._paused else '◼'
+        self._video_pause_button['text'] = symbol
+
+    def mask_reset(self):
+        self._root.mask_reset()
+        
+    def mask_undo(self):
+        self._root.mask_undo()
+        
+    def mask_see_raw(self):
+        print(self._root.mask.coordinates)

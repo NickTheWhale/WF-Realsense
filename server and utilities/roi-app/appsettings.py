@@ -1,72 +1,55 @@
-import os
-import tkinter as tk
 from tkinter import ttk
-import logging
+from slider import SettingSlider
 
 
-class AppSettings(tk.Frame):
-    def __init__(self, root, row, column, rowspan=1, columnspan=1, sticky="NSEW"):
-        super().__init__()
-        self.__root = root
-        self.__main_frame = self.__root.main_frame
-        self.__row = row
-        self.__column = column
-        self.__columnspan = columnspan
-        self.__rowspan = rowspan
-        self.__sticky = sticky
+class AppSettings(ttk.Labelframe):
+    def __init__(self, *args, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+        self._root = self._args[0]
+        super().__init__(*args, **kwargs)
 
-        self.__create_widgets()
+        self.configure(text='settings', border=10)
 
-    def __create_widgets(self):
-        # frame
-        self.__settings_frame = tk.Frame(self.__main_frame)
-        self.__settings_frame.grid(row=self.__row,
-                                   column=self.__column,
-                                   rowspan=self.__rowspan,
-                                   columnspan=self.__columnspan,
-                                   sticky=self.__sticky)
+        self._sliders = []
+        for i in range(9):
+            self._sliders.append(SettingSlider(
+                self,
+                from_=0.0,
+                to=10.0,
+                step=0.1,
+                start=5.0,
+                label='settings'
+            ))
+            self._sliders[i].grid(row=i, column=0)
 
-        # sliders
-        self.__slider_frame = tk.Frame(self.__settings_frame)
-        self.__slider_frame.grid(row=0, column=0, sticky="N")
-
-        df = [(5, 90, 5, 30),
-              (0, 1, 1, 1),
-              (0, 1, 1, 0),
-              (0, 1, 1, 1),
-              (30, 360, 30, 150),
-              (0, 1, 1, 1),
-              (0, 5, 1, 0),
-              (0, 4, 1, 4),
-              (0, 1, 1, 1)
-              ]
-
-        for row in range(9):
-            start = tk.DoubleVar()
-            start.set(df[row][3])  # set starting value
-
-            label = (tk.Label(self.__slider_frame,
-                              text=f'setting {row+1}'))
-            label.grid(row=row, column=0)
-
-            scale = (tk.Scale(self.__slider_frame,
-                              from_=df[row][0],
-                              to=df[row][1],
-                              resolution=df[row][2],
-                              orient=tk.HORIZONTAL,
-                              width=15,
-                              length=200,
-                              variable=start))
-            scale.grid(row=row, column=1)
-            scale['command'] = lambda scale=scale: self.scale_move(scale)
-            
-        # buttons
-        self.__button_frame = tk.Frame(self.__settings_frame)
-        self.__button_frame.grid(row=1, column=0, sticky="E")
+        self._button_seperator = ttk.Separator(master=self, orient="horizontal")
+        self._button_seperator.grid(row=9, column=0, sticky="NSEW", pady=10)
         
-        self.__reset_button = tk.Button(self.__button_frame,
-                                        text="Reset")
-        self.__reset_button.grid(row=0, column=0)
+        self._button_frame = ttk.Frame(master=self)
+        self._button_frame.grid(row=10, column=0, sticky="NSEW")
+        self._button_frame.columnconfigure(0, weight=1)
 
-    def scale_move(self, scale):
-        print(scale, type(scale))
+        self._reset_button = ttk.Button(
+            master=self._button_frame,
+            text='↺',
+            command=self.reset_callback
+        )
+        self._reset_button.grid(row=0, column=0, padx=5, pady=5, sticky="E")
+        
+        self._save_button = ttk.Button(
+            master=self._button_frame,
+            text='↓',
+            command=self.save_callback
+        )
+        self._save_button.grid(row=0, column=1, padx=5, pady=5)
+        
+
+    def reset_callback(self):
+        for slider in self._sliders:
+            slider.reset()
+        print('reset all settings to default')
+        
+    def save_callback(self):
+        self._args[0].mask_reset()
+        print('settings saved')

@@ -46,14 +46,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-def old_main():
-    try:
-        app = AppWindow("ROI Utility")
-    except RuntimeError as e:
-        print(e)
-    else:
-        # gui loop
-        app.protocol("WM_DELETE_WINDOW", app.on_closing)
-        app.mainloop()

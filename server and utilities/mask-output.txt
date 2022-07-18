@@ -1,0 +1,2 @@
+Copy this into RealSenseOPC Client Application configuration file
+[(227, 193), (86, 266), (317, 311), (227, 193)]
