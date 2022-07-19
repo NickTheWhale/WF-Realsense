@@ -50,5 +50,11 @@ class AppMenu(tk.Menu):
                                     command=self.fake_menu_callback)
         self.add_cascade(label="Help", menu=self.__helpmenu)
 
+        # SETTINGS MENU
+        self.__settingsmenu = tk.Menu(self, tearoff=0)
+        self.__settingsmenu.add_checkbutton(label="dark mode",
+                                        command=self._root.toggle_dark_mode)
+        self.add_cascade(label="Settings", menu=self.__settingsmenu)
+
     def fake_menu_callback(self, evt=None):
         print('menu callback', evt)

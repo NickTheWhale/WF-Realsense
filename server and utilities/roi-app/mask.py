@@ -115,6 +115,13 @@ class MaskWidget():
         text_cd[1] += 12
         return text_cd
 
+    def complete(self):
+        if self.__left_clicked:
+            if not self.__right_clicked:
+                if len(self.coordinates) > 0:
+                    self.__coordinates.append(self.__coordinates[0])
+        self.__right_clicked = True
+
     @property
     def cursor_xy(self):
         """cursor position

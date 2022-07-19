@@ -1,6 +1,5 @@
-import tkinter as tk
 from tkinter import ttk
-from tooltip import CreateToolTip
+from tooltip import ButtonToolTip
 
 import PIL.Image
 import PIL.ImageTk
@@ -19,76 +18,97 @@ class AppVideo(ttk.Labelframe):
         self._paused = False
 
         # video
-        self._video_label = tk.Label(self, cursor="tcross")
+        self._video_label = ttk.Label(
+            master=self,
+            cursor="tcross",
+            relief="sunken",
+            border=2
+        )
         self._video_label.grid(row=0, column=0, columnspan=2)
 
         # MASK CONTROLS
         self._mask_control_frame = ttk.Labelframe(self, text='mask controls', border=5)
         self._mask_control_frame.grid(row=1, column=0)
 
-        # BUTTONS
-        self._mask_reset_button = ttk.Button(
+        # reset
+        self._mask_reset_button = ButtonToolTip(
             master=self._mask_control_frame,
             text='↺',
             command=self.mask_reset,
-            width=3
+            width=3,
+            helptext='Reset (clear) current mask'
         )
         self._mask_reset_button.grid(row=0, column=0, padx=3)
 
-        self._mask_undo_button = ttk.Button(
+        # undo
+        self._mask_undo_button = ButtonToolTip(
             master=self._mask_control_frame,
             text='⎌',
             command=self.mask_undo,
-            width=3
+            width=3,
+            helptext='Undo last mask command'
         )
         self._mask_undo_button.grid(row=0, column=1, padx=3)
 
-        self._mask_see_button = ttk.Button(
+        # see
+        self._mask_see_button = ButtonToolTip(
             master=self._mask_control_frame,
             text='👓',
             command=self.mask_see_raw,
-            width=3
+            width=3,
+            helptext='Output list of coordinates to terminal'
         )
         self._mask_see_button.grid(row=0, column=2, padx=3)
+        
+        # complete
+        self._mask_complete_button = ButtonToolTip(
+            master=self._mask_control_frame,
+            text='✓',
+            command=self.mask_complete,
+            width=3,
+            helptext='Complete (close) mask'
+        )
+        self._mask_complete_button.grid(row=0, column=3, padx=3)
 
         # VIDEO CONTROLS
         self._video_controls_frame = ttk.Labelframe(self, text='video controls', border=5)
         self._video_controls_frame.grid(row=1, column=1)
 
-        # BUTTONS
-        self._video_pause_button = ttk.Button(
+        # pause
+        self._video_pause_button = ButtonToolTip(
             master=self._video_controls_frame,
-            text='⏸',
+            text='◼',
             command=self.toggle_pause,
-            width=3
+            width=3,
+            helptext='Pause/unpause video'
         )
         self._video_pause_button.grid(row=0, column=0, padx=3)
-        self._video_pause_button_tp = CreateToolTip(
-            self._video_pause_button,
-            text='Pause and unpause camera stream and video',
-            delay=1000
-        )
 
-        self._video_restart_button = ttk.Button(
+        # restart
+        self._video_restart_button = ButtonToolTip(
             master=self._video_controls_frame,
             text='⟳',
             command=self.restart_camera,
-            width=3
+            width=3,
+            helptext='Restart camera stream'
         )
         self._video_restart_button.grid(row=0, column=1, padx=3)
 
-        self._camera_reset_button = ttk.Button(
+        # reset
+        self._camera_reset_button = ButtonToolTip(
             master=self._video_controls_frame,
             text='↺',
             command=self.reset_camera,
-            width=3
+            width=3,
+            helptext='Hardware reset camera and stop stream. '
+            'Use "Restart camera" button to resume stream'
         )
         self._camera_reset_button.grid(row=0, column=2, padx=3)
 
-        # bindings
-        self._video_label.bind("<Motion>", self._root.mask.get_coordinates)
-        self._video_label.bind("<Button-1>", self._root.mask.get_coordinates)
-        self._video_label.bind("<Button-3>", self._root.mask.get_coordinates)
+        # BINDINGS
+        self._video_label.bind("<Motion>", self.get_coordinates)
+        self._video_label.bind("<Button-1>", self.get_coordinates)
+        self._video_label.bind("<Button-3>", self.get_coordinates)
 
         self.after(50, self.set_image)
 
@@ -105,12 +125,12 @@ class AppVideo(ttk.Labelframe):
         self.after(50, self.set_image)
 
     def pause(self):
-        # self.set_pause_symbol()
         self._paused = True
+        self.set_pause_symbol()
 
     def unpause(self):
-        # self.set_pause_symbol()
         self._paused = False
+        self.set_pause_symbol()
 
     def toggle_pause(self):
         self._paused = not self._paused
@@ -124,7 +144,7 @@ class AppVideo(ttk.Labelframe):
         return self._paused
 
     def set_pause_symbol(self):
-        symbol = '▶' if self._paused else '⏸'
+        symbol = '▶' if self._paused else '◼'
         self._video_pause_button['text'] = symbol
 
     def mask_reset(self):
@@ -135,14 +155,21 @@ class AppVideo(ttk.Labelframe):
 
     def mask_see_raw(self):
         self._root.terminal.write(self._root.mask.coordinates)
-        print(self._root.mask.coordinates)
+    
+    def mask_complete(self):
+        self._root.mask.complete()
 
     def restart_camera(self):
-        self._root.camera.stop()
-        self._root.camera.start()
+        self._root.camera.restart()
 
     def reset_camera(self):
+        self._camera_reset_button['state'] = 'disabled'
         self._root.camera.reset()
+        self._camera_reset_button['state'] = 'enabled'
+
+    def get_coordinates(self, *args, **kwargs):
+        if not self._paused:
+            self._root.mask.get_coordinates(*args, **kwargs)
 
     @property
     def paused(self):

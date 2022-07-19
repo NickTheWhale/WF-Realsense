@@ -16,6 +16,7 @@ from appterminal import AppTerminal
 from appvideo import AppVideo
 from mask import MaskWidget
 from newcamera import Camera
+from config import Config
 
 # constants
 DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
@@ -36,9 +37,10 @@ class AppWindow(tk.Tk):
 
         # create main gui window
         self.title(window_title)
-        self._main_frame = ttk.Frame(self)
-        self._main_frame.grid(column=0, row=0, sticky="NSEW")
-        self.resizable(False, False)
+        
+        # self.resizable(False, False)
+        self.resizable(True, True)
+        
         self._drag_id = ''
 
         # camera/video variables
@@ -53,11 +55,14 @@ class AppWindow(tk.Tk):
         self._new_frame_count = 0
         self._color_image = None
 
+        self._configurator = Config('configuration.ini')
         try:
             self._camera = Camera(width=WIDTH,
                                   height=HEIGHT,
                                   framerate=FRAMERATE,
-                                  metric=False)
+                                  metric=False,
+                                  config=self._configurator.data)
+            self._camera.options.get_camera_options()
             self._camera.start()
         except RuntimeError as e:
             raise RuntimeError(
@@ -96,12 +101,20 @@ class AppWindow(tk.Tk):
                                    padx=10,
                                    pady=10,
                                    sticky="N")
+        
+        # resizing
+        self.rowconfigure(0, weight=1, minsize=100)
+        self.rowconfigure(1, weight=1, minsize=100)
+
+        self.columnconfigure(0, weight=1, minsize=100)
+        self.columnconfigure(3, weight=1, minsize=100)
 
         # bindings
         self.bind_all("<Control-q>", self.on_closing)
         self.bind_all("<Control-z>", self.mask_undo)
         self.bind_all("<Control-r>", self.mask_reset)
         self.bind_all("<Configure>", self.dragging)
+
         self._start_time = time.time()
 
     @property
@@ -135,6 +148,10 @@ class AppWindow(tk.Tk):
     @property
     def color_image(self):
         return self._color_image
+    
+    @property
+    def configurator(self):
+        return self._configurator
 
     def update_roi_stats(self, depth_frame):
         # get frame and polygon
@@ -179,8 +196,9 @@ class AppWindow(tk.Tk):
 
         if self._new_frame_count > FRAMERATE:
             if self._mask_widget.ready:
-                self.update_roi_stats(depth_frame)
-                self._terminal_widget.write(self.formatted_stats)
+                if not self._terminal_widget.camera_supress:
+                    self.update_roi_stats(depth_frame)
+                    self._terminal_widget.write(self.formatted_stats)
             self._new_frame_count = 0
 
     def get_program_path(self) -> str:
@@ -226,6 +244,7 @@ class AppWindow(tk.Tk):
             self._settings_widget.change_text(
                 str(self._mask_widget.coordinates))
 
+    # region
     # def _menu_save_image(self):
     #     image = self._image
     #     if image is not None:
@@ -265,7 +284,8 @@ class AppWindow(tk.Tk):
     #             os.mkdir(snapshot_path)
     #             # SAVE IMAGE
     #             image.save(f'{path}\\snapshots\\{timestamp}.jpg')
-
+    # endregion
+    
     def _menu_documentation(self, url):
         return webbrowser.open(url)
 
@@ -277,6 +297,9 @@ class AppWindow(tk.Tk):
 
     def mask_undo(self, *args, **kwargs):
         self._mask_widget.undo()
+        
+    def toggle_dark_mode(self, *args, **kwargs):
+        sv_ttk.toggle_theme()        
 
     def on_closing(self, *args, **kwargs):
         """prompt user if they are sure they want to quit when they hit the 'x'"""
@@ -289,13 +312,23 @@ class AppWindow(tk.Tk):
     def fake_callback(self, *args, **kwargs):
         print("fake callback", args, kwargs)
 
-    def dragging(self, *args, **kwargs):
-        if args[0].widget is self:
-            if self._drag_id != '':
-                self.after_cancel(self._drag_id)
+    def dragging(self, event):
+        # if event.widget is self:
+        #     if self._drag_id != '':
+        #         self.after_cancel(self._drag_id)
+        #     if not self._video_widget.paused:
+        #         self._video_widget.pause()
+        #     self._drag_id = self.after(200, self.stop_drag)
+        if self._drag_id != '':
+            self.after_cancel(self._drag_id)
+        elif not self._video_widget.paused:
             self._video_widget.pause()
-            self._drag_id = self.after(200, self.stop_drag)
+        self._drag_id = self.after(1000, self.stop_drag)
+        print(event.widget, self._drag_id)
 
     def stop_drag(self):
-        self._video_widget.unpause()
+        if self._video_widget.paused:
+            self._video_widget.unpause()
         self._drag_id = ''
+
+# 'char', 'delta', 'height', 'keycode', 'keysym', 'keysym_num', 'num', 'send_event', 'serial', 'state', 'time', 'type', 'widget', 'width', 'x', 'x_root', 'y', 'y_root']

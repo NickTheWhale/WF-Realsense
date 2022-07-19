@@ -81,20 +81,21 @@ class Camera():
         self.__frame_number = self.__depth_frame.frame_number
 
     def start(self):
-        """start pipeline and setup new frameset callback
-        """
-        self.__profile = self.__pipeline.start(self.__pipeline_config,
-                                               self.__depth_callback)
+        """start pipeline and setup new frameset callback"""
+        if not self.__connected:
+            self.__profile = self.__pipeline.start(self.__pipeline_config,
+                                                self.__depth_callback)
         self.__connected = True
 
     def stop(self):
-        """stop pipeline
-        """
-        self.__pipeline.stop()
+        """stop pipeline"""
+        if self.__connected:
+            self.__pipeline.stop()
         self.__connected = False
 
     def reset(self):
         """performs a hardware reset on every available device"""
+        
         if self.__connected:
             self.stop()
         ctx = rs.context()
@@ -102,8 +103,13 @@ class Camera():
         for dev in devices:
             log.info(f'Resetting device: {dev}')
             dev.hardware_reset()
-            time.sleep(4)
-        self.start()
+            time.sleep(1)
+        
+    def restart(self):
+        if self.__connected:
+            self.stop()
+        if not self.__connected:
+            self.start()
 
     def get_roi(self):
         """get current auto exposure region of interest
@@ -492,7 +498,6 @@ class CameraOptions():
         for op in cam_ops:
             op = op.name
             self.__camera_options.append(op)
-        print(self.__camera_options)
         return self.__camera_options
 
     def get_user_options(self):
@@ -510,7 +515,12 @@ class CameraOptions():
         return self.__user_options
 
     def get_option_range(self, option):
-        pass
+        if hasattr(rs.option, option):
+            option = getattr(rs.option, option)
+            option_range = self.__depth_sensor.get_option_range(option)
+            return (True, option_range)
+        return (False, None)
+
 
     def set_options(self):
         """checks if the user option exists in the available camera options list,

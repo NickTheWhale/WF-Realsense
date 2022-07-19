@@ -1,21 +1,15 @@
-""" tk_ToolTip_class101.py
-gives a Tkinter widget a tooltip as the mouse is above the widget
-tested with Python27 and Python34  by  vegaseat  09sep2014
-www.daniweb.com/programming/software-development/code/484591/a-tooltip-class-for-tkinter
-
-Modified to include a delay time by Victor Zaccardo, 25mar16
-"""
-
 import tkinter as tk
 from tkinter import ttk
 
-class CreateToolTip(object):
-    """
-    create a tooltip for a given widget
-    """
-    def __init__(self, widget, text='widget info', delay=500):
-        self.waittime = delay     #miliseconds
-        self.wraplength = 180   #pixels
+
+class CreateToolTip():
+    """create a tooltip for a given widget"""
+
+    def __init__(self, widget, text='button', delay=500, helpx=35, helpy=30):
+        self.helpx = helpx
+        self.helpy = helpy
+        self.waittime = delay  # miliseconds
+        self.wraplength = 180  # pixels
         self.widget = widget
         self.text = text
         self.widget.bind("<Enter>", self.enter)
@@ -44,20 +38,74 @@ class CreateToolTip(object):
     def showtip(self, event=None):
         x = y = 0
         x, y, cx, cy = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + 35
-        y += self.widget.winfo_rooty() + 30
+        x += self.widget.winfo_rootx() + self.helpx
+        y += self.widget.winfo_rooty() + self.helpy
         # creates a toplevel window
         self.tw = tk.Toplevel(self.widget)
         # Leaves only the label and removes the app window
         self.tw.wm_overrideredirect(True)
         self.tw.wm_geometry("+%d+%d" % (x, y))
-        label = ttk.Label(self.tw, text=self.text, justify='left',
-                       background="#ffffff", relief='solid', borderwidth=1,
-                       wraplength = self.wraplength)
+        label = ttk.Label(
+            self.tw,
+            text=self.text,
+            justify='left',
+            relief='solid',
+            borderwidth=1,
+            wraplength=self.wraplength
+        )
         label.pack(ipadx=1)
 
     def hidetip(self):
         tw = self.tw
-        self.tw= None
+        self.tw = None
         if tw:
             tw.destroy()
+
+
+class ButtonToolTip(ttk.Button):
+    def __init__(self, *args, **kwargs):
+        self._helptext = 'button'
+        self._delay = 500
+        self._helpx = 35
+        self._helpy = 30
+
+        if 'helptext' in kwargs:
+            self._helptext = kwargs['helptext']
+            kwargs.pop('helptext')
+        if 'delay' in kwargs:
+            self._delay = kwargs['delay']
+            kwargs.pop('delay')
+        if 'helpx' in kwargs:
+            self.helpx = kwargs['helpx']
+            kwargs.pop('helpx')
+        if 'helpy' in kwargs:
+            self.helpy = kwargs['helpy']
+            kwargs.pop('helpy')
+
+        super().__init__(*args, **kwargs)
+        CreateToolTip(
+            self,
+            text=self._helptext,
+            delay=self._delay,
+            helpx=self._helpx,
+            helpy=self._helpy
+        )
+
+
+class CheckButtonToolTip(ttk.Checkbutton):
+    def __init__(self, *args, **kwargs):
+        
+        self._helptext = kwargs.pop('helptext', 'button')
+        self._delay = kwargs.pop('delay', 500)
+        self._helpx = kwargs.pop('helpx', 35)
+        self._helpy = kwargs.pop('helpy', 30)
+        
+        super().__init__(*args, **kwargs, style='Toggle.TButton')
+        CreateToolTip(
+            self,
+            text=self._helptext,
+            delay=self._delay,
+            helpx=self._helpx,
+            helpy=self._helpy
+        )
+

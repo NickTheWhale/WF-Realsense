@@ -26,28 +26,24 @@ class App(threading.Thread):
     @property
     def app_window(self):
         return self.__app
-    
+
     @property
     def app(self):
         return self.__app
 
 
 def main():
-    try:
-        app = App()
-    except RuntimeError as e:
-        print(e)
-    else:
-        while not app.ready:
-            time.sleep(0.1)
+    app = App()
 
-        while app.is_alive():
-            app.app_window.loop()
-            if LOOP_DELAY > 0:
-                time.sleep(LOOP_DELAY / 1000)
-            else:
-                pass
-        print("exited program")
+    while not app.ready:
+        time.sleep(0.1)
+
+    while app.is_alive():
+        app.app_window.loop()
+        if LOOP_DELAY > 0:
+            time.sleep(LOOP_DELAY / 1000)
+        else:
+            pass
 
 
 if __name__ == "__main__":
