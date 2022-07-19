@@ -64,23 +64,11 @@ class CreateToolTip():
 
 class ButtonToolTip(ttk.Button):
     def __init__(self, *args, **kwargs):
-        self._helptext = 'button'
-        self._delay = 500
-        self._helpx = 35
-        self._helpy = 30
 
-        if 'helptext' in kwargs:
-            self._helptext = kwargs['helptext']
-            kwargs.pop('helptext')
-        if 'delay' in kwargs:
-            self._delay = kwargs['delay']
-            kwargs.pop('delay')
-        if 'helpx' in kwargs:
-            self.helpx = kwargs['helpx']
-            kwargs.pop('helpx')
-        if 'helpy' in kwargs:
-            self.helpy = kwargs['helpy']
-            kwargs.pop('helpy')
+        self._helptext = kwargs.pop('helptext', 'button')
+        self._delay = kwargs.pop('delay', 500)
+        self._helpx = kwargs.pop('helpx', 35)
+        self._helpy = kwargs.pop('helpy', 30)
 
         super().__init__(*args, **kwargs)
         CreateToolTip(

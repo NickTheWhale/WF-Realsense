@@ -9,14 +9,14 @@ from tkinter import messagebox, ttk
 import numpy as np
 import sv_ttk
 
-from appinfo import AppInfo
-from appmenu import AppMenu
-from appsettings import AppSettings
-from appterminal import AppTerminal
-from appvideo import AppVideo
-from mask import MaskWidget
-from newcamera import Camera
-from config import Config
+from frames.appinfo import AppInfo
+from frames.appmenu import AppMenu
+from frames.appsettings import AppSettings
+from frames.appterminal import AppTerminal
+from frames.appvideo import AppVideo
+from camera.mask import MaskWidget
+from camera.newcamera import Camera
+from camera.config import Config
 
 # constants
 DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
@@ -25,8 +25,9 @@ MASK_OUTPUT_FILE_NAME = "mask.txt"
 
 HEIGHT = 480
 WIDTH = 848
-FRAMERATE = 30
 METER_TO_FEET = 3.28084
+
+RESIZABLE = False
 
 
 class AppWindow(tk.Tk):
@@ -38,8 +39,10 @@ class AppWindow(tk.Tk):
         # create main gui window
         self.title(window_title)
         
-        # self.resizable(False, False)
-        self.resizable(True, True)
+        if RESIZABLE:
+            self.resizable(True, True)
+        else:
+            self.resizable(False, False)
         
         self._drag_id = ''
 
@@ -56,11 +59,13 @@ class AppWindow(tk.Tk):
         self._color_image = None
 
         self._configurator = Config('configuration.ini')
+        self._framerate = int(self._configurator.get_value('camera', 'framerate', 30))
+        self._metric = bool(self._configurator.get_value('camera', 'metric', False))
         try:
             self._camera = Camera(width=WIDTH,
                                   height=HEIGHT,
-                                  framerate=FRAMERATE,
-                                  metric=False,
+                                  framerate=self._framerate,
+                                  metric=self._metric,
                                   config=self._configurator.data)
             self._camera.options.get_camera_options()
             self._camera.start()
@@ -77,29 +82,29 @@ class AppWindow(tk.Tk):
         self._info_widget.grid(row=0,
                                column=0,
                                rowspan=2,
-                               padx=10,
-                               pady=10,
+                               padx=5,
+                               pady=5,
                                sticky="NSEW")
 
         self._video_widget = AppVideo(self)
         self._video_widget.grid(row=0,
                                 column=1,
-                                padx=10,
-                                pady=10,
+                                padx=5,
+                                pady=5,
                                 sticky="N")
 
         self._terminal_widget = AppTerminal(self)
         self._terminal_widget.grid(row=1,
                                    column=1,
-                                   padx=10,
-                                   pady=10)
+                                   padx=5,
+                                   pady=5)
 
         self._settings_widget = AppSettings(self)
         self._settings_widget.grid(row=0,
                                    column=3,
                                    rowspan=2,
-                                   padx=10,
-                                   pady=10,
+                                   padx=5,
+                                   pady=5,
                                    sticky="N")
         
         # resizing
@@ -194,7 +199,7 @@ class AppWindow(tk.Tk):
                 self._mask_widget.draw(color_image)
                 self._color_image = color_image
 
-        if self._new_frame_count > FRAMERATE:
+        if self._new_frame_count > self._framerate:
             if self._mask_widget.ready:
                 if not self._terminal_widget.camera_supress:
                     self.update_roi_stats(depth_frame)
@@ -313,18 +318,19 @@ class AppWindow(tk.Tk):
         print("fake callback", args, kwargs)
 
     def dragging(self, event):
-        # if event.widget is self:
-        #     if self._drag_id != '':
-        #         self.after_cancel(self._drag_id)
-        #     if not self._video_widget.paused:
-        #         self._video_widget.pause()
-        #     self._drag_id = self.after(200, self.stop_drag)
-        if self._drag_id != '':
-            self.after_cancel(self._drag_id)
-        elif not self._video_widget.paused:
-            self._video_widget.pause()
-        self._drag_id = self.after(1000, self.stop_drag)
-        print(event.widget, self._drag_id)
+        if RESIZABLE:
+            if self._drag_id != '':
+                self.after_cancel(self._drag_id)
+            elif not self._video_widget.paused:
+                self._video_widget.pause()
+            self._drag_id = self.after(200, self.stop_drag)
+        else:
+            if event.widget is self:
+                if self._drag_id != '':
+                    self.after_cancel(self._drag_id)
+                if not self._video_widget.paused:
+                    self._video_widget.pause()
+                self._drag_id = self.after(200, self.stop_drag)
 
     def stop_drag(self):
         if self._video_widget.paused:

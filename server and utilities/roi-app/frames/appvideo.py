@@ -1,5 +1,5 @@
 from tkinter import ttk
-from tooltip import ButtonToolTip
+from widgets.tooltip import ButtonToolTip
 
 import PIL.Image
 import PIL.ImageTk
@@ -33,7 +33,7 @@ class AppVideo(ttk.Labelframe):
         # reset
         self._mask_reset_button = ButtonToolTip(
             master=self._mask_control_frame,
-            text='↺',
+            text='🗑',
             command=self.mask_reset,
             width=3,
             helptext='Reset (clear) current mask'
@@ -145,7 +145,11 @@ class AppVideo(ttk.Labelframe):
 
     def set_pause_symbol(self):
         symbol = '▶' if self._paused else '◼'
+        status = 'paused' if self._paused else 'running'
+        self.set_status(status)
         self._video_pause_button['text'] = symbol
+        self.update_idletasks()
+        
 
     def mask_reset(self):
         self._root.mask_reset()
@@ -160,13 +164,19 @@ class AppVideo(ttk.Labelframe):
         self._root.mask.complete()
 
     def restart_camera(self):
+        self.pause()
         self._root.camera.restart()
+        self.unpause()
 
     def reset_camera(self):
+        self.pause()
         self._camera_reset_button['state'] = 'disabled'
         self._root.camera.reset()
         self._camera_reset_button['state'] = 'enabled'
 
+    def set_status(self, status):
+        self.configure(text=f'video ({status})')
+    
     def get_coordinates(self, *args, **kwargs):
         if not self._paused:
             self._root.mask.get_coordinates(*args, **kwargs)

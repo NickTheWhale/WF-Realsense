@@ -1,7 +1,7 @@
 import threading
 import time
 
-from appwindow import AppWindow
+from frames.appwindow import AppWindow
 
 # constants
 LOOP_DELAY = 1  # sleep time in ms between update loops

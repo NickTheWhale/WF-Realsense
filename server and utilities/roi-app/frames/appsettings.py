@@ -1,7 +1,6 @@
 from tkinter import ttk
-from slider import SettingSlider
-from tooltip import ButtonToolTip
-
+from widgets.settings import SettingSlider
+from widgets.tooltip import ButtonToolTip
 
 class AppSettings(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
@@ -18,14 +17,19 @@ class AppSettings(ttk.Labelframe):
         self._sliders = []
         last_row = 0
         for key, value in self._config['camera'].items():
-            ret, o = self._camera.options.get_option_range(key)
+            ret, option = self._camera.options.get_option_range(key)
             if ret:
-                start = float(value)
+                try:
+                    start = float(value)
+                except ValueError as e:
+                    start = option.default
+                    self._root.terminal.write_warning(f'{key}: {e}. Defaulted to {start}')
+                
                 self._sliders.append(SettingSlider(
                     self,
-                    from_=o.min,
-                    to=o.max,
-                    step=o.step,
+                    from_=option.min,
+                    to=option.max,
+                    step=option.step,
                     start=start,
                     label=key
                 ))

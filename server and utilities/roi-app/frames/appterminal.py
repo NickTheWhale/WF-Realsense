@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
-from tooltip import ButtonToolTip, CheckButtonToolTip
+from widgets.tooltip import ButtonToolTip, CheckButtonToolTip
 
 
 class AppTerminal(ttk.Labelframe):
@@ -11,7 +11,7 @@ class AppTerminal(ttk.Labelframe):
         self._kwargs = kwargs
         self._root = self._args[0]
         super().__init__(*args, **kwargs)
-        self.configure(text="terminal", border=10)
+        self.configure(border=10)
 
         self.__paused = False
         self.__lines = 0
@@ -76,6 +76,7 @@ class AppTerminal(ttk.Labelframe):
             helptext='Expand/collapse terminal'
         )
         self.__expand_button.grid(row=3, column=1)
+        self.set_status()
         
 
     def write(self, msg):
@@ -86,6 +87,12 @@ class AppTerminal(ttk.Labelframe):
             self.__scrolled_text.configure(state='disabled')
             # Autoscroll to the bottom
             self.__scrolled_text.yview(tk.END)
+            
+    def write_error(self, msg):
+        self.write(f'[Error] {msg}')
+        
+    def write_warning(self, msg):
+        self.write(f'[Warning] {msg}')
 
     def clear(self):
         self.__scrolled_text.configure(state="normal")
@@ -105,15 +112,15 @@ class AppTerminal(ttk.Labelframe):
 
     def pause(self):
         self.__paused = True
-        self.__pause_button['text'] = self.__pause_symbol()
-
+        self.set_status()
+        
     def unpause(self):
         self.__paused = False
-        self.__pause_button['text'] = self.__pause_symbol()
+        self.set_status()
 
     def flip_pause(self):
         self.__paused = not self.__paused
-        self.__pause_button['text'] = self.__pause_symbol()
+        self.set_status()
         
     def toggle_camera_supress(self):
         self.__camera_supress = not self.__camera_supress
@@ -131,6 +138,12 @@ class AppTerminal(ttk.Labelframe):
             self.__scrolled_text['height'] = 10
             self.__expand_button['text'] = '⇩'
             self.__scrolled_text.yview(tk.END)
+            
+    def set_status(self):
+        self.__pause_button['text'] = self.__pause_symbol()
+        status = 'paused' if self.__paused else 'running'
+        self.configure(text=f'terminal ({status})')
+        self.update_idletasks()
 
     def __pause_symbol(self):
         return '▶' if self.__paused else '◼'

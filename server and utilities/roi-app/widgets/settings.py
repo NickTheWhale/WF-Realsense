@@ -1,7 +1,7 @@
 from decimal import Decimal
 import tkinter as tk
 from tkinter import ttk
-from tooltip import ButtonToolTip
+from widgets.tooltip import ButtonToolTip
 from ttkwidgets import TickScale
 
 
@@ -87,3 +87,15 @@ class SettingSlider(ttk.Labelframe):
 
     def reset(self):
         self.reset_callback()
+        
+        
+
+class SettingsEntry(ttk.Labelframe):
+    def __init__(self, *args, **kwargs):
+        self._root = args[0].root
+        self._camera = args[0].camera
+
+        self._label = kwargs.pop('label')
+        self._defualt = kwargs.pop('defualt')
+        
+        super().__init__(*args, **kwargs)        
