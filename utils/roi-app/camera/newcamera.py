@@ -5,9 +5,11 @@ date:    June 2022
 license: TODO
 """
 
+from ast import Call
 import difflib as diff
 import logging as log
 import time
+from typing import Callable
 
 import cv2
 import numpy as np
@@ -19,7 +21,7 @@ METER_TO_FEET = 3.28084
 
 
 class Camera():
-    def __init__(self, width=848, height=480, framerate=0, metric=False, config=None):
+    def __init__(self, width=848, height=480, framerate=0, metric=False, config=None, callback=None):
         """create a Camera object to interface with camera. 
         Creating a Camera object also creates a CameraOptions object
         used for setting and getting camera settings
@@ -34,6 +36,11 @@ class Camera():
         :type framerate: int, optional
         """
         # connect to camera
+        if isinstance(callback, Callable):
+            self.__callback = callback
+        else:
+            self.__callback = self.__depth_callback
+
         self.__context = rs.context()
         self.__context.set_devices_changed_callback(self.__disconnect_callback)
         self.__pipeline = rs.pipeline()
@@ -76,26 +83,31 @@ class Camera():
         :param fs: rs.type
         :type fs: rs.type
         """
+
         self.__frameset = fs
         self.__depth_frame = self.__frameset.as_frameset().get_depth_frame()
         self.__frame_number = self.__depth_frame.frame_number
-
+        
     def start(self):
         """start pipeline and setup new frameset callback"""
+
         if not self.__connected:
-            self.__profile = self.__pipeline.start(self.__pipeline_config,
-                                                self.__depth_callback)
+            self.__profile = self.__pipeline.start(
+                self.__pipeline_config,
+                self.__callback
+            )
         self.__connected = True
 
     def stop(self):
         """stop pipeline"""
+
         if self.__connected:
             self.__pipeline.stop()
         self.__connected = False
 
     def reset(self):
         """performs a hardware reset on every available device"""
-        
+
         if self.__connected:
             self.stop()
         ctx = rs.context()
@@ -104,8 +116,10 @@ class Camera():
             log.info(f'Resetting device: {dev}')
             dev.hardware_reset()
             time.sleep(1)
-        
+
     def restart(self):
+        """call stop() and start()"""
+
         if self.__connected:
             self.stop()
         if not self.__connected:
@@ -117,6 +131,7 @@ class Camera():
         :return: bounding box coordinates
         :rtype: tuple
         """
+
         sensor = self.__profile.get_device().first_roi_sensor()
         roi = sensor.get_region_of_interest()
         return (roi.min_x, roi.min_y, roi.max_x, roi.max_y)
@@ -127,9 +142,16 @@ class Camera():
         :param roi: region of interest
         :type roi: pyrealsense2.region_of_interest
         """
+
         sensor = self.__profile.get_device().first_roi_sensor()
         sensor.set_region_of_interest(roi)
 
+    def to_color(self, depth_frame):
+        color_image = self.__colorizer.colorize(depth_frame)
+        color_image = np.asanyarray(color_image.get_data())
+        return color_image
+    
+    
     def __disconnect_callback(self, info):
         """called when a camera device is connected or disconnected. Updates  
         self.__connected
@@ -137,11 +159,22 @@ class Camera():
         :param info: rs.event
         :type info: rs.event
         """
+
         devs = info.get_new_devices()
         if devs.size() < 1:
             self.__connected = False
 
     def ROI_stats(self, polygon, filter_level=0):
+        """similar to ROI_depth(), but returns a tuple of statistics
+
+        :param polygon: mask polygon
+        :type polygon: list
+        :param filter_level: amount of filtering, defaults to 0
+        :type filter_level: int, optional
+        :return: statistics (depth, %invalid, deviation, min, max)
+        :rtype: tuple
+        """
+
         depth_frame = self.__depth_frame
         if depth_frame is not None:
             polygon = np.array(polygon)
@@ -406,24 +439,6 @@ class Camera():
         return self.options.get_camera_value('projector_temperature')
 
     @property
-    def depth_frame(self):
-        """returns depth frame
-
-        :return: depth frame
-        :rtype: rs.depth_frame
-        """
-        return self.__depth_frame
-
-    @depth_frame.setter
-    def depth_frame(self, df):
-        """set depth frame
-
-        :param df: depth frame
-        :type df: pyrealsense2.depth_frame
-        """
-        self.__depth_frame = df
-
-    @property
     def connected(self):
         """connection status of camera. Do not use this as the only
         connection error detection
@@ -443,15 +458,6 @@ class Camera():
         return self.__saving_image
 
     @property
-    def frame_number(self) -> int:
-        """return frame number from last depth callback
-
-        :return: frame number
-        :rtype: int
-        """
-        return self.__frame_number
-
-    @property
     def colorizer(self):
         """return pyrealsense2.colorizer object
 
@@ -463,6 +469,44 @@ class Camera():
     @property
     def color_image(self):
         return self.__color_image
+
+    @property
+    def frame_number(self) -> int:
+        """return frame number from last depth callback
+
+        :return: frame number
+        :rtype: int
+        """
+        return self.__frame_number
+
+    @frame_number.setter
+    def frame_number(self, num: int):
+        """set frame_number
+
+        :param num: new frame number
+        :type num: int
+        """
+
+        self.__frame_number = num
+
+    @property
+    def depth_frame(self):
+        """returns depth frame
+
+        :return: depth frame
+        :rtype: rs.depth_frame
+        """
+        return self.__depth_frame
+
+    @depth_frame.setter
+    def depth_frame(self, df):
+        """set depth frame
+
+        :param df: depth frame
+        :type df: pyrealsense2.frame
+        """
+
+        self.__depth_frame = df
 
 
 class CameraOptions():
@@ -520,7 +564,6 @@ class CameraOptions():
             option_range = self.__depth_sensor.get_option_range(option)
             return (True, option_range)
         return (False, None)
-
 
     def set_options(self):
         """checks if the user option exists in the available camera options list,

@@ -1,3 +1,4 @@
+import configparser
 from decimal import Decimal
 import tkinter as tk
 from tkinter import ttk
@@ -5,14 +6,16 @@ from widgets.tooltip import ButtonToolTip
 from ttkwidgets import TickScale
 
 
-class SettingSlider(ttk.Labelframe):
+class SettingsSlider(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
         self._root = args[0].root
         self._camera = args[0].camera
+        self._configurator = self._root.configurator
         self._from = kwargs.pop('from_')
         self._to = kwargs.pop('to')
         self._step = kwargs.pop('step')
         self._label = kwargs.pop('label')
+        self._section = kwargs.pop('section')
         self._start = kwargs.pop('start')
 
         super().__init__(*args, **kwargs)
@@ -20,8 +23,7 @@ class SettingSlider(ttk.Labelframe):
         self._raw_level = tk.DoubleVar()
         self._level = self.constrain_value(self._start)
 
-        self.configure(text=f'{self._label} {self._level}')
-        self.configure(border=1)
+        self.configure(text=f'{self._label} {self._level}', border=1)
 
         self._slider = TickScale(
             master=self,
@@ -79,23 +81,42 @@ class SettingSlider(ttk.Labelframe):
         return float(constrained_val)
 
     def save(self):
-        ret = self._camera.options.set_rs_option_direct(self._label, self._level)
-        if not ret:
-            self._root.terminal.write(f'Failed to set "{self._label}" to "{self._level}"')
-        else:
-            self._root.terminal.write(f'Set "{self._label}" to "{self._level}"')
+        if self._section == 'camera':
+            # save to camera
+            ret = self._camera.options.set_rs_option_direct(self._label, self._level)
+            if not ret:
+                self._root.terminal.write_camera(
+                    f'Failed to set "{self._label}" to "{self._level}"')
+            else:
+                self._root.terminal.write_camera(
+                    f'Set "{self._label}" to "{self._level}"')
+
+        # write to configurator file
+        self._configurator.set(self._section, self._label, str(self._level))
 
     def reset(self):
         self.reset_callback()
-        
-        
+
 
 class SettingsEntry(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
         self._root = args[0].root
         self._camera = args[0].camera
-
+        self._configurator = self._root.configurator
         self._label = kwargs.pop('label')
-        self._defualt = kwargs.pop('defualt')
+        self._section = kwargs.pop('section')
+        self._start = kwargs.pop('start')
+
+        self._text = tk.StringVar()
+        self._text.set(self._start)
+
+        super().__init__(*args, **kwargs)
         
-        super().__init__(*args, **kwargs)        
+        self.configure(text=self._start, border=1)
+        
+        self._entry = ttk.Entry(
+            master=self,
+            width=30,
+            textvariable=self._text
+        )
+        self._entry.grid(row=0, column=0, padx=3, pady=3)

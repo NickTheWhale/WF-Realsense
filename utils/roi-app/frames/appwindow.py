@@ -4,19 +4,20 @@ import time
 import tkinter as tk
 import tkinter.filedialog as tkFileDialog
 import webbrowser
-from tkinter import messagebox, ttk
+from tkinter import messagebox
 
 import numpy as np
+import pyrealsense2 as rs
 import sv_ttk
+from camera.config import Config
+from camera.mask import MaskWidget
+from camera.newcamera import Camera
 
 from frames.appinfo import AppInfo
 from frames.appmenu import AppMenu
 from frames.appsettings import AppSettings
 from frames.appterminal import AppTerminal
 from frames.appvideo import AppVideo
-from camera.mask import MaskWidget
-from camera.newcamera import Camera
-from camera.config import Config
 
 # constants
 DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
@@ -38,12 +39,12 @@ class AppWindow(tk.Tk):
 
         # create main gui window
         self.title(window_title)
-        
+
         if RESIZABLE:
             self.resizable(True, True)
         else:
             self.resizable(False, False)
-        
+
         self._drag_id = ''
 
         # camera/video variables
@@ -79,12 +80,12 @@ class AppWindow(tk.Tk):
         self.configure(menu=self._menu)
 
         self._info_widget = AppInfo(self)
-        self._info_widget.grid(row=0,
-                               column=0,
-                               rowspan=2,
-                               padx=5,
-                               pady=5,
-                               sticky="NSEW")
+        # self._info_widget.grid(row=0,
+        #                        column=0,
+        #                        rowspan=2,
+        #                        padx=5,
+        #                        pady=5,
+        #                        sticky="NSEW")
 
         self._video_widget = AppVideo(self)
         self._video_widget.grid(row=0,
@@ -106,13 +107,6 @@ class AppWindow(tk.Tk):
                                    padx=5,
                                    pady=5,
                                    sticky="N")
-        
-        # resizing
-        self.rowconfigure(0, weight=1, minsize=100)
-        self.rowconfigure(1, weight=1, minsize=100)
-
-        self.columnconfigure(0, weight=1, minsize=100)
-        self.columnconfigure(3, weight=1, minsize=100)
 
         # bindings
         self.bind_all("<Control-q>", self.on_closing)
@@ -121,6 +115,8 @@ class AppWindow(tk.Tk):
         self.bind_all("<Configure>", self.dragging)
 
         self._start_time = time.time()
+        self.after(20, self.loop)
+
 
     @property
     def mask(self):
@@ -153,10 +149,26 @@ class AppWindow(tk.Tk):
     @property
     def color_image(self):
         return self._color_image
-    
+
     @property
     def configurator(self):
         return self._configurator
+
+    @property
+    def framerate(self):
+        return self._framerate
+    
+    @property
+    def filter_level(self):
+        return self._filter_level
+    
+    @filter_level.setter
+    def filter_level(self, level):
+        if level > 5:
+            level = 5
+        elif level < 0:
+            level = 0
+        self._filter_level = level
 
     def update_roi_stats(self, depth_frame):
         # get frame and polygon
@@ -185,11 +197,11 @@ class AppWindow(tk.Tk):
 
     def loop(self):
         # update video and roi stats()
-        self._loop_count += 1
         if not self._video_widget.paused:
             depth_frame = self._camera.depth_frame
             frame_number = self._camera.frame_number
-            if depth_frame is not None and frame_number > self._frame_number:
+            # if depth_frame is not None and frame_number > self._frame_number:
+            if isinstance(depth_frame, rs.frame) and frame_number > self._frame_number:
                 self._new_frame_count += 1
                 self._frame_number = frame_number
 
@@ -198,13 +210,15 @@ class AppWindow(tk.Tk):
 
                 self._mask_widget.draw(color_image)
                 self._color_image = color_image
-
+                # self._video_widget.set_image()
+                
         if self._new_frame_count > self._framerate:
             if self._mask_widget.ready:
                 if not self._terminal_widget.camera_supress:
                     self.update_roi_stats(depth_frame)
                     self._terminal_widget.write(self.formatted_stats)
             self._new_frame_count = 0
+        self.after(10, self.loop)
 
     def get_program_path(self) -> str:
         """gets full path name of program. Works if 
@@ -232,79 +246,11 @@ class AppWindow(tk.Tk):
         dir = os.listdir(path=path)
         return name in dir
 
-    ###################################################################################
-    #                                  MENU CALLBACKS                                 #
-    ###################################################################################
-
-    def _menu_save_settings(self):
-        path = tkFileDialog.asksaveasfilename(
-            initialdir="C:/",
-            filetypes=(("image files", "*.bmp"),
-                       ("all files", "*.*")))
-        print(path)
-
-    def _menu_save_mask(self):
-        with open(MASK_OUTPUT_FILE_NAME, 'w') as file:
-            file.write(str(self._mask_widget.coordinates))
-            self._settings_widget.change_text(
-                str(self._mask_widget.coordinates))
-
-    # region
-    # def _menu_save_image(self):
-    #     image = self._image
-    #     if image is not None:
-    #         # determine if application is a script file or frozen exe
-    #         if getattr(sys, 'frozen', False):
-    #             application_path = os.path.dirname(sys.executable)
-    #         elif __file__:
-    #             application_path = os.path.dirname(__file__)
-    #         timestamp = datetime.now()
-    #         timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
-    #         imgpil = PIL.ImageTk.getimage(image)
-    #         imgpil.save(
-    #             f'{application_path}\\snapshots\\{timestamp}.bmp', "BMP")
-    #         imgpil.close()
-
-    # def _menu_save_image_WIP(self):
-    #     """saves picture to 'snapshots' directory. Creates
-    #     directory if not found
-
-    #     :param image: image
-    #     :type image: image
-    #     """
-    #     image = self._image
-    #     if image is not None:
-    #         # GET FILE PATH
-    #         path = self.get_program_path()
-    #         # GET TIMESTAMP FOR FILE NAME
-    #         timestamp = datetime.now()
-    #         timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
-
-    #         if self.dir_exists(path=path, name='snapshots'):
-    #             # SAVE IMAGE
-    #             image.save(f'{path}\\snapshots\\{timestamp}.jpg')
-    #             # sleep thread to prevent saving a bunch of pictures
-    #         else:
-    #             snapshot_path = path + '\\snapshots\\'
-    #             os.mkdir(snapshot_path)
-    #             # SAVE IMAGE
-    #             image.save(f'{path}\\snapshots\\{timestamp}.jpg')
-    # endregion
-    
-    def _menu_documentation(self, url):
-        return webbrowser.open(url)
-
-    def _menu_github(self, url):
-        return webbrowser.open(url)
-
     def mask_reset(self, *args, **kwargs):
         self._mask_widget.reset()
 
     def mask_undo(self, *args, **kwargs):
         self._mask_widget.undo()
-        
-    def toggle_dark_mode(self, *args, **kwargs):
-        sv_ttk.toggle_theme()        
 
     def on_closing(self, *args, **kwargs):
         """prompt user if they are sure they want to quit when they hit the 'x'"""
@@ -336,5 +282,6 @@ class AppWindow(tk.Tk):
         if self._video_widget.paused:
             self._video_widget.unpause()
         self._drag_id = ''
+
 
 # 'char', 'delta', 'height', 'keycode', 'keysym', 'keysym_num', 'num', 'send_event', 'serial', 'state', 'time', 'type', 'widget', 'width', 'x', 'x_root', 'y', 'y_root']

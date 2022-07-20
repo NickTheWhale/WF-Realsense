@@ -24,23 +24,25 @@ class Config():
         :raises RuntimeError: if there is a discrepency between the configuration
         file data and the requried data dict
         """
-        config_file = configparser.ConfigParser()
+        
+        self._file_name = file_name
+        self._config_file = configparser.ConfigParser()
         try:
-            file_list = config_file.read(file_name)
+            file_list = self._config_file.read(self._file_name)
         except configparser.DuplicateOptionError as e:
             raise e
 
         if len(file_list) <= 0:
-            raise FileNotFoundError(f'"{file_name}" was not found')
+            raise FileNotFoundError(f'"{self._file_name}" was not found')
 
-        self.__data = config_file.__dict__['_sections'].copy()
+        self._data = self._config_file.__dict__['_sections'].copy()
 
         if required_data is not None:
-            self.__required_data = required_data
+            self._required_data = required_data
             validity = self.is_valid()
             if len(validity) > 0:
                 raise RuntimeError(
-                    f'"{file_name}" is missing required configuration data: "{validity}"')
+                    f'"{self._file_name}" is missing required configuration data: "{validity}"')
 
     def get_value(self, section: str, key: str, fallback=None) -> str:
         """gets config file value at specified location
@@ -55,7 +57,7 @@ class Config():
         :rtype: string
         """
         try:
-            return self.__data[section][key]
+            return self._data[section][key]
         except KeyError as e:
             if isinstance(fallback, str):
                 log.warning(
@@ -71,16 +73,31 @@ class Config():
         :rtype: bool
         """
         missing = []
-        for section in self.__required_data:
+        for section in self._required_data:
             if section == 'nodes':
-                if len(self.__data[section]) < 1:
+                if len(self._data[section]) < 1:
                     missing.append((section, 'any_node'))
             else:
-                for key in self.__required_data[section]:
-                    if key not in self.__data[section]:
+                for key in self._required_data[section]:
+                    if key not in self._data[section]:
                         missing.append((section, key))
         return missing
 
+    def save(self, file):
+        self._config_file.write(file, space_around_delimiters=True)        
+
+    def set(self, *args, **kwargs):
+        """assign value to section, key. Creates section of not found
+        
+        REQUIRED ARGS:
+            section (str), option, (str), value (str)
+        """
+        try:
+            self._config_file.set(*args, **kwargs)
+        except configparser.NoSectionError:
+            self._config_file.add_section(args[0])
+            self._config_file.set(*args, **kwargs)
+        
     @property
     def data(self):
         """configuration file contents
@@ -88,4 +105,5 @@ class Config():
         :return: config file dictionary 
         :rtype: dict
         """
-        return self.__data
+        return self._data
+

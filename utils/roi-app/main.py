@@ -6,7 +6,6 @@ from frames.appwindow import AppWindow
 # constants
 LOOP_DELAY = 1  # sleep time in ms between update loops
 
-
 class App(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -24,13 +23,8 @@ class App(threading.Thread):
         return self.__ready
 
     @property
-    def app_window(self):
+    def root(self):
         return self.__app
-
-    @property
-    def app(self):
-        return self.__app
-
 
 def main():
     app = App()
@@ -38,12 +32,12 @@ def main():
     while not app.ready:
         time.sleep(0.1)
 
-    while app.is_alive():
-        app.app_window.loop()
-        if LOOP_DELAY > 0:
-            time.sleep(LOOP_DELAY / 1000)
-        else:
-            pass
+    # while app.is_alive():
+    #     app.root.loop()
+    #     if LOOP_DELAY > 0:
+    #         time.sleep(LOOP_DELAY / 1000)
+    #     else:
+    #         pass
 
 
 if __name__ == "__main__":

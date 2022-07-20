@@ -4,6 +4,7 @@ from widgets.tooltip import ButtonToolTip
 import PIL.Image
 import PIL.ImageTk
 import numpy as np
+import pyrealsense2 as rs
 
 
 class AppVideo(ttk.Labelframe):
@@ -17,6 +18,7 @@ class AppVideo(ttk.Labelframe):
 
         self._paused = False
 
+        # region WIDGETS
         # video
         self._video_label = ttk.Label(
             master=self,
@@ -59,7 +61,7 @@ class AppVideo(ttk.Labelframe):
             helptext='Output list of coordinates to terminal'
         )
         self._mask_see_button.grid(row=0, column=2, padx=3)
-        
+
         # complete
         self._mask_complete_button = ButtonToolTip(
             master=self._mask_control_frame,
@@ -104,6 +106,7 @@ class AppVideo(ttk.Labelframe):
             'Use "Restart camera" button to resume stream'
         )
         self._camera_reset_button.grid(row=0, column=2, padx=3)
+        # endregion WIDGETS
 
         # BINDINGS
         self._video_label.bind("<Motion>", self.get_coordinates)
@@ -149,7 +152,6 @@ class AppVideo(ttk.Labelframe):
         self.set_status(status)
         self._video_pause_button['text'] = symbol
         self.update_idletasks()
-        
 
     def mask_reset(self):
         self._root.mask_reset()
@@ -159,7 +161,7 @@ class AppVideo(ttk.Labelframe):
 
     def mask_see_raw(self):
         self._root.terminal.write(self._root.mask.coordinates)
-    
+
     def mask_complete(self):
         self._root.mask.complete()
 
@@ -176,11 +178,11 @@ class AppVideo(ttk.Labelframe):
 
     def set_status(self, status):
         self.configure(text=f'video ({status})')
-    
+
     def get_coordinates(self, *args, **kwargs):
         if not self._paused:
             self._root.mask.get_coordinates(*args, **kwargs)
 
-    @property
+    @ property
     def paused(self):
         return self._paused
