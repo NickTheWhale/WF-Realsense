@@ -6,8 +6,11 @@ METER_TO_FEET = 3.28084
 
 
 class MaskWidget():
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """create mask widget"""
+
+        self._root = args[0]
+
         self.__coordinates = []
         self.__right_clicked = False
         self.__left_clicked = False
@@ -30,39 +33,52 @@ class MaskWidget():
         :param parameters: opencv callback requrement
         :type parameters: unknown
         """
-        self.__x = event.x
-        self.__y = event.y
+
+        self._x = event.x * self._root.camera.scale
+        self._y = event.y * self._root.camera.scale
+
         if event.num == 1:
             self.__left_clicked = True
             if not self.__right_clicked:
-                if self.coordinate_valid(event.x, event.y):
-                    self.__coordinates.append((event.x, event.y))
+                if self.coordinate_valid(self._x, self._y):
+                    self.__coordinates.append((self._x, self._y))
         elif event.num == 3:
             if self.__left_clicked:
                 if not self.__right_clicked:
-                    if self.coordinate_valid(event.x, event.y) and len(self.coordinates) > 0:
+                    if self.coordinate_valid(self._x, self._y) and len(self.coordinates) > 0:
                         self.__coordinates.append(self.__coordinates[0])
             self.__right_clicked = True
 
     def reset(self, *args, **kwargs):
         """resets mask widget state. Clears coordinates and right click flag"""
+        
         self.__coordinates = []
         self.__right_clicked = False
         self.__left_clicked = False
 
     def draw(self, image):
         """draws opencv lines between stored coordinates"""
-        coordinates = self.coordinates
-        n = len(coordinates)
+        
+        coordinates = self.__coordinates
+        scaled_coordinates = []
+
+        for coordinate in coordinates:
+            scaled_coordinates.append(
+                (coordinate[0] // self._root.camera.scale,
+                 coordinate[1] // self._root.camera.scale)
+            )
+        
+        n = len(scaled_coordinates)
+
         if n == 1:
-            cv2.line(image, coordinates[0], coordinates[0],
+            cv2.line(image, scaled_coordinates[0], scaled_coordinates[0],
                      color=self.__line_color, thickness=3)
         elif n == 2:
-            cv2.line(image, coordinates[0], coordinates[1],
+            cv2.line(image, scaled_coordinates[0], scaled_coordinates[1],
                      color=self.__line_color, thickness=2)
         elif n > 2:
             for i in range(n - 1):
-                cv2.line(image, coordinates[i], coordinates[i+1],
+                cv2.line(image, scaled_coordinates[i], scaled_coordinates[i+1],
                          color=self.__line_color, thickness=2)
 
     def coordinate_valid(self, x, y):
@@ -74,7 +90,7 @@ class MaskWidget():
         :type y: int
         :return: validity
         :rtype: bool
-        """
+        """       
         if x <= 847 and x >= 0:
             if y <= 479 and y >= 0:
                 return True
@@ -103,7 +119,7 @@ class MaskWidget():
 
         :return: average location
         :rtype: list
-        """
+        """        
         cd = self.__coordinates
         text_cd = [0, 0]
         for i in range(len(cd) - 1):
@@ -128,7 +144,7 @@ class MaskWidget():
 
         :return: x, y coordinate
         :rtype: int tuple
-        """
+        """       
         return self.__x, self.__y
 
     @property
@@ -137,19 +153,20 @@ class MaskWidget():
 
         :return: list of coordinates
         :rtype: list
-        """
+        """       
         return self.__coordinates
 
     @property
     def line_color(self):
-        """line color getter"""
+        """line color getter"""       
         return self.__line_color
 
     @line_color.setter
     def line_color(self, color):
-        """line color setter"""
+        """line color setter"""       
         self.__line_color = color
-        
+
     @property
     def ready(self):
+        """true if coordinates > 0 and right clicked"""       
         return True if len(self.__coordinates) > 0 and self.__right_clicked else False

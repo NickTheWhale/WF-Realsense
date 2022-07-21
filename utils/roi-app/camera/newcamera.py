@@ -56,6 +56,7 @@ class Camera():
         self.__depth_sensor = self.__profile.get_device().first_depth_sensor()
         self.__depth_scale = self.__depth_sensor.get_depth_scale()
         self.__colorizer = rs.colorizer()
+        self.__decimate = rs.decimation_filter()
 
         # options object used to alter camera settings. all settings must
         #   be configured before calling the start() method of the camera
@@ -70,9 +71,11 @@ class Camera():
             self.__conversion = self.__depth_scale
         self.__frameset = None
         self.__depth_frame = None
+        self.__raw_depth_frame = None
         self.__connected = False
         self.__saving_image = False
         self.__frame_number = 0
+        self.__scale = 1
         # roi attributes
         self.__blank_image = np.zeros((height, width))
 
@@ -86,8 +89,17 @@ class Camera():
 
         self.__frameset = fs
         self.__depth_frame = self.__frameset.as_frameset().get_depth_frame()
+        self.__raw_depth_frame = self.__depth_frame
         self.__frame_number = self.__depth_frame.frame_number
-        
+        if self.__scale > 1:
+            if self.__scale > 2:
+                self.__scale = 2
+
+            self.__decimate.set_option(rs.option.filter_magnitude, self.__scale)
+            self.__depth_frame = (self.__decimate.
+                                  process(self.__depth_frame).
+                                  as_depth_frame())
+
     def start(self):
         """start pipeline and setup new frameset callback"""
 
@@ -150,8 +162,7 @@ class Camera():
         color_image = self.__colorizer.colorize(depth_frame)
         color_image = np.asanyarray(color_image.get_data())
         return color_image
-    
-    
+
     def __disconnect_callback(self, info):
         """called when a camera device is connected or disconnected. Updates  
         self.__connected
@@ -175,8 +186,8 @@ class Camera():
         :rtype: tuple
         """
 
-        depth_frame = self.__depth_frame
-        if depth_frame is not None:
+        depth_frame = self.__raw_depth_frame
+        if isinstance(depth_frame, rs.depth_frame):
             polygon = np.array(polygon)
             if filter_level > 5:
                 filter_level = 5
@@ -258,6 +269,7 @@ class Camera():
 
                     # Compute average distance of the region of interest
                     ROI_depth = depth_mask.mean() * self.__conversion
+
                 # return ROI_depth
                 if isinstance(ROI_depth, np.float64):
                     return ROI_depth.item(), invalid, deviation, min, max
@@ -467,10 +479,6 @@ class Camera():
         return self.__colorizer
 
     @property
-    def color_image(self):
-        return self.__color_image
-
-    @property
     def frame_number(self) -> int:
         """return frame number from last depth callback
 
@@ -507,6 +515,22 @@ class Camera():
         """
 
         self.__depth_frame = df
+
+    @property
+    def scale(self):
+        return self.__scale
+
+    @scale.setter
+    def scale(self, scale):
+        self.__scale = scale
+
+    @property
+    def height(self):
+        return self.__height
+
+    @property
+    def width(self):
+        return self.__width
 
 
 class CameraOptions():

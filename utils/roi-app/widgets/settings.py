@@ -8,8 +8,8 @@ from ttkwidgets import TickScale
 
 class SettingsSlider(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
-        self._root = args[0].root
-        self._camera = args[0].camera
+        self._root = kwargs.pop('root')
+        self._camera = self._root.camera
         self._configurator = self._root.configurator
         self._from = kwargs.pop('from_')
         self._to = kwargs.pop('to')
@@ -42,13 +42,13 @@ class SettingsSlider(ttk.Labelframe):
         self._reset_button = ButtonToolTip(
             master=self,
             text='↺',
-            helptext=f'Reset "{self._label}" to defualt',
+            helptext=f'Reset "{self._label}" to "{self._start}"',
             width=3,
             command=self.reset_callback
         )
 
-        self._slider.grid(row=0, column=0, padx=10)
-        self._reset_button.grid(row=0, column=1, padx=5, pady=(0, 10))
+        self._slider.grid(row=0, column=0, padx=2)
+        self._reset_button.grid(row=0, column=1, padx=2, pady=(0, 2))
 
     def slider_callback(self, *args):
         """called on slider moved"""
@@ -100,8 +100,8 @@ class SettingsSlider(ttk.Labelframe):
 
 class SettingsEntry(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
-        self._root = args[0].root
-        self._camera = args[0].camera
+        self._root = kwargs.pop('root')
+        self._camera = self._root.camera
         self._configurator = self._root.configurator
         self._label = kwargs.pop('label')
         self._section = kwargs.pop('section')
@@ -111,12 +111,35 @@ class SettingsEntry(ttk.Labelframe):
         self._text.set(self._start)
 
         super().__init__(*args, **kwargs)
-        
-        self.configure(text=self._start, border=1)
-        
+
+        self.configure(text=self._label, border=1)
+
         self._entry = ttk.Entry(
             master=self,
-            width=30,
+            width=26,
             textvariable=self._text
         )
         self._entry.grid(row=0, column=0, padx=3, pady=3)
+
+        self._reset_button = ButtonToolTip(
+            master=self,
+            text='↺',
+            helptext=f'Reset "{self._label}" to "{self._start}"',
+            width=3,
+            command=self.reset_callback
+        )
+        self._reset_button.grid(row=0, column=1, padx=3, pady=3)
+
+    def save(self):
+        self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
+        self._configurator.set(self._section, self._label, str(self._text.get()))
+
+    def reset(self):
+        self.reset_callback()
+
+    def reset_callback(self):
+        self._text.set(self._start)
+        
+    @property
+    def entry(self):
+        return self._entry

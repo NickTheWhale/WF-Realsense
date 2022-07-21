@@ -1,5 +1,6 @@
 from tkinter import ttk
 
+
 class AppInfo(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
         self._args = args
@@ -7,9 +8,93 @@ class AppInfo(ttk.Labelframe):
         self._root = self._args[0]
         super().__init__(*args, **kwargs)
 
-        self.configure(text="info", border=10)
+        self.configure(text="info")
 
-        label = ttk.Label(self, text="info here")
-        label.grid(row=0, column=0)
+        text = (
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+            "info here\n"
+        )
         
+        label = ttk.Label(self, text=text)
+        label.grid(row=0, column=0)
+
         self.columnconfigure(0, pad=220)

@@ -1,3 +1,4 @@
+import copy
 import os
 import sys
 import time
@@ -18,6 +19,7 @@ from frames.appmenu import AppMenu
 from frames.appsettings import AppSettings
 from frames.appterminal import AppTerminal
 from frames.appvideo import AppVideo
+from widgets.scrollframe import VerticalScrollFrame
 
 # constants
 DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
@@ -27,6 +29,8 @@ MASK_OUTPUT_FILE_NAME = "mask.txt"
 HEIGHT = 480
 WIDTH = 848
 METER_TO_FEET = 3.28084
+
+LABEL_FRAME_BORDER = 3
 
 RESIZABLE = False
 
@@ -69,44 +73,37 @@ class AppWindow(tk.Tk):
                                   metric=self._metric,
                                   config=self._configurator.data)
             self._camera.options.get_camera_options()
+            self._camera.scale = 2
             self._camera.start()
         except RuntimeError as e:
             raise RuntimeError(
                 f"Could not find camera, check connections: {e}")
 
-        self._mask_widget = MaskWidget()
+        self._mask_widget = MaskWidget(self)
 
         self._menu = AppMenu(self, tearoff=0)
         self.configure(menu=self._menu)
 
-        self._info_widget = AppInfo(self)
-        # self._info_widget.grid(row=0,
-        #                        column=0,
-        #                        rowspan=2,
-        #                        padx=5,
-        #                        pady=5,
-        #                        sticky="NSEW")
-
-        self._video_widget = AppVideo(self)
+        self._video_widget = AppVideo(self, border=LABEL_FRAME_BORDER)
         self._video_widget.grid(row=0,
                                 column=1,
                                 padx=5,
                                 pady=5,
                                 sticky="N")
 
-        self._terminal_widget = AppTerminal(self)
+        self._terminal_widget = AppTerminal(self, border=LABEL_FRAME_BORDER)
         self._terminal_widget.grid(row=1,
                                    column=1,
                                    padx=5,
                                    pady=5)
 
-        self._settings_widget = AppSettings(self)
+        self._settings_widget = AppSettings(self, border=LABEL_FRAME_BORDER)
         self._settings_widget.grid(row=0,
                                    column=3,
                                    rowspan=2,
                                    padx=5,
                                    pady=5,
-                                   sticky="N")
+                                   sticky="NS")
 
         # bindings
         self.bind_all("<Control-q>", self.on_closing)
@@ -116,7 +113,7 @@ class AppWindow(tk.Tk):
 
         self._start_time = time.time()
         self.after(20, self.loop)
-
+    
 
     @property
     def mask(self):
@@ -129,10 +126,6 @@ class AppWindow(tk.Tk):
     @property
     def camera(self):
         return self._camera
-
-    @property
-    def info(self):
-        return self._info_widget
 
     @property
     def video(self):
@@ -157,11 +150,11 @@ class AppWindow(tk.Tk):
     @property
     def framerate(self):
         return self._framerate
-    
+
     @property
     def filter_level(self):
         return self._filter_level
-    
+
     @filter_level.setter
     def filter_level(self, level):
         if level > 5:
@@ -173,7 +166,7 @@ class AppWindow(tk.Tk):
     def update_roi_stats(self, depth_frame):
         # get frame and polygon
         poly_ret, poly = self._mask_widget.polygon()
-        if depth_frame is not None:
+        if isinstance(depth_frame, rs.depth_frame):
             if poly_ret and poly is not None:
                 if len(poly) > 0:
                     d, i, s, l, h = self._camera.ROI_stats(poly, self._filter_level)
@@ -200,8 +193,7 @@ class AppWindow(tk.Tk):
         if not self._video_widget.paused:
             depth_frame = self._camera.depth_frame
             frame_number = self._camera.frame_number
-            # if depth_frame is not None and frame_number > self._frame_number:
-            if isinstance(depth_frame, rs.frame) and frame_number > self._frame_number:
+            if isinstance(depth_frame, rs.depth_frame) and frame_number > self._frame_number:
                 self._new_frame_count += 1
                 self._frame_number = frame_number
 
@@ -211,7 +203,7 @@ class AppWindow(tk.Tk):
                 self._mask_widget.draw(color_image)
                 self._color_image = color_image
                 # self._video_widget.set_image()
-                
+
         if self._new_frame_count > self._framerate:
             if self._mask_widget.ready:
                 if not self._terminal_widget.camera_supress:

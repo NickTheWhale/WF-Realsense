@@ -1,10 +1,10 @@
+import copy
 from tkinter import ttk
-from widgets.tooltip import ButtonToolTip
 
+import numpy as np
 import PIL.Image
 import PIL.ImageTk
-import numpy as np
-import pyrealsense2 as rs
+from widgets.tooltip import ButtonToolTip, CheckButtonToolTip
 
 
 class AppVideo(ttk.Labelframe):
@@ -12,9 +12,10 @@ class AppVideo(ttk.Labelframe):
         self._args = args
         self._kwargs = kwargs
         self._root = self._args[0]
+        self._camera = self._root.camera
         super().__init__(*args, **kwargs)
 
-        self.configure(text='video', border=10)
+        self.configure(text='video')
 
         self._paused = False
 
@@ -29,7 +30,8 @@ class AppVideo(ttk.Labelframe):
         self._video_label.grid(row=0, column=0, columnspan=2)
 
         # MASK CONTROLS
-        self._mask_control_frame = ttk.Labelframe(self, text='mask controls', border=5)
+        self._mask_control_frame = ttk.Labelframe(
+            self, text='mask controls', border=3)
         self._mask_control_frame.grid(row=1, column=0)
 
         # reset
@@ -73,7 +75,8 @@ class AppVideo(ttk.Labelframe):
         self._mask_complete_button.grid(row=0, column=3, padx=3)
 
         # VIDEO CONTROLS
-        self._video_controls_frame = ttk.Labelframe(self, text='video controls', border=5)
+        self._video_controls_frame = ttk.Labelframe(
+            self, text='video controls', border=3)
         self._video_controls_frame.grid(row=1, column=1)
 
         # pause
@@ -106,6 +109,16 @@ class AppVideo(ttk.Labelframe):
             'Use "Restart camera" button to resume stream'
         )
         self._camera_reset_button.grid(row=0, column=2, padx=3)
+
+        # resize
+        self._camera_resize_button = CheckButtonToolTip(
+            master=self._video_controls_frame,
+            text='⤢',
+            command=self.resize_camera,
+            width=3,
+            helptext='Resize camera stream'
+        )
+        self._camera_resize_button.grid(row=0, column=3, padx=3)
         # endregion WIDGETS
 
         # BINDINGS
@@ -119,12 +132,18 @@ class AppVideo(ttk.Labelframe):
         if not self._paused:
             color_image = self._root.color_image
             if isinstance(color_image, np.ndarray):
-                img = PIL.Image.fromarray(color_image)
-                imgtk = PIL.ImageTk.PhotoImage(image=img)
+                img_h = color_image.shape[0]
+                img_w = color_image.shape[1]
 
-                self._video_label.imgtk = imgtk
-                self._video_label.configure(image=imgtk)
-                self._video_label.update()
+                if (self._camera.width // img_w == self._camera.scale and
+                        self._camera.height // img_h == self._camera.scale):
+                    img = PIL.Image.fromarray(color_image)
+                    imgtk = PIL.ImageTk.PhotoImage(image=img)
+
+                    self._video_label.imgtk = imgtk
+                    self._video_label.configure(image=imgtk)
+                    self._video_label.update()
+
         self.after(50, self.set_image)
 
     def pause(self):
@@ -175,6 +194,16 @@ class AppVideo(ttk.Labelframe):
         self._camera_reset_button['state'] = 'disabled'
         self._root.camera.reset()
         self._camera_reset_button['state'] = 'enabled'
+
+    def resize_camera(self):
+        self.pause()
+        if self._root.camera.scale <= 1:
+            self._root.camera.scale = 2
+        elif self._root.camera.scale > 1:
+            self._root.camera.scale = 1
+        self._root.terminal.resize()
+        self._root.settings.resize()
+        self.unpause()
 
     def set_status(self, status):
         self.configure(text=f'video ({status})')

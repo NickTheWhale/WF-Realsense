@@ -27,10 +27,18 @@ class App(threading.Thread):
         return self.__app
 
 def main():
-    app = App()
 
-    while not app.ready:
-        time.sleep(0.1)
+    app = AppWindow("ROI Utility")
+    
+    app.protocol("WM_DELETE_WINDOW", app.on_closing)
+    
+    app.mainloop()
+
+
+    # app = App()
+
+    # while not app.root.ready:
+    #     time.sleep(0.1)
 
     # while app.is_alive():
     #     app.root.loop()
