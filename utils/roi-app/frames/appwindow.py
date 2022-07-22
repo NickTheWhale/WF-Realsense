@@ -62,15 +62,19 @@ class AppWindow(tk.Tk):
         self._color_image = None
 
         # find configuration files
+        config_filename = ''
         for root, dirs, files in os.walk(self._path):
             for file in files:
-                if file.endswith('.ini'):
-                    if file == 'defaultconfiguration.ini':
-                        if root == self._path:
-                            config_filename = file
-                    else:
-                        if root == self._path:
-                            config_filename = file
+                if file.endswith('.ini') and file != 'defaultconfiguration.ini':
+                    if root == self._path:
+                        config_filename = file
+        if config_filename == '':
+            for root, dirs, files in os.walk(self._path):
+                for file in files:
+                    if file.endswith('.ini'):
+                        if file == 'defaultconfiguration.ini': 
+                            if root == self._path:
+                                config_filename = file
 
         self._configurator = Config(config_filename)
         self._framerate = int(self._configurator.get_value('camera', 'framerate', 30))

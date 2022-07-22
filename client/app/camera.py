@@ -130,10 +130,10 @@ class Camera():
         devs = info.get_new_devices()
         if devs.size() < 1:
             self.__connected = False
-            
+
     def ROI_stats(self, polygon, filter_level=0):
         depth_frame = self.__depth_frame
-        if depth_frame is not None:
+        if isinstance(depth_frame, rs.depth_frame):
             polygon = np.array(polygon)
             if filter_level > 5:
                 filter_level = 5
@@ -169,7 +169,6 @@ class Camera():
                         deviation = float(0)
                         min = float(0)
                         max = float(0)
-                        
 
                     filtered_depth_mask = ma.masked_invalid(
                         filtered_depth_mask)
@@ -228,7 +227,7 @@ class Camera():
         :rtype: float
         """
         depth_frame = self.__depth_frame
-        if depth_frame is not None:
+        if isinstance(depth_frame, rs.depth_frame):
             polygon = np.array(polygon)
             if filter_level > 5:
                 filter_level = 5
