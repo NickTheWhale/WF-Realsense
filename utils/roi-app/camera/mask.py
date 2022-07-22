@@ -155,6 +155,17 @@ class MaskWidget():
         :rtype: list
         """       
         return self.__coordinates
+    
+    @coordinates.setter
+    def coordinates(self, coordinates):
+        """set coordinates if valid"""
+        for coordinate in coordinates:
+            x = coordinate[0]
+            y = coordinate[1]
+            if not self.coordinate_valid(x, y):
+                return
+            
+        self.__coordinates = coordinates
 
     @property
     def line_color(self):

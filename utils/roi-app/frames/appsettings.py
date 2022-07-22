@@ -1,9 +1,18 @@
 import tkinter as tk
 from tkinter import ttk
 
-from widgets.settings import SettingsEntry, SettingsSlider
+from widgets.settings import SettingsEntry, SettingsSlider, SettingsCombobox
 from widgets.tooltip import ButtonToolTip
 from widgets.scrollframe import VerticalScrollFrame
+
+
+camera_options = {
+    'framerate': [0, 5, 30, 60, 90],
+    'region_of_interest_auto_exposure': [0.0, 1.0],
+    'spatial_filter_level': [0, 1, 2, 3, 4, 5],
+    'metric': [0.0, 1.0]
+}
+
 
 
 class AppSettings(ttk.Labelframe):
@@ -16,17 +25,19 @@ class AppSettings(ttk.Labelframe):
         self._camera = self._root.camera
 
         super().__init__(*args, **kwargs)
-        self.configure(text='settings')
+        self.configure(text=f'settings ({self._configurator.name})')
 
         self._scroll_widget = VerticalScrollFrame(self)
         self._scroll_widget.grid(row=0, column=0, padx=5, sticky="NS")
         self._scroll_frame = self._scroll_widget.interior
 
         self._entry_text = tk.StringVar()
-        self._entry_text.set('myConfig')
+        # self._entry_text.set(self._configurator.name.split('.')[0])
+        self._entry_text.set('configuration')
 
         # camera options
         self._sliders = []
+        self._entries = []
         last_row = 0
         for key, value in self._config_data['camera'].items():
             ret, option = self._camera.options.get_option_range(key)
@@ -49,9 +60,25 @@ class AppSettings(ttk.Labelframe):
                 ))
                 self._sliders[-1].grid(row=last_row, column=0)
                 last_row += 1
+                
+        for key, value in self._config_data['camera'].items():
+            ret, _ = self._camera.options.get_option_range(key)
+            if not ret:
+                try:
+                    self._entries.append(SettingsCombobox(
+                        self._scroll_frame,
+                        root=self._root,
+                        label=key,
+                        section='camera',
+                        start=value,
+                        values=camera_options[key]
+                    ))
+                    self._entries[-1].grid(row=last_row, column=0)
+                    last_row += 1
+                except KeyError:
+                    pass
 
         # server options
-        self._entries = []
         for option in self._config_data['server']:
             self._entries.append(SettingsEntry(
                 self._scroll_frame,
@@ -141,6 +168,8 @@ class AppSettings(ttk.Labelframe):
     def reset_callback(self, *args, **kwargs):
         for slider in self._sliders:
             slider.reset()
+        for entry in self._entries:
+            entry.reset()
 
     def save_callback(self, *args, **kwargs):
         self._root.terminal.write_camera('Saving...')

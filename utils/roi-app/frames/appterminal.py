@@ -127,7 +127,7 @@ class AppTerminal(ttk.Labelframe):
 
     def resize(self):
         if self._root.camera.scale <= 1:
-            self._scrolled_text.configure(width=97, height=10)
+            self._scrolled_text.configure(width=97, height=8)
         elif self._root.camera.scale > 1:
             self._scrolled_text.configure(width=44, height=8)
         self._expanded = False
@@ -145,6 +145,7 @@ class AppTerminal(ttk.Labelframe):
             self.resize()
             self._scrolled_text.yview(tk.END)
         self.sync_icons()
+        self._root.settings.resize()
 
     def sync_icons(self):
         # pause button
@@ -172,3 +173,7 @@ class AppTerminal(ttk.Labelframe):
     @property
     def text(self):
         return self._scrolled_text
+
+    @property
+    def expanded(self):
+        return self._expanded

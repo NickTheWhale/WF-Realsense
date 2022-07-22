@@ -101,7 +101,6 @@ class SettingsSlider(ttk.Labelframe):
 class SettingsEntry(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
         self._root = kwargs.pop('root')
-        self._camera = self._root.camera
         self._configurator = self._root.configurator
         self._label = kwargs.pop('label')
         self._section = kwargs.pop('section')
@@ -143,3 +142,62 @@ class SettingsEntry(ttk.Labelframe):
     @property
     def entry(self):
         return self._entry
+
+
+class SettingsCombobox(ttk.Labelframe):
+    def __init__(self, *args, **kwargs):
+        self._args = args
+        self._root = kwargs.pop('root')
+        self._configurator = self._root.configurator
+        self._label = kwargs.pop('label')
+        self._section = kwargs.pop('section')
+        self._start = kwargs.pop('start')
+        self._values = kwargs.pop('values')
+
+        self._text = tk.StringVar()
+        self._text.set(self._start)
+
+        super().__init__(*args, **kwargs)
+
+        self.configure(text=self._label, border=1)
+
+        self._combobox = ttk.Combobox(
+            master=self,
+            textvariable=self._text,
+            width=26,
+            takefocus=False
+        )
+        
+        # self._combobox.bind('<MouseWheel>', self.scroll_callback)
+        self.unbind_class('TCombobox', '<MouseWheel>')
+        
+        self._combobox.configure(values=self._values, state='readonly')
+        self._combobox.grid(row=0, column=0, padx=3, pady=3)
+
+        self._reset_button = ButtonToolTip(
+            master=self,
+            text='↺',
+            helptext=f'Reset "{self._label}" to "{self._start}"',
+            width=3,
+            command=self.reset_callback
+        )
+        self._reset_button.grid(row=0, column=1, padx=3, pady=3)
+
+    def save(self):
+        self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
+        self._configurator.set(self._section, self._label, str(self._text.get()))
+
+    def reset(self):
+        self.reset_callback()
+
+    def reset_callback(self):
+        self._text.set(self._start)
+        
+    def scroll_callback(self, event):
+        return 'break'
+        
+    @property
+    def combobox(self):
+        return self._combobox
+    
+    

@@ -99,6 +99,10 @@ class Config():
             self._config_file.set(*args, **kwargs)
         
     @property
+    def name(self):
+        return self._file_name    
+    
+    @property
     def data(self):
         """configuration file contents
 
