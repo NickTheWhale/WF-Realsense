@@ -29,11 +29,11 @@ from config import Config
 from status import StatusCodes, TEMP_WARNING, TEMP_MAX_SAFE, TEMP_CRITICAL
 
 # CONFIGURATION
-STATUS_INTERVAL = 2  # time in seconds to update status
-WAIT_BEFORE_RESTARTING = 5  # time in seconds to wait before
+STATUS_INTERVAL = 10  # time in seconds to update status
+WAIT_BEFORE_RESTARTING = 60  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-DEBUG = True  # true: log output goes to console, false: log output goes to .log file
+DEBUG = False  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
@@ -456,7 +456,6 @@ def main():
                     ##############################################
 
                     pic_trig = picture_trigger_node.get_value()
-                    pic_trig = False
                     global taking_picture
                     if pic_trig and not taking_picture:
                         taking_picture = True

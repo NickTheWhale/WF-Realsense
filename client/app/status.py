@@ -6,7 +6,7 @@ date:    June 2022
 
 import inspect
 
-TEMP_WARNING = 35
+TEMP_WARNING = 40
 TEMP_MAX_SAFE = 50
 TEMP_CRITICAL = 55
 
