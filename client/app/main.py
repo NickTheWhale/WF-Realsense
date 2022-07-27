@@ -14,7 +14,6 @@ import sys
 import threading
 import time
 from datetime import datetime
-from inspect import currentframe
 
 import numpy as np
 import opcua
@@ -201,11 +200,6 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
         log.critical(MSG_ERROR_SHUTDOWN)
         os._exit(1)
         # sys.exit()
-
-
-def get_line():
-    cf = currentframe()
-    return cf.f_back.f_lineno
 
 
 def roi_box(roi):

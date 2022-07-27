@@ -60,7 +60,7 @@ class SettingsSlider(ttk.Labelframe):
         """called on reset button press"""
 
         self._raw_level.set(self._start)
-        self.slider_callback(self._start,)
+        self.slider_callback(self._start)
 
     def constrain_value(self, set_val):
         """constrain value with respect to from, to, and step"""
