@@ -25,10 +25,13 @@ from opcua import ua
 
 from camera import Camera
 from config import Config
-from status import StatusCodes, TEMP_WARNING, TEMP_MAX_SAFE, TEMP_CRITICAL
+from status import (ROI_HIGH_INVALID, TEMP_CRITICAL, TEMP_MAX_SAFE,
+                    TEMP_WARNING, StatusCodes)
 
 # CONFIGURATION
-STATUS_INTERVAL = 10  # time in seconds to update status
+STATUS_INTERVAL = 2  # time in seconds to update status
+STATUS_LOG_INTERVAL = 60  # time in seconds between status log
+# (time in seconds ~= STATUS_INTERVAL * STATUS_LOG_INTERVAL)
 WAIT_BEFORE_RESTARTING = 60  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
@@ -42,12 +45,16 @@ DEBUG = False  # true: log output goes to console, false: log output goes to .lo
 global taking_picture
 taking_picture = False
 
+
 # CONSTANTS
 METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
 ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
-LOG_FORMAT = '%(levelname)-10s %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-7d %(message)s'
+if DEBUG:
+    LOG_FORMAT = '%(levelname)-10s %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-7d %(message)s'
+else:
+    LOG_FORMAT = '%(levelname)-10s %(asctime)-25s %(message)s'
 MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
 MSG_RESTART = "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
@@ -221,7 +228,7 @@ def roi_box(roi):
     return x1, y1, x2, y2
 
 
-def get_status(camera):
+def get_status(camera, invalid):
     status = StatusCodes.OK
     try:
         asic_temp = camera.asic_temperature
@@ -230,6 +237,7 @@ def get_status(camera):
         temp_warning = asic_temp > TEMP_WARNING or projector_temp > TEMP_WARNING
         temp_max_safe = asic_temp > TEMP_MAX_SAFE or projector_temp > TEMP_MAX_SAFE
         temp_critical = asic_temp > TEMP_CRITICAL or projector_temp > TEMP_CRITICAL
+        high_invalid = invalid > ROI_HIGH_INVALID
 
         if temp_critical:
             status = StatusCodes.ERROR_TEMP_CRITICAL
@@ -237,14 +245,12 @@ def get_status(camera):
             status = StatusCodes.ERROR_TEMP_MAX_SAFE
         elif temp_warning:
             status = StatusCodes.ERROR_TEMP_WARNING
+        elif high_invalid:
+            status = StatusCodes.ERROR_HIGH_INVALID_PERCENTAGE
 
     except Exception as e:
         status = StatusCodes.ERROR_UPDATING_STATUS
-        log.warning(f'Failed to update status: {e}')
-        return status
-    if status != StatusCodes.OK:
-        log.warning(f'Status update: {StatusCodes.name(status)} | '
-                    f'Asic: {asic_temp} celcius Projector: {projector_temp} celcius')
+
     return status
 
 
@@ -378,6 +384,7 @@ def main():
 
             log.info("Successfully retrieved nodes from OPC server")
         except Exception as e:
+            print('no worky', e)
             critical_error(f'Failed to retrieve nodes: {e}')
 
     ##############################################################################
@@ -394,6 +401,7 @@ def main():
 
     log.debug('Starting loop')
     start = time.time()
+    log_start = start
     while True:
         if camera.connected:
             # check for valid depth frame
@@ -464,8 +472,14 @@ def main():
                     critical_error(e)
 
             elapsed = time.time() - start
+            log_elapsed = time.time() - log_start
             if elapsed > STATUS_INTERVAL:
-                status_code = get_status(camera)
+                status_code = get_status(camera, roi_invalid)
+                if log_elapsed > STATUS_LOG_INTERVAL:
+                    if status_code != StatusCodes.OK:
+                        print("loggin")
+                        log.warning(f'Status update: {StatusCodes.name(status_code)}')
+                    log_start = time.time()
                 if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
                     send_status(status_node, StatusCodes.ERROR_NO_RESTART)
                     critical_error(

@@ -9,6 +9,7 @@ import inspect
 TEMP_WARNING = 40
 TEMP_MAX_SAFE = 50
 TEMP_CRITICAL = 55
+ROI_HIGH_INVALID = 60
 
 
 class StatusCodes:
@@ -19,6 +20,7 @@ class StatusCodes:
     ERROR_TEMP_WARNING = -3
     ERROR_TEMP_MAX_SAFE = -4
     ERROR_TEMP_CRITICAL = -5
+    ERROR_HIGH_INVALID_PERCENTAGE = -6
 
     def name(code):
         error = 'unknown'
