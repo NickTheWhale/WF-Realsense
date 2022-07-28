@@ -63,7 +63,8 @@ class Camera():
         self.__saving_image = False
         self.__frame_number = 0
         # roi attributes
-        self.__blank_image = np.zeros((height, width))
+        self.__height = height
+        self.__width = width
 
     def __depth_callback(self, fs):
         """called when a new frameset arrives. Updates self.__depth_frame
@@ -134,6 +135,7 @@ class Camera():
     def ROI_stats(self, polygon, filter_level=0):
         depth_frame = self.__depth_frame
         if isinstance(depth_frame, rs.depth_frame):
+            blank_image = np.zeros((self.__height, self.__width))
             polygon = np.array(polygon)
             if filter_level > 5:
                 filter_level = 5
@@ -147,7 +149,7 @@ class Camera():
                         filtered_depth_frame.get_data())
 
                     # Compute mask form polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
+                    mask = cv2.fillPoly(blank_image,
                                         pts=[polygon], color=1)
                     mask = mask.astype('bool')
                     mask = np.invert(mask)
@@ -180,7 +182,7 @@ class Camera():
                 else:
                     depth_image = np.asanyarray(depth_frame.get_data())
                     # Compute mask from polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
+                    mask = cv2.fillPoly(blank_image,
                                         pts=[polygon], color=1)
                     mask = mask.astype('bool')
                     mask = np.invert(mask)
@@ -229,6 +231,7 @@ class Camera():
         depth_frame = self.__depth_frame
         if isinstance(depth_frame, rs.depth_frame):
             polygon = np.array(polygon)
+            blank_image = np.zeros((self.__height, self.__width))
             if filter_level > 5:
                 filter_level = 5
             if len(polygon) > 0:
@@ -241,7 +244,7 @@ class Camera():
                         filtered_depth_frame.get_data())
 
                     # Compute mask form polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
+                    mask = cv2.fillPoly(blank_image,
                                         pts=[polygon], color=1)
                     mask = mask.astype('bool')
                     mask = np.invert(mask)
@@ -270,7 +273,7 @@ class Camera():
                 else:
                     depth_image = np.asanyarray(depth_frame.get_data())
                     # Compute mask from polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
+                    mask = cv2.fillPoly(blank_image,
                                         pts=[polygon], color=1)
                     mask = mask.astype('bool')
                     mask = np.invert(mask)
@@ -300,6 +303,96 @@ class Camera():
         else:
             return float(0), float(100), float(0)
 
+    def ROI_datan(self, polygons, filter_level=0):
+        """compute average of n-number of polygons"""
+
+        depth_frame = self.__depth_frame
+        if isinstance(depth_frame, rs.depth_frame):
+            if filter_level > 5:
+                filter_level = 5
+            
+            polygon_list = []
+            for polygon in polygons:
+                polygon_list.append(np.array(polygon))
+            polygon_list = np.asanyarray(polygon_list)
+            
+            blank_image = np.zeros((self.__height, self.__width))
+            
+            if len(polygon_list) > 0:
+                if filter_level > 0:
+                    # Compute filtered depth image
+                    spatial = rs.spatial_filter()
+                    spatial.set_option(rs.option.holes_fill, filter_level)
+                    filtered_depth_frame = spatial.process(depth_frame)
+                    filtered_depth_image = np.asanyarray(
+                        filtered_depth_frame.get_data())
+
+                    # Compute mask form polygon vertices
+                    for polygon in polygon_list:
+                        mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
+                    mask = mask.astype('bool')
+                    mask = np.invert(mask)
+
+                    # Apply mask to filtered depth data and ignore invalid/zero distances
+                    filtered_depth_mask = ma.array(filtered_depth_image,
+                                                   mask=mask,
+                                                   fill_value=0)
+
+                    total = ma.count(filtered_depth_mask)
+                    if total > 0:
+                        invalid = (filtered_depth_mask == 0).sum()
+                        invalid = (invalid / total) * 100
+                        deviation = filtered_depth_mask.std() * self.__conversion
+                    else:
+                        deviation = float(0)
+                        invalid = float(100)
+
+                    filtered_depth_mask = ma.masked_invalid(
+                        filtered_depth_mask)
+                    filtered_depth_mask = ma.masked_equal(
+                        filtered_depth_mask, 0)
+
+                    # Compute average distance of the region of interest
+                    ROI_depth = filtered_depth_mask.mean() * self.__conversion
+                    
+                    # cv2.imshow('mask', filtered_depth_mask * 100)
+                    # cv2.waitKey(1)
+
+                else:
+                    depth_image = np.asanyarray(depth_frame.get_data())
+                    for polygon in polygon_list:
+                        mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
+                    mask = mask.astype('bool')
+                    mask = np.invert(mask)
+
+                    # Apply mask to depth data and ignore invalid/zero distances
+                    depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
+
+                    total = ma.count(depth_mask)
+                    if total > 0:
+                        invalid = (depth_mask == 0).sum()
+                        invalid = (invalid / total) * 100
+                        deviation = depth_mask.std() * self.__conversion
+                    else:
+                        deviation = float(0)
+                        invalid = float(100)
+
+                    depth_mask = ma.masked_invalid(depth_mask)
+                    depth_mask = ma.masked_equal(depth_mask, 0)
+
+                    # Compute average distance of the region of interest
+                    ROI_depth = depth_mask.mean() * self.__conversion
+                
+                    cv2.imshow('mask', depth_mask * 100)
+                    cv2.waitKey(1)
+                    
+                if isinstance(ROI_depth, np.float64):
+                    return ROI_depth.item(), invalid, deviation
+                else:
+                    return float(0), invalid, deviation
+        else:
+            return float(0), float(100), float(0)
+
     def ROI_depth(self, polygon, filter_level=0):
         """calculates the average depth inside of the region of interest.
         If filter_level is above 0, the raw depth frame is first filtered
@@ -317,6 +410,7 @@ class Camera():
             polygon = np.array(polygon)
             if filter_level > 5:
                 filter_level = 5
+            blank_image = np.zeros((self.__height, self.__width))
             if len(polygon) > 0:
                 if filter_level > 0:
                     # Compute filtered depth image
@@ -327,7 +421,7 @@ class Camera():
                         filtered_depth_frame.get_data())
 
                     # Compute mask form polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
+                    mask = cv2.fillPoly(blank_image,
                                         pts=[polygon], color=1)
                     mask = mask.astype('bool')
                     mask = np.invert(mask)
@@ -346,7 +440,7 @@ class Camera():
                 else:
                     depth_image = np.asanyarray(depth_frame.get_data())
                     # Compute mask from polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
+                    mask = cv2.fillPoly(blank_image,
                                         pts=[polygon], color=1)
                     mask = mask.astype('bool')
                     mask = np.invert(mask)

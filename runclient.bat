@@ -1,0 +1,1 @@
+.\venv\scripts\activate && cd client\app && main.py

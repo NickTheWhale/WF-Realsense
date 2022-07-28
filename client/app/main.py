@@ -35,7 +35,7 @@ STATUS_LOG_INTERVAL = 60  # time in seconds between status log
 WAIT_BEFORE_RESTARTING = 60  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-DEBUG = False  # true: log output goes to console, false: log output goes to .log file
+DEBUG = True  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
@@ -402,6 +402,19 @@ def main():
     log.debug('Starting loop')
     start = time.time()
     log_start = start
+    loop_start = time.time()
+
+    poly1 = [(67, 28), (43, 94), (57, 179), (161, 227), (265, 199), (347, 135), (326, 63), (291, 40), (67, 28)]
+    poly2 = [(194, 322), (124, 345), (115, 407), (239, 437), (375, 415), (379, 346), (194, 322)]
+    poly3 = [(587, 81), (507, 120), (485, 225), (601, 279), (794, 231), (587, 81)]
+    poly4 = [(394, 247), (349, 272), (371, 318), (485, 335), (526, 293), (394, 247)]
+
+    polygons = []
+    polygons.append(poly1)
+    polygons.append(poly2)
+    polygons.append(poly3)
+    polygons.append(poly4)
+
     while True:
         if camera.connected:
             # check for valid depth frame
@@ -416,8 +429,9 @@ def main():
                     f'Error while retrieving camera frames: {e}')
             else:
                 try:
-                    roi_depth, roi_invalid, roi_deviation = camera.ROI_data(
-                        polygon=polygon, filter_level=filter_level)
+                    # roi_depth, roi_invalid, roi_deviation = camera.ROI_data(polygon=polygon, filter_level=filter_level)
+                    roi_depth, roi_invalid, roi_deviation = camera.ROI_datan(
+                        polygons=polygons, filter_level=0)
 
                     ##############################################
                     #                  SEND DATA                 #
@@ -488,6 +502,9 @@ def main():
                 start = time.time()
 
             time.sleep(sleep_time / 1000)
+            loop_time = time.time() - loop_start
+            print(f'loop time (ms): {loop_time*1000:.3f}  fps: {1 / loop_time:.3f}')
+            loop_start = time.time()
 
         else:
             critical_error('Camera disconnected')
