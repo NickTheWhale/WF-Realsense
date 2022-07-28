@@ -1,3 +1,6 @@
+"""opcua server to simulate siemens 1500 plc"""
+
+
 import sys
 import time
 
