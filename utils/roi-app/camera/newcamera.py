@@ -92,8 +92,8 @@ class Camera():
         self.__raw_depth_frame = self.__depth_frame
         self.__frame_number = self.__depth_frame.frame_number
         if self.__scale > 1:
-            if self.__scale > 2:
-                self.__scale = 2
+            # if self.__scale > 2:
+            #     self.__scale = 2
 
             self.__decimate.set_option(rs.option.filter_magnitude, self.__scale)
             self.__depth_frame = (self.__decimate.
@@ -175,24 +175,22 @@ class Camera():
         if devs.size() < 1:
             self.__connected = False
 
-    def ROI_stats(self, polygon, filter_level=0):
-        """similar to ROI_depth(), but returns a tuple of statistics
-
-        :param polygon: mask polygon
-        :type polygon: list
-        :param filter_level: amount of filtering, defaults to 0
-        :type filter_level: int, optional
-        :return: statistics (depth, %invalid, deviation, min, max)
-        :rtype: tuple
-        """
+    def ROI_datan(self, polygons, filter_level=0):
+        """compute average of n-number of polygons"""
 
         depth_frame = self.__raw_depth_frame
         if isinstance(depth_frame, rs.depth_frame):
-            polygon = np.array(polygon)
             if filter_level > 5:
                 filter_level = 5
-            if len(polygon) > 0:
-                blank_image = np.zeros((self.__height, self.__width))
+
+            polygon_list = []
+            for polygon in polygons:
+                polygon_list.append(np.asanyarray(polygon))
+            polygon_list = np.asanyarray(polygon_list)
+
+            blank_image = np.zeros((self.__height, self.__width))
+
+            if len(polygon_list) > 0:
                 if filter_level > 0:
                     # Compute filtered depth image
                     spatial = rs.spatial_filter()
@@ -202,111 +200,8 @@ class Camera():
                         filtered_depth_frame.get_data())
 
                     # Compute mask form polygon vertices
-                    mask = cv2.fillPoly(blank_image,
-                                        pts=[polygon], color=1)
-                    mask = mask.astype('bool')
-                    mask = np.invert(mask)
-
-                    # Apply mask to filtered depth data and ignore invalid/zero distances
-                    filtered_depth_mask = ma.array(filtered_depth_image,
-                                                   mask=mask,
-                                                   fill_value=0)
-
-                    total = ma.count(filtered_depth_mask)
-                    if total > 0:
-                        invalid = (filtered_depth_mask == 0).sum()
-                        invalid = (invalid / total) * 100
-                    else:
-                        invalid = float(100)
-
-                    filtered_depth_mask = ma.masked_invalid(
-                        filtered_depth_mask)
-                    filtered_depth_mask = ma.masked_equal(
-                        filtered_depth_mask, 0)
-
-                    total = ma.count(filtered_depth_mask)
-                    if total > 0:
-                        deviation = filtered_depth_mask.std() * self.__conversion
-                        min = filtered_depth_mask.min() * self.__conversion
-                        max = filtered_depth_mask.max() * self.__conversion
-                    else:
-                        deviation = float(0)
-                        min = float(0)
-                        max = float(0)
-
-                    # Compute average distance of the region of interest
-                    ROI_depth = filtered_depth_mask.mean() * self.__conversion
-                else:
-                    depth_image = np.asanyarray(depth_frame.get_data())
-                    # Compute mask from polygon vertices
-                    mask = cv2.fillPoly(blank_image,
-                                        pts=[polygon], color=1)
-                    mask = mask.astype('bool')
-                    mask = np.invert(mask)
-
-                    # Apply mask to depth data and ignore invalid/zero distances
-                    depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
-
-                    total = ma.count(depth_mask)
-                    if total > 0:
-                        invalid = (depth_mask == 0).sum()
-                        invalid = (invalid / total) * 100
-                    else:
-                        invalid = float(100)
-
-                    depth_mask = ma.masked_invalid(depth_mask)
-                    depth_mask = ma.masked_equal(depth_mask, 0)
-
-                    total = ma.count(depth_mask)
-                    if total > 0:
-                        deviation = depth_mask.std() * self.__conversion
-                        min = depth_mask.min() * self.__conversion
-                        max = depth_mask.max() * self.__conversion
-                    else:
-                        deviation = float(0)
-                        min = float(0)
-                        max = float(0)
-
-                    # Compute average distance of the region of interest
-                    ROI_depth = depth_mask.mean() * self.__conversion
-
-                # return ROI_depth
-                if isinstance(ROI_depth, np.float64):
-                    return ROI_depth.item(), invalid, deviation, min, max
-                else:
-                    return float(0), invalid, deviation, min, max
-        else:
-            return float(0), float(100), float(0), float(0), float(0)
-
-    def ROI_data(self, polygon, filter_level=0):
-        """calculates the average depth inside of the region of interest.
-        If filter_level is above 0, the raw depth frame is first filtered
-        and then the average is computed
-
-        :param polygon: list of (x, y) tuples
-        :type polygon: list
-        :param filter_level: how aggressive the filter is (0-5), defaults to 0
-        :type filter_level: int, optional
-        :return: depth at roi, or 0.0 if unable to compute
-        :rtype: float
-        """
-        depth_frame = self.__depth_frame
-        if depth_frame is not None:
-            polygon = np.array(polygon)
-            if filter_level > 5:
-                filter_level = 5
-            if len(polygon) > 0:
-                if filter_level > 0:
-                    # Compute filtered depth image
-                    spatial = rs.spatial_filter()
-                    spatial.set_option(rs.option.holes_fill, filter_level)
-                    filtered_depth_frame = spatial.process(depth_frame)
-                    filtered_depth_image = np.asanyarray(
-                        filtered_depth_frame.get_data())
-
-                    # Compute mask form polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
-                                        pts=[polygon], color=1)
+                    for polygon in polygon_list:
+                        mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
                     mask = mask.astype('bool')
                     mask = np.invert(mask)
 
@@ -331,11 +226,14 @@ class Camera():
 
                     # Compute average distance of the region of interest
                     ROI_depth = filtered_depth_mask.mean() * self.__conversion
+
+                    # cv2.imshow('mask', filtered_depth_mask * 100)
+                    # cv2.waitKey(1)
+
                 else:
                     depth_image = np.asanyarray(depth_frame.get_data())
-                    # Compute mask from polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
-                                        pts=[polygon], color=1)
+                    for polygon in polygon_list:
+                        mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
                     mask = mask.astype('bool')
                     mask = np.invert(mask)
 
@@ -356,79 +254,16 @@ class Camera():
 
                     # Compute average distance of the region of interest
                     ROI_depth = depth_mask.mean() * self.__conversion
-                # return ROI_depth
+
+                    cv2.imshow('mask', depth_mask * 100)
+                    cv2.waitKey(1)
+
                 if isinstance(ROI_depth, np.float64):
                     return ROI_depth.item(), invalid, deviation
                 else:
                     return float(0), invalid, deviation
         else:
             return float(0), float(100), float(0)
-
-    def ROI_depth(self, polygon, filter_level=0):
-        """calculates the average depth inside of the region of interest.
-        If filter_level is above 0, the raw depth frame is first filtered
-        and then the average is computed
-
-        :param polygon: list of (x, y) tuples
-        :type polygon: list
-        :param filter_level: how aggressive the filter is (0-5), defaults to 0
-        :type filter_level: int, optional
-        :return: depth at roi, or 0.0 if unable to compute
-        :rtype: float
-        """
-        depth_frame = self.__depth_frame
-        if depth_frame is not None:
-            polygon = np.array(polygon)
-            if filter_level > 5:
-                filter_level = 5
-            if len(polygon) > 0:
-                if filter_level > 0:
-                    # Compute filtered depth image
-                    spatial = rs.spatial_filter()
-                    spatial.set_option(rs.option.holes_fill, filter_level)
-                    filtered_depth_frame = spatial.process(depth_frame)
-                    filtered_depth_image = np.asanyarray(
-                        filtered_depth_frame.get_data())
-
-                    # Compute mask form polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
-                                        pts=[polygon], color=1)
-                    mask = mask.astype('bool')
-                    mask = np.invert(mask)
-
-                    # Apply mask to filtered depth data and ignore invalid/zero distances
-                    filtered_depth_mask = ma.array(filtered_depth_image,
-                                                   mask=mask,
-                                                   fill_value=0)
-                    filtered_depth_mask = ma.masked_invalid(
-                        filtered_depth_mask)
-                    filtered_depth_mask = ma.masked_equal(
-                        filtered_depth_mask, 0)
-
-                    # Compute average distance of the region of interest
-                    ROI_depth = filtered_depth_mask.mean() * self.__conversion
-                else:
-                    depth_image = np.asanyarray(depth_frame.get_data())
-                    # Compute mask from polygon vertices
-                    mask = cv2.fillPoly(self.__blank_image,
-                                        pts=[polygon], color=1)
-                    mask = mask.astype('bool')
-                    mask = np.invert(mask)
-
-                    # Apply mask to depth data and ignore invalid/zero distances
-                    depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
-                    depth_mask = ma.masked_invalid(depth_mask)
-                    depth_mask = ma.masked_equal(depth_mask, 0)
-
-                    # Compute average distance of the region of interest
-                    ROI_depth = depth_mask.mean() * self.__conversion
-                # return ROI_depth
-                if isinstance(ROI_depth, np.float64):
-                    return ROI_depth.item()
-                else:
-                    return float(0)
-        else:
-            return float(0)
 
     @property
     def asic_temperature(self):

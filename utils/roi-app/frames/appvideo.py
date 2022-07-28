@@ -1,4 +1,4 @@
-import copy
+import tkinter as tk
 from tkinter import ttk
 
 import numpy as np
@@ -18,6 +18,9 @@ class AppVideo(ttk.Labelframe):
         self.configure(text='video')
 
         self._paused = False
+        self._roi_select = tk.IntVar()
+        self._roi_select_all = tk.BooleanVar()
+        self._roi_select_all.set(False)
 
         # region WIDGETS
         # video
@@ -73,6 +76,28 @@ class AppVideo(ttk.Labelframe):
             helptext='Complete (close) mask'
         )
         self._mask_complete_button.grid(row=0, column=3, padx=3)
+
+        # see all
+        self._mask_see_all_button = CheckButtonToolTip(
+            master=self._mask_control_frame,
+            text='all',
+            command=self.mask_see_all,
+            width=3,
+            helptext='View all masks',
+            variable=self._roi_select_all
+        )
+        self._mask_see_all_button.grid(row=0, column=4, padx=3)
+
+        self._mask_select_buttons = []
+        for id in range(len(self._root.masks)):
+            self._mask_select_buttons.append(ttk.Radiobutton(
+                master=self._mask_control_frame,
+                command=self.mask_select,
+                variable=self._roi_select,
+                value=id,
+                width=1
+            ))
+            self._mask_select_buttons[-1].grid(row=0, column=5+id)
 
         # VIDEO CONTROLS
         self._video_controls_frame = ttk.Labelframe(
@@ -173,16 +198,33 @@ class AppVideo(ttk.Labelframe):
         self.update_idletasks()
 
     def mask_reset(self):
-        self._root.mask_reset()
+        self._root.masks[self.roi_select].reset()
+
+        if self._roi_select_all.get():
+            for i in range(len(self._root.masks)):
+                self._root.masks[i].reset()
+        else:
+            self._root.masks[self.roi_select].reset()
 
     def mask_undo(self):
-        self._root.mask_undo()
+        self._root.masks[self.roi_select].undo()
 
     def mask_see_raw(self):
-        self._root.terminal.write(self._root.mask.coordinates)
+        if self._roi_select_all.get():
+            for i in range(len(self._root.masks)):
+                self._root.terminal.write(self._root.masks[i].coordinates)
+        else:
+            self._root.terminal.write(self._root.masks[self.roi_select].coordinates)
+
+    def mask_see_all(self):
+        pass
 
     def mask_complete(self):
-        self._root.mask.complete()
+        # self._root.mask.complete()
+        self._root.masks[self.roi_select].complete()
+
+    def mask_select(self):
+        print('mask select', self._roi_select.get())
 
     def restart_camera(self):
         self.pause()
@@ -210,8 +252,17 @@ class AppVideo(ttk.Labelframe):
 
     def get_coordinates(self, *args, **kwargs):
         if not self._paused:
-            self._root.mask.get_coordinates(*args, **kwargs)
+            # self._root.mask.get_coordinates(*args, **kwargs)
+            self._root.masks[self.roi_select].get_coordinates(*args, **kwargs)
 
-    @ property
+    @property
     def paused(self):
         return self._paused
+
+    @property
+    def roi_select(self):
+        return self._roi_select.get()
+
+    @property
+    def roi_select_all(self):
+        return self._roi_select_all.get()

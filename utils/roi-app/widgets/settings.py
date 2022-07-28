@@ -164,7 +164,7 @@ class SettingsCombobox(ttk.Labelframe):
         self._combobox = ttk.Combobox(
             master=self,
             textvariable=self._text,
-            width=26,
+            width=23,
             takefocus=False
         )
         

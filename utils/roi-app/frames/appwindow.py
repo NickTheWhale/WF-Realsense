@@ -51,6 +51,7 @@ class AppWindow(tk.Tk):
         self._drag_id = ''
 
         # camera/video variables
+        number_of_roi = 10
         self._roi_depth = 0
         self._roi_min = 0
         self._roi_max = 0
@@ -72,7 +73,7 @@ class AppWindow(tk.Tk):
             for root, dirs, files in os.walk(self._path):
                 for file in files:
                     if file.endswith('.ini'):
-                        if file == 'defaultconfiguration.ini': 
+                        if file == 'defaultconfiguration.ini':
                             if root == self._path:
                                 config_filename = file
 
@@ -94,11 +95,14 @@ class AppWindow(tk.Tk):
             raise RuntimeError(
                 f"Could not find camera, check connections: {e}")
 
-        self._mask_widget = MaskWidget(self)
+        self._mask_widgets = []
+        for id in range(number_of_roi):
+            self._mask_widgets.append(MaskWidget(self, id=id+1))
+
         raw_poly = self._configurator.get_value('camera', 'region_of_interest', str(''))
         if raw_poly != '':
             poly = list(eval(raw_poly))
-        self._mask_widget.coordinates = poly
+        self._mask_widgets[0].coordinates = poly
 
         self._menu = AppMenu(self, tearoff=0)
         self.configure(menu=self._menu)
@@ -126,8 +130,8 @@ class AppWindow(tk.Tk):
 
         # bindings
         self.bind_all("<Control-q>", self.on_closing)
-        self.bind_all("<Control-z>", self.mask_undo)
-        self.bind_all("<Control-r>", self.mask_reset)
+        self.bind_all("<Control-z>", self._video_widget.mask_undo)
+        self.bind_all("<Control-r>", self._video_widget.mask_reset)
         self.bind_all("<Configure>", self.dragging)
 
         self._start_time = time.time()
@@ -138,8 +142,8 @@ class AppWindow(tk.Tk):
         return self._path
 
     @property
-    def mask(self):
-        return self._mask_widget
+    def masks(self):
+        return self._mask_widgets
 
     @property
     def root(self):
@@ -187,27 +191,42 @@ class AppWindow(tk.Tk):
 
     def update_roi_stats(self, depth_frame):
         # get frame and polygon
-        poly_ret, poly = self._mask_widget.polygon()
-        if isinstance(depth_frame, rs.depth_frame):
-            if poly_ret and poly is not None:
-                if len(poly) > 0:
-                    d, i, s, l, h = self._camera.ROI_stats(poly, self._filter_level)
+        if self._video_widget.roi_select_all:
+            polygons = []
+            for i in range(len(self._mask_widgets)):
+                ret, poly = self._mask_widgets[i].polygon()
+                if ret:
+                    polygons.append(poly)
 
-                    self._roi_depth = d
-                    self._roi_max = h
-                    self._roi_min = l
-                    self._roi_deviation = s
-                    self._roi_invalid = i
+            if isinstance(depth_frame, rs.depth_frame):
+                d, i, s = self._camera.ROI_datan(polygons, self._filter_level)
+
+                self._roi_depth = d
+                self._roi_deviation = s
+                self._roi_invalid = i
+        else:
+            polygons = []
+            ret, poly = self._mask_widgets[self._video_widget.roi_select].polygon()
+            if ret:
+                polygons.append(poly)
+
+            if isinstance(depth_frame, rs.depth_frame):
+                d, i, s = self._camera.ROI_datan(polygons, self._filter_level)
+
+                self._roi_depth = d
+                self._roi_deviation = s
+                self._roi_invalid = i
 
     @property
     def formatted_stats(self):
         d = self._roi_depth
-        h = self._roi_max
-        l = self._roi_min
         s = self._roi_deviation
         i = self._roi_invalid
-        return (f'[Depth:\t{d:.3f}]\t[Max:\t{h:.3f}]\t'
-                f'[Min:\t{l:.3f}]\t[Std.:\t{s:.3f}]\t'
+        # return (f'[Depth:\t{d:.3f}]\t[Max:\t{h:.3f}]\t'
+        #         f'[Min:\t{l:.3f}]\t[Std.:\t{s:.3f}]\t'
+        #         f'[Invalid:\t{i:.1f}]')
+        return (f'[Depth:\t{d:.3f}]\t'
+                f'[Std.:\t{s:.3f}]\t'
                 f'[Invalid:\t{i:.1f}]')
 
     def loop(self):
@@ -222,30 +241,23 @@ class AppWindow(tk.Tk):
                 depth_color_frame = self._camera.colorizer.colorize(depth_frame)
                 color_image = np.asanyarray(depth_color_frame.get_data())
 
-                self._mask_widget.draw(color_image)
+                # self._mask_widget.draw(color_image)
+                if self._video_widget.roi_select_all:
+                    for i in range(len(self._mask_widgets)):
+                        self._mask_widgets[i].draw(color_image)
+                else:
+                    self._mask_widgets[self._video_widget.roi_select].draw(color_image)
+
                 self._color_image = color_image
                 # self._video_widget.set_image()
 
         if self._new_frame_count > self._framerate:
-            if self._mask_widget.ready:
+            if self._mask_widgets[self._video_widget.roi_select].ready:
                 if not self._terminal_widget.camera_supress:
                     self.update_roi_stats(depth_frame)
                     self._terminal_widget.write(self.formatted_stats)
             self._new_frame_count = 0
         self.after(10, self.loop)
-
-    # def get_program_path(self) -> str:
-    #     """gets full path name of program. Works if
-    #     program is frozen
-
-    #     :return: path
-    #     :rtype: string
-    #     """
-    #     if getattr(sys, 'frozen', False):
-    #         path = os.path.dirname(sys.executable)
-    #     elif __file__:
-    #         path = os.path.dirname(__file__)
-    #     return path
 
     def dir_exists(self, path: str, name: str) -> bool:
         """check if directory 'name' exists within 'path'
@@ -259,12 +271,6 @@ class AppWindow(tk.Tk):
         """
         dir = os.listdir(path=path)
         return name in dir
-
-    def mask_reset(self, *args, **kwargs):
-        self._mask_widget.reset()
-
-    def mask_undo(self, *args, **kwargs):
-        self._mask_widget.undo()
 
     def on_closing(self, *args, **kwargs):
         """prompt user if they are sure they want to quit when they hit the 'x'"""
@@ -299,6 +305,3 @@ class AppWindow(tk.Tk):
         if self._video_widget.paused:
             self._video_widget.unpause()
         self._drag_id = ''
-
-
-# 'char', 'delta', 'height', 'keycode', 'keysym', 'keysym_num', 'num', 'send_event', 'serial', 'state', 'time', 'type', 'widget', 'width', 'x', 'x_root', 'y', 'y_root']

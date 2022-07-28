@@ -10,6 +10,7 @@ class MaskWidget():
         """create mask widget"""
 
         self._root = args[0]
+        self._id = kwargs.pop('id', None)
 
         self.__coordinates = []
         self.__right_clicked = False
@@ -51,14 +52,14 @@ class MaskWidget():
 
     def reset(self, *args, **kwargs):
         """resets mask widget state. Clears coordinates and right click flag"""
-        
+
         self.__coordinates = []
         self.__right_clicked = False
         self.__left_clicked = False
 
     def draw(self, image):
         """draws opencv lines between stored coordinates"""
-        
+
         coordinates = self.__coordinates
         scaled_coordinates = []
 
@@ -67,7 +68,7 @@ class MaskWidget():
                 (coordinate[0] // self._root.camera.scale,
                  coordinate[1] // self._root.camera.scale)
             )
-        
+
         n = len(scaled_coordinates)
 
         if n == 1:
@@ -80,6 +81,24 @@ class MaskWidget():
             for i in range(n - 1):
                 cv2.line(image, scaled_coordinates[i], scaled_coordinates[i+1],
                          color=self.__line_color, thickness=2)
+        if self.ready:
+            if isinstance(self._id, int) and n >= 2:
+                x1, y1, x2, y2 = self.box(scaled_coordinates)
+                cv2.line(image, (x1, y1), (x2, y1), color=(0, 0, 0), thickness=1)
+                cv2.line(image, (x2, y1), (x2, y2), color=(0, 0, 0), thickness=1)
+                cv2.line(image, (x2, y2), (x1, y2), color=(0, 0, 0), thickness=1)
+                cv2.line(image, (x1, y2), (x1, y1), color=(0, 0, 0), thickness=1)
+
+                text_pos = (((x2-x1)//2)+x1-7, ((y2-y1)//2)+y1+10)
+
+                cv2.putText(img=image,
+                            text=str(self._id),
+                            org=text_pos,
+                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=1,
+                            color=(255, 255, 255),
+                            thickness=2,
+                            lineType=cv2.LINE_AA)
 
     def coordinate_valid(self, x, y):
         """checks if a coordiante lies within an image
@@ -90,7 +109,7 @@ class MaskWidget():
         :type y: int
         :return: validity
         :rtype: bool
-        """       
+        """
         if x <= 847 and x >= 0:
             if y <= 479 and y >= 0:
                 return True
@@ -114,13 +133,13 @@ class MaskWidget():
                 return (True, np.array(self.__coordinates))
         return (False, None)
 
-    def text_coordinate(self):
+    def text_coordinate(self, coordinates):
         """averages location of all stored coordinates
 
         :return: average location
         :rtype: list
-        """        
-        cd = self.__coordinates
+        """
+        cd = coordinates
         text_cd = [0, 0]
         for i in range(len(cd) - 1):
             text_cd[0] += cd[i][0]
@@ -130,6 +149,15 @@ class MaskWidget():
         text_cd[1] //= len(cd) - 1
         text_cd[1] += 12
         return text_cd
+
+    def box(self, coordinates):
+        """calculate bounding box"""
+        cd = coordinates
+        x = [x[0] for x in cd]
+        y = [y[1] for y in cd]
+        x1, y1 = min(x), min(y)
+        x2, y2, = max(x), max(y)
+        return x1, y1, x2, y2
 
     def complete(self):
         if self.__left_clicked:
@@ -144,7 +172,7 @@ class MaskWidget():
 
         :return: x, y coordinate
         :rtype: int tuple
-        """       
+        """
         return self.__x, self.__y
 
     @property
@@ -153,9 +181,9 @@ class MaskWidget():
 
         :return: list of coordinates
         :rtype: list
-        """       
+        """
         return self.__coordinates
-    
+
     @coordinates.setter
     def coordinates(self, coordinates):
         """set coordinates if valid"""
@@ -164,20 +192,20 @@ class MaskWidget():
             y = coordinate[1]
             if not self.coordinate_valid(x, y):
                 return
-            
+
         self.__coordinates = coordinates
 
     @property
     def line_color(self):
-        """line color getter"""       
+        """line color getter"""
         return self.__line_color
 
     @line_color.setter
     def line_color(self, color):
-        """line color setter"""       
+        """line color setter"""
         self.__line_color = color
 
     @property
     def ready(self):
-        """true if coordinates > 0 and right clicked"""       
+        """true if coordinates > 0 and right clicked"""
         return True if len(self.__coordinates) > 0 and self.__right_clicked else False
