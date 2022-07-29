@@ -103,7 +103,7 @@ def take_picture(image, polygon):
             image.save(f'{path}\\snapshots\\{timestamp}.jpg')
             # sleep thread to prevent saving a bunch of pictures
             time.sleep(5)
-            log.info(f'Took picture: "{timestamp}"')
+            log.debug(f'Took picture: "{timestamp}"')
         else:
             snapshot_path = path + '\\snapshots\\'
             os.mkdir(snapshot_path)
@@ -112,12 +112,15 @@ def take_picture(image, polygon):
             image.save(f'{path}\\snapshots\\{timestamp}.jpg')
             # sleep thread to prevent saving a bunch of pictures
             time.sleep(5)
-            log.info(f'Took picture: "{timestamp}"')
-    except Exception as e:
-        # sleep thread to prevent saving a bunch of pictures
-        time.sleep(5)
+            log.debug(f'Took picture: "{timestamp}"')
+    except ValueError as e:
+        log.warning(f'Failed to take picture {timestamp}: {e}')
+    except FileExistsError as e:
+        log.warning(f'Failed to take picture {timestamp}: {e}')
+    except OSError as e:
         log.warning(f'Failed to take picture {timestamp}: {e}')
     finally:
+        time.sleep(5)
         global taking_picture
         taking_picture = False
 
@@ -195,11 +198,16 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
     log.error(message, exc_info=True)
     if allow_restart:
         log.critical(MSG_RESTART)
+        if isinstance(camera, Camera):
+            try:
+                camera.stop()
+            except Exception:
+                pass
         if WAIT_BEFORE_RESTARTING > 0:
             time.sleep(WAIT_BEFORE_RESTARTING)
         main()
     else:
-        if camera is not None:
+        if isinstance(camera, Camera):
             try:
                 camera.stop()
             except Exception:
@@ -382,6 +390,16 @@ def main():
             alive_node = client.get_node(
                 str(config.get_value('nodes', 'alive_node')))
 
+            nodes = {
+                'roi_depth': roi_depth_node,
+                'roi_invalid': roi_invalid_node,
+                'roi_deviation': roi_deviation_node,
+                'roi_select': roi_select_node,
+                'status': status_node,
+                'picture_trigger': picture_trigger_node,
+                'alive': alive_node
+            }
+
             log.info("Successfully retrieved nodes from OPC server")
         except Exception as e:
             print('no worky', e)
@@ -406,7 +424,8 @@ def main():
         if camera.connected:
             # check for valid depth frame
             try:
-                if not camera.depth_frame:
+                # if not camera.depth_frame:
+                if isinstance(camera.depth_frame, rs.depth_frame):
                     continue
             except RuntimeError as e:
                 critical_error(
@@ -477,7 +496,8 @@ def main():
                 status_code = get_status(camera, roi_invalid)
                 if log_elapsed > STATUS_LOG_INTERVAL:
                     if status_code != StatusCodes.OK:
-                        print("loggin")
+                        print(
+                            f'asic: {camera.asic_temperature}  projector: {camera.projector_temperature}')
                         log.warning(f'Status update: {StatusCodes.name(status_code)}')
                     log_start = time.time()
                 if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
