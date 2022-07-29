@@ -184,7 +184,7 @@ def depth_frame_to_image(depth_frame):
             color_frame = rs.colorizer().colorize(depth_frame)
             color_array = np.asanyarray(color_frame.get_data())
             color_image = PIL.Image.fromarray(color_array)
-            
+
             ret = (True, color_image)
         except TypeError as e:
             log.warning(f'Failed to convert depth frame to image: {e}')
@@ -223,7 +223,6 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
             except:
                 os._exit(1)
         os._exit(1)
-        # sys.exit()
 
 
 def roi_box(roi):
