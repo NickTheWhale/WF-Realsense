@@ -63,6 +63,3 @@ class Status:
             status = StatusCodes.ERROR_UPDATING_STATUS
 
         return status
-
-    def __str__(self):
-        return 

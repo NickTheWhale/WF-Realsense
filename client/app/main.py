@@ -35,7 +35,7 @@ STATUS_LOG_INTERVAL = 60  # time in seconds between status log
 WAIT_BEFORE_RESTARTING = 60  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-DEBUG = True  # true: log output goes to console, false: log output goes to .log file
+DEBUG = False  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
@@ -53,10 +53,12 @@ HEIGHT = 480  # or this
 ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
 if DEBUG:
     LOG_FORMAT = '%(levelname)-10s %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-7d %(message)s'
+    WAIT_BEFORE_RESTARTING = 0
 else:
     LOG_FORMAT = '%(levelname)-10s %(asctime)-25s %(message)s'
 MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
-MSG_RESTART = "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
+MSG_RESTART = (f"~~~~~~~~~~~~~~Restarting Application in "
+               f"{WAIT_BEFORE_RESTARTING} seconds~~~~~~~~~~~~~~\n")
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
 
@@ -100,7 +102,8 @@ def take_picture(image, polygon):
         if dir_exists(path=path, name='snapshots'):
             # SAVE IMAGE
             image = draw_poly(image, polygon)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+            image = image.resize((424, 240), PIL.Image.LANCZOS)
+            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
             # sleep thread to prevent saving a bunch of pictures
             time.sleep(5)
             log.debug(f'Took picture: "{timestamp}"')
@@ -109,7 +112,7 @@ def take_picture(image, polygon):
             os.mkdir(snapshot_path)
             # SAVE IMAGE
             image = draw_poly(image, polygon)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=1)
             # sleep thread to prevent saving a bunch of pictures
             time.sleep(5)
             log.debug(f'Took picture: "{timestamp}"')
@@ -176,14 +179,20 @@ def depth_frame_to_image(depth_frame):
     :return: (status, color image)
     :rtype: (bool, PIL.Image)
     """
-    try:
-        color_frame = rs.colorizer().colorize(depth_frame)
-        color_array = np.asanyarray(color_frame.get_data())
-        color_image = PIL.Image.fromarray(color_array)
-        return (True, color_image)
-    except Exception as e:
-        log.warning(f'Failed to convert depth frame to image: {e}')
-        return (False, None)
+    if isinstance(depth_frame, rs.depth_frame):
+        try:
+            color_frame = rs.colorizer().colorize(depth_frame)
+            color_array = np.asanyarray(color_frame.get_data())
+            color_image = PIL.Image.fromarray(color_array)
+            
+            ret = (True, color_image)
+        except TypeError as e:
+            log.warning(f'Failed to convert depth frame to image: {e}')
+            ret = (False, None)
+        except ValueError as e:
+            log.warning(f'Failed to convert depth frame to image: {e}')
+            ret = (False, None)
+    return ret
 
 
 def critical_error(message="Unkown critical error", allow_restart=True, camera=None):
@@ -201,18 +210,18 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
         if isinstance(camera, Camera):
             try:
                 camera.stop()
-            except Exception:
+            except RuntimeError:
                 pass
         if WAIT_BEFORE_RESTARTING > 0:
             time.sleep(WAIT_BEFORE_RESTARTING)
         main()
     else:
+        log.critical(MSG_ERROR_SHUTDOWN)
         if isinstance(camera, Camera):
             try:
                 camera.stop()
-            except Exception:
-                pass
-        log.critical(MSG_ERROR_SHUTDOWN)
+            except:
+                os._exit(1)
         os._exit(1)
         # sys.exit()
 
@@ -256,7 +265,7 @@ def get_status(camera, invalid):
         elif high_invalid:
             status = StatusCodes.ERROR_HIGH_INVALID_PERCENTAGE
 
-    except Exception as e:
+    except RuntimeError as e:
         status = StatusCodes.ERROR_UPDATING_STATUS
 
     return status
@@ -350,9 +359,7 @@ def main():
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
         critical_error(
-            f"Failed to connect camera: RuntimeError: {e}")
-    except Exception as e:
-        critical_error(e)
+            f"Failed to connect camera: {e}")
 
     ##############################################################################
     #                                    OPC                                     #
@@ -365,8 +372,8 @@ def main():
         log.info(f"Successfully connected to {ip}")
     except ConnectionRefusedError as e:
         critical_error(e)
-    except Exception as e:
-        critical_error(e)
+    except KeyError as e:
+        critical_error(e, False)
     else:
         try:
             roi_depth_node = client.get_node(
@@ -401,8 +408,7 @@ def main():
             }
 
             log.info("Successfully retrieved nodes from OPC server")
-        except Exception as e:
-            print('no worky', e)
+        except ua.UaError as e:
             critical_error(f'Failed to retrieve nodes: {e}')
 
     ##############################################################################
@@ -417,7 +423,7 @@ def main():
     filter_level = int(config.get_value(
         'camera', 'spatial_filter_level', fallback='0'))
 
-    log.debug('Starting loop')
+    log.info('Entering main loop')
     start = time.time()
     log_start = start
     while True:
@@ -425,12 +431,9 @@ def main():
             # check for valid depth frame
             try:
                 # if not camera.depth_frame:
-                if isinstance(camera.depth_frame, rs.depth_frame):
+                if not isinstance(camera.depth_frame, rs.depth_frame):
                     continue
             except RuntimeError as e:
-                critical_error(
-                    f'Error while retrieving camera frames: {e}')
-            except Exception as e:
                 critical_error(
                     f'Error while retrieving camera frames: {e}')
             else:
@@ -486,8 +489,7 @@ def main():
                                 target=take_picture, args=[img, polygon])
                             if not picture_thread.is_alive():
                                 picture_thread.start()
-
-                except Exception as e:
+                except ConnectionRefusedError as e:
                     critical_error(e)
 
             elapsed = time.time() - start
