@@ -384,7 +384,6 @@ def main():
 
             log.info("Successfully retrieved nodes from OPC server")
         except Exception as e:
-            print('no worky', e)
             critical_error(f'Failed to retrieve nodes: {e}')
 
     ##############################################################################
@@ -431,7 +430,7 @@ def main():
                 try:
                     # roi_depth, roi_invalid, roi_deviation = camera.ROI_data(polygon=polygon, filter_level=filter_level)
                     roi_depth, roi_invalid, roi_deviation = camera.ROI_datan(
-                        polygons=polygons, filter_level=0)
+                        polygons=polygons, filter_level=filter_level)
 
                     ##############################################
                     #                  SEND DATA                 #
@@ -503,7 +502,7 @@ def main():
 
             time.sleep(sleep_time / 1000)
             loop_time = time.time() - loop_start
-            print(f'loop time (ms): {loop_time*1000:.3f}  fps: {1 / loop_time:.3f}')
+            log.debug(f'loop time (ms): {loop_time*1000:.3f}  fps: {1 / loop_time:.3f}')
             loop_start = time.time()
 
         else:

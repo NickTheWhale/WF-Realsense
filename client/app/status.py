@@ -22,6 +22,12 @@ class StatusCodes:
     ERROR_TEMP_CRITICAL = -5
     ERROR_HIGH_INVALID_PERCENTAGE = -6
 
+
+class Status:
+    def __init__(self, camera, nodes: dict):
+        self._camera = camera
+        self._nodes = nodes
+
     def name(code):
         error = 'unknown'
         try:
@@ -32,3 +38,28 @@ class StatusCodes:
         except Exception:
             pass
         return error
+
+    def update_status(self):
+        status = StatusCodes.OK
+        try:
+            asic_temp = self._camera.asic_temperature
+            projector_temp = self._camera.projector_temperature
+
+            temp_warning = asic_temp > TEMP_WARNING or projector_temp > TEMP_WARNING
+            temp_max_safe = asic_temp > TEMP_MAX_SAFE or projector_temp > TEMP_MAX_SAFE
+            temp_critical = asic_temp > TEMP_CRITICAL or projector_temp > TEMP_CRITICAL
+            high_invalid = self._nodes['roi_invalid'] > ROI_HIGH_INVALID
+
+            if temp_critical:
+                status = StatusCodes.ERROR_TEMP_CRITICAL
+            elif temp_max_safe:
+                status = StatusCodes.ERROR_TEMP_MAX_SAFE
+            elif temp_warning:
+                status = StatusCodes.ERROR_TEMP_WARNING
+            elif high_invalid:
+                status = StatusCodes.ERROR_HIGH_INVALID_PERCENTAGE
+
+        except Exception as e:
+            status = StatusCodes.ERROR_UPDATING_STATUS
+
+        return status

@@ -56,7 +56,7 @@ class Config():
         """
         try:
             return self.__data[section][key]
-        except KeyError as e:
+        except KeyError:
             if isinstance(fallback, str):
                 log.warning(
                     f'Failed to get value from "[{section}]: {key}". Defaulting to "{fallback}"')
