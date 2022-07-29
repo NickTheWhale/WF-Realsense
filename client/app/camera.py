@@ -132,7 +132,7 @@ class Camera():
         if devs.size() < 1:
             self.__connected = False
 
-    def ROI_datan(self, polygons, filter_level=0):
+    def ROI_datan(self, polygons: list, roi_select: int, filter_level=0):
         """compute average of n-number of polygons"""
 
         depth_frame = self.__depth_frame
@@ -140,87 +140,67 @@ class Camera():
             if filter_level > 5:
                 filter_level = 5
 
+            if roi_select > 255:
+                roi_select = 255
+            elif roi_select < 0:
+                roi_select = 0
+
+            select_list = []
+            for bit in format(roi_select, '08b'):
+                select_list.append(bool(int(bit)))
+
             polygon_list = []
-            for polygon in polygons:
-                polygon_list.append(np.array(polygon))
+            for i in range(len(polygons)):
+                if select_list[i]:
+                    polygon_list.append(np.array(polygons[i]))
             polygon_list = np.asanyarray(polygon_list)
 
-            blank_image = np.zeros((self.__height, self.__width))
-
             if len(polygon_list) > 0:
+                blank_image = np.zeros((self.__height, self.__width))
+
+                # create depth image
                 if filter_level > 0:
-                    # Compute filtered depth image
                     spatial = rs.spatial_filter()
                     spatial.set_option(rs.option.holes_fill, filter_level)
-                    filtered_depth_frame = spatial.process(depth_frame)
-                    filtered_depth_image = np.asanyarray(
-                        filtered_depth_frame.get_data())
-
-                    # Compute mask form polygon vertices
-                    for polygon in polygon_list:
-                        mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
-                    mask = mask.astype('bool')
-                    mask = np.invert(mask)
-
-                    # Apply mask to filtered depth data and ignore invalid/zero distances
-                    filtered_depth_mask = ma.array(filtered_depth_image,
-                                                   mask=mask,
-                                                   fill_value=0)
-
-                    total = ma.count(filtered_depth_mask)
-                    if total > 0:
-                        invalid = (filtered_depth_mask == 0).sum()
-                        invalid = (invalid / total) * 100
-                        deviation = filtered_depth_mask.std() * self.__conversion
-                    else:
-                        deviation = float(0)
-                        invalid = float(100)
-
-                    filtered_depth_mask = ma.masked_invalid(
-                        filtered_depth_mask)
-                    filtered_depth_mask = ma.masked_equal(
-                        filtered_depth_mask, 0)
-
-                    # Compute average distance of the region of interest
-                    ROI_depth = filtered_depth_mask.mean() * self.__conversion
-
-                    # cv2.imshow('mask', filtered_depth_mask * 100)
-                    # cv2.waitKey(1)
-
+                    depth_image = spatial.process(depth_frame)
+                    depth_image = np.asanyarray(depth_image.get_data())
                 else:
                     depth_image = np.asanyarray(depth_frame.get_data())
-                    for polygon in polygon_list:
-                        mask = cv2.fillPoly(blank_image, pts=[polygon], color=1)
-                    mask = mask.astype('bool')
-                    mask = np.invert(mask)
 
-                    # Apply mask to depth data and ignore invalid/zero distances
-                    depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
+                # Compute mask form polygon vertices
+                mask = blank_image
+                for polygon in polygon_list:
+                    if len(polygon) > 0:
+                        mask += cv2.fillPoly(blank_image, pts=[polygon], color=1)
+                mask = mask.astype('bool')
+                mask = np.invert(mask)
 
-                    total = ma.count(depth_mask)
-                    if total > 0:
-                        invalid = (depth_mask == 0).sum()
-                        invalid = (invalid / total) * 100
-                        deviation = depth_mask.std() * self.__conversion
-                    else:
-                        deviation = float(0)
-                        invalid = float(100)
+                # Apply mask to depth data and ignore invalid/zero distances
+                depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
 
-                    depth_mask = ma.masked_invalid(depth_mask)
-                    depth_mask = ma.masked_equal(depth_mask, 0)
+                total = ma.count(depth_mask)
+                if total > 0:
+                    invalid = (depth_mask == 0).sum()
+                    invalid = (invalid / total) * 100
+                    deviation = depth_mask.std() * self.__conversion
+                else:
+                    deviation = float(0)
+                    invalid = float(100)
 
-                    # Compute average distance of the region of interest
-                    ROI_depth = depth_mask.mean() * self.__conversion
+                depth_mask = ma.masked_invalid(depth_mask)
+                depth_mask = ma.masked_equal(depth_mask, 0)
 
-                    cv2.imshow('mask', depth_mask * 100)
-                    cv2.waitKey(1)
+                # Compute average distance of the region of interest
+                ROI_depth = depth_mask.mean() * self.__conversion
+
+                # Compute average distance of the region of interest
+                ROI_depth = depth_mask.mean() * self.__conversion
 
                 if isinstance(ROI_depth, np.float64):
                     return ROI_depth.item(), invalid, deviation
                 else:
                     return float(0), invalid, deviation
-        else:
-            return float(0), float(100), float(0)
+        return float(0), float(100), float(0)
 
     @property
     def asic_temperature(self):

@@ -51,7 +51,7 @@ class AppWindow(tk.Tk):
         self._drag_id = ''
 
         # camera/video variables
-        number_of_roi = 10
+        number_of_roi = 8
         self._roi_depth = 0
         self._roi_min = 0
         self._roi_max = 0
@@ -78,10 +78,10 @@ class AppWindow(tk.Tk):
                                 config_filename = file
 
         self._configurator = Config(config_filename)
-        self._framerate = int(self._configurator.get_value('camera', 'framerate', 30))
+        self._framerate = int(self._configurator.get_value('camera', 'framerate', '30'))
         self._filter_level = int(self._configurator.get_value(
             'camera', 'spatial_filter_level', str(0)))
-        self._metric = bool(self._configurator.get_value('camera', 'metric', False))
+        self._metric = bool(float(self._configurator.get_value('camera', 'metric', '0.0')))
         try:
             self._camera = Camera(width=WIDTH,
                                   height=HEIGHT,
@@ -99,10 +99,16 @@ class AppWindow(tk.Tk):
         for id in range(number_of_roi):
             self._mask_widgets.append(MaskWidget(self, id=id+1))
 
-        raw_poly = self._configurator.get_value('camera', 'region_of_interest', str(''))
-        if raw_poly != '':
-            poly = list(eval(raw_poly))
-        self._mask_widgets[0].coordinates = poly
+        polygon_count = 0
+        polygons = []
+        for key in self._configurator.data['roi']:
+            polygons.append(list(eval(self._configurator.get_value('roi', key, fallback='[]'))))
+            polygon_count += 1
+        for _ in range(number_of_roi - polygon_count):
+            polygons.append('[]')
+        for i in range(number_of_roi):
+            self._mask_widgets[i].coordinates = polygons[i]
+            self._mask_widgets[i].complete()
 
         self._menu = AppMenu(self, tearoff=0)
         self.configure(menu=self._menu)

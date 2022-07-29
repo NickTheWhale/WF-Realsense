@@ -45,7 +45,7 @@ def main():
 
         # roi select
         roi_select_node = opc_db.add_variable(
-            idx, "roi_select_node", 0, ua.VariantType.Float)
+            idx, "roi_select_node", 0, ua.VariantType.UInt16)
         roi_select_node.set_writable(writable=True)
 
         # status
@@ -65,7 +65,9 @@ def main():
 
         dead_count = 0
         picture_count = 0
-
+        select_count = 1
+        select = 0
+        
         while True:
             # get tag values
             depth = roi_depth_node.get_value()
@@ -77,6 +79,7 @@ def main():
             roi_select = roi_select_node.get_value()
 
             picture_count += 1
+            select_count += 1
 
             if picture_count == 1:
                 dv = True
@@ -101,9 +104,17 @@ def main():
             # print tag values
             print(f'Depth: {depth:.2f} | Invalid: {invalid:.2f} | Deviation: {deviation:.2f} | '
                 f'Status: {status:.2f} | Picture: {picture:.2f} | '
-                f'Alive: {alive:.2f} | ROI select: {roi_select:.2f} | '
+                f'Alive: {alive:.2f} | ROI select: {roi_select} | '
                 f'Dead: {dead_count} | PicCount: {picture_count}')
-
+            
+            if select_count > 200 // LOOP_TIME:
+                select_count = 0
+                select += 1
+                if select > 255:
+                    select = 0
+                dv = ua.DataValue(ua.Variant(select, ua.VariantType.Int16))
+                roi_select_node.set_value(dv)
+            
             time.sleep(LOOP_TIME / 1000)
     except KeyboardInterrupt:
         sys.exit()

@@ -35,7 +35,7 @@ STATUS_LOG_INTERVAL = 60  # time in seconds between status log
 WAIT_BEFORE_RESTARTING = 60  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-DEBUG = True  # true: log output goes to console, false: log output goes to .log file
+DEBUG = False  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
@@ -50,7 +50,9 @@ taking_picture = False
 METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
+NUM_OF_ROI = 8
 ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
+ROI_AUTO_EXPOSURE_FALLBACK = '[(106, 60), (742, 60), (742, 420), (106, 420), (106, 60)]'
 if DEBUG:
     LOG_FORMAT = '%(levelname)-10s %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-7d %(message)s'
     WAIT_BEFORE_RESTARTING = 0
@@ -59,7 +61,7 @@ else:
 MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
 MSG_RESTART = (f"~~~~~~~~~~~~~~Restarting Application in "
                f"{WAIT_BEFORE_RESTARTING} seconds~~~~~~~~~~~~~~\n")
-MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
+MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error (will not restart)~~~~~~~~~~~~~~\n"
 
 
 # When parsing the configuration file, the parser will check if the file
@@ -84,7 +86,7 @@ REQUIRED_DATA = {
 }
 
 
-def take_picture(image, polygon):
+def take_picture(image, polygons):
     """saves picture to 'snapshots' directory. Creates
     directory if not found
 
@@ -99,23 +101,20 @@ def take_picture(image, polygon):
         timestamp = datetime.now()
         timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
 
-        if dir_exists(path=path, name='snapshots'):
-            # SAVE IMAGE
-            image = draw_poly(image, polygon)
-            image = image.resize((424, 240), PIL.Image.LANCZOS)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
-            # sleep thread to prevent saving a bunch of pictures
-            time.sleep(5)
-            log.debug(f'Took picture: "{timestamp}"')
-        else:
+        if not dir_exists(path, 'snapshots'):
             snapshot_path = path + '\\snapshots\\'
             os.mkdir(snapshot_path)
-            # SAVE IMAGE
-            image = draw_poly(image, polygon)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=1)
-            # sleep thread to prevent saving a bunch of pictures
-            time.sleep(5)
-            log.debug(f'Took picture: "{timestamp}"')
+
+        # SAVE IMAGE
+        for polygon in polygons:
+            if len(polygon) >= 2:
+                draw_poly(image, polygon)
+        image = image.resize((424, 240), PIL.Image.LANCZOS)
+        image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
+        # sleep thread to prevent saving a bunch of pictures
+        time.sleep(5)
+        log.debug(f'Took picture: "{timestamp}"')
+
     except ValueError as e:
         log.warning(f'Failed to take picture {timestamp}: {e}')
     except FileExistsError as e:
@@ -350,8 +349,8 @@ def main():
             'camera', 'region_of_interest_auto_exposure', fallback='0.0')))
 
         if enable_roi_exposure:
-            config_roi = eval(config.get_value(
-                'camera', 'region_of_interest', fallback=ROI_FALLBACK))
+            config_roi = list(eval(config.get_value(
+                'camera', 'region_of_interest', fallback=ROI_AUTO_EXPOSURE_FALLBACK)))
             x1, y1, x2, y2 = roi_box(config_roi)
             roi = rs.region_of_interest()
             roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
@@ -403,32 +402,35 @@ def main():
             critical_error(f'Failed to retrieve nodes: {e}')
 
     ##############################################################################
-    #                                    LOOP                                    #
+    #                                    ROI                                     #
     ##############################################################################
 
     # store repeatedly used variables
     sleep_time = float(config.get_value(
         'application', 'sleep_time', fallback='10'))
-    polygon = list(eval(config.get_value(
-        'camera', 'region_of_interest', fallback=ROI_FALLBACK)))
     filter_level = int(config.get_value(
         'camera', 'spatial_filter_level', fallback='0'))
 
+    polygons = []
+    polygon_count = 0
+    for key in config.data['roi']:
+        polygons.append(list(eval(config.get_value('roi', key, fallback='[]'))))
+        polygon_count += 1
+    if polygon_count < NUM_OF_ROI:
+        critical_error(f'Missing region of interests. '
+                       f'Need {NUM_OF_ROI}, found {polygon_count}', False)
+
+    ##############################################################################
+    #                                    LOOP                                    #
+    ##############################################################################
+
     log.info('Entering main loop')
+
     start = time.time()
     log_start = start
     loop_start = time.time()
 
-    poly1 = [(67, 28), (43, 94), (57, 179), (161, 227), (265, 199), (347, 135), (326, 63), (291, 40), (67, 28)]
-    poly2 = [(194, 322), (124, 345), (115, 407), (239, 437), (375, 415), (379, 346), (194, 322)]
-    poly3 = [(587, 81), (507, 120), (485, 225), (601, 279), (794, 231), (587, 81)]
-    poly4 = [(394, 247), (349, 272), (371, 318), (485, 335), (526, 293), (394, 247)]
-
-    polygons = []
-    polygons.append(poly1)
-    polygons.append(poly2)
-    polygons.append(poly3)
-    polygons.append(poly4)
+    roi_select = roi_select_node.get_value()
 
     while True:
         if camera.connected:
@@ -442,9 +444,8 @@ def main():
                     f'Error while retrieving camera frames: {e}')
             else:
                 try:
-                    # roi_depth, roi_invalid, roi_deviation = camera.ROI_data(polygon=polygon, filter_level=filter_level)
                     roi_depth, roi_invalid, roi_deviation = camera.ROI_datan(
-                        polygons=polygons, filter_level=filter_level)
+                        polygons=polygons, roi_select=roi_select, filter_level=filter_level)
 
                     ##############################################
                     #                  SEND DATA                 #
@@ -465,10 +466,12 @@ def main():
                     dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                     roi_deviation_node.set_value(dv)
 
+                    ##############################################
+                    #                 RECIEVE DATA               #
+                    ##############################################
+
                     # roi select
-                    dv = random.random() * 100
-                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                    roi_select_node.set_value(dv)
+                    roi_select = roi_select_node.get_value()
 
                     ##############################################
                     #                  SEND ALIVE                #
@@ -491,10 +494,10 @@ def main():
                         ret, img = depth_frame_to_image(camera.depth_frame)
                         if ret:
                             picture_thread = threading.Thread(
-                                target=take_picture, args=[img, polygon])
+                                target=take_picture, args=[img, polygons])
                             if not picture_thread.is_alive():
                                 picture_thread.start()
-                except ConnectionRefusedError as e:
+                except Exception as e:
                     critical_error(e)
 
             elapsed = time.time() - start
@@ -503,7 +506,6 @@ def main():
                 status_code = get_status(camera, roi_invalid)
                 if log_elapsed > STATUS_LOG_INTERVAL:
                     if status_code != StatusCodes.OK:
-                        print("loggin")
                         log.warning(f'Status update: {StatusCodes.name(status_code)}')
                     log_start = time.time()
                 if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
@@ -515,7 +517,7 @@ def main():
 
             time.sleep(sleep_time / 1000)
             loop_time = time.time() - loop_start
-            log.debug(f'loop time (ms): {loop_time*1000:.3f}  fps: {1 / loop_time:.3f}')
+            # log.info(f'loop time (ms): {loop_time*1000:.3f}  fps: {1 / loop_time:.3f}')
             loop_start = time.time()
 
         else:

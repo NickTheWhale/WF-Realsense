@@ -227,9 +227,6 @@ class Camera():
                     # Compute average distance of the region of interest
                     ROI_depth = filtered_depth_mask.mean() * self.__conversion
 
-                    # cv2.imshow('mask', filtered_depth_mask * 100)
-                    # cv2.waitKey(1)
-
                 else:
                     depth_image = np.asanyarray(depth_frame.get_data())
                     for polygon in polygon_list:
@@ -254,9 +251,6 @@ class Camera():
 
                     # Compute average distance of the region of interest
                     ROI_depth = depth_mask.mean() * self.__conversion
-
-                    cv2.imshow('mask', depth_mask * 100)
-                    cv2.waitKey(1)
 
                 if isinstance(ROI_depth, np.float64):
                     return ROI_depth.item(), invalid, deviation

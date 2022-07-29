@@ -22,6 +22,17 @@ class StatusCodes:
     ERROR_TEMP_CRITICAL = -5
     ERROR_HIGH_INVALID_PERCENTAGE = -6
 
+    def name(code):
+        error = 'unknown'
+        try:
+            for i in inspect.getmembers(StatusCodes):
+                if not i[0].startswith('_'):
+                    if i[1] == code:
+                        error = i[0]
+        except Exception:
+            pass
+        return error
+
 
 class Status:
     def __init__(self, camera, nodes: dict):

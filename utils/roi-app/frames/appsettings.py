@@ -14,7 +14,6 @@ camera_options = {
 }
 
 
-
 class AppSettings(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
         self._args = args
@@ -60,7 +59,7 @@ class AppSettings(ttk.Labelframe):
                 ))
                 self._sliders[-1].grid(row=last_row, column=0)
                 last_row += 1
-                
+
         for key, value in self._config_data['camera'].items():
             ret, _ = self._camera.options.get_option_range(key)
             if not ret:
@@ -181,11 +180,13 @@ class AppSettings(ttk.Labelframe):
             entry.save()
 
         with open(f'{self._entry_text.get()}.ini', 'w') as file:
-            self._configurator.set(
-                'camera',
-                'region_of_interest',
-                str(self._root.mask.coordinates)
-            )
+            for i in range(len(self._root.masks)):
+                self._configurator.set(
+                    'roi',
+                    f'roi_{i+1}',
+                    str(self._root.masks[i].coordinates)
+                )
+
             self._configurator.save(file)
 
         self._root.terminal.write_camera(f'Saved configuration to "{self._entry_text.get()}.ini"')
