@@ -53,10 +53,12 @@ HEIGHT = 480  # or this
 ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
 if DEBUG:
     LOG_FORMAT = '%(levelname)-10s %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-7d %(message)s'
+    WAIT_BEFORE_RESTARTING = 0
 else:
     LOG_FORMAT = '%(levelname)-10s %(asctime)-25s %(message)s'
 MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
-MSG_RESTART = "~~~~~~~~~~~~~~~~~Restarting Application~~~~~~~~~~~~~~\n"
+MSG_RESTART = (f"~~~~~~~~~~~~~~Restarting Application in "
+               f"{WAIT_BEFORE_RESTARTING} seconds~~~~~~~~~~~~~~\n")
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
 
@@ -100,24 +102,28 @@ def take_picture(image, polygon):
         if dir_exists(path=path, name='snapshots'):
             # SAVE IMAGE
             image = draw_poly(image, polygon)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+            image = image.resize((424, 240), PIL.Image.LANCZOS)
+            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
             # sleep thread to prevent saving a bunch of pictures
             time.sleep(5)
-            log.info(f'Took picture: "{timestamp}"')
+            log.debug(f'Took picture: "{timestamp}"')
         else:
             snapshot_path = path + '\\snapshots\\'
             os.mkdir(snapshot_path)
             # SAVE IMAGE
             image = draw_poly(image, polygon)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg')
+            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=1)
             # sleep thread to prevent saving a bunch of pictures
             time.sleep(5)
-            log.info(f'Took picture: "{timestamp}"')
-    except Exception as e:
-        # sleep thread to prevent saving a bunch of pictures
-        time.sleep(5)
+            log.debug(f'Took picture: "{timestamp}"')
+    except ValueError as e:
+        log.warning(f'Failed to take picture {timestamp}: {e}')
+    except FileExistsError as e:
+        log.warning(f'Failed to take picture {timestamp}: {e}')
+    except OSError as e:
         log.warning(f'Failed to take picture {timestamp}: {e}')
     finally:
+        time.sleep(5)
         global taking_picture
         taking_picture = False
 
