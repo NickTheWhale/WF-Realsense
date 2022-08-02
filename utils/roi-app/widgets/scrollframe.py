@@ -25,7 +25,7 @@ class VerticalScrollFrame(ttk.Frame):
         self._root = args[0].root
 
         self._entered = False
-        self._lower_height = 420
+        self._lower_height = 380
         self._upper_height = 675
         self._expand_offset = 180
 

@@ -17,7 +17,12 @@ class MaskWidget():
         self.__left_clicked = False
         self.__x = -1
         self.__y = -1
+
+        self.__active = False
+
         self.__line_color = (255, 255, 255)
+        self.__box_color = (0, 0, 0)
+        self.__text_color = (255, 255, 255)
 
     def get_coordinates(self, event):
         """mouse movement callback. Stores mouse coordinates if they are within
@@ -70,35 +75,44 @@ class MaskWidget():
             )
 
         n = len(scaled_coordinates)
-
-        if n == 1:
-            cv2.line(image, scaled_coordinates[0], scaled_coordinates[0],
-                     color=self.__line_color, thickness=3)
-        elif n == 2:
-            cv2.line(image, scaled_coordinates[0], scaled_coordinates[1],
-                     color=self.__line_color, thickness=2)
-        elif n > 2:
-            for i in range(n - 1):
-                cv2.line(image, scaled_coordinates[i], scaled_coordinates[i+1],
+        if n > 0:
+            if self.__active:
+                self.__line_color = (255, 255, 255)
+                self.__box_color = (0, 0, 0)
+                self.__text_color = (255, 255, 255)
+            else:
+                self.__line_color = (150, 150, 150)
+                self.__box_color = (30, 30, 30)
+                self.__text_color = (150, 150, 150)
+            
+            if n == 1:
+                cv2.line(image, scaled_coordinates[0], scaled_coordinates[0],
+                         color=self.__line_color, thickness=3)
+            elif n == 2:
+                cv2.line(image, scaled_coordinates[0], scaled_coordinates[1],
                          color=self.__line_color, thickness=2)
-        if self.ready:
-            if isinstance(self._id, int) and n >= 2:
-                x1, y1, x2, y2 = self.box(scaled_coordinates)
-                cv2.line(image, (x1, y1), (x2, y1), color=(0, 0, 0), thickness=1)
-                cv2.line(image, (x2, y1), (x2, y2), color=(0, 0, 0), thickness=1)
-                cv2.line(image, (x2, y2), (x1, y2), color=(0, 0, 0), thickness=1)
-                cv2.line(image, (x1, y2), (x1, y1), color=(0, 0, 0), thickness=1)
+            elif n > 2:
+                for i in range(n - 1):
+                    cv2.line(image, scaled_coordinates[i], scaled_coordinates[i+1],
+                             color=self.__line_color, thickness=2)
+            if self.ready:
+                if isinstance(self._id, int) and n >= 2:
+                    x1, y1, x2, y2 = self.box(scaled_coordinates)
+                    cv2.line(image, (x1, y1), (x2, y1), color=self.__box_color, thickness=1)
+                    cv2.line(image, (x2, y1), (x2, y2), color=self.__box_color, thickness=1)
+                    cv2.line(image, (x2, y2), (x1, y2), color=self.__box_color, thickness=1)
+                    cv2.line(image, (x1, y2), (x1, y1), color=self.__box_color, thickness=1)
 
-                text_pos = (((x2-x1)//2)+x1-7, ((y2-y1)//2)+y1+10)
+                    text_pos = (((x2-x1)//2)+x1-7, ((y2-y1)//2)+y1+10)
 
-                cv2.putText(img=image,
-                            text=str(self._id),
-                            org=text_pos,
-                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                            fontScale=1,
-                            color=(255, 255, 255),
-                            thickness=2,
-                            lineType=cv2.LINE_AA)
+                    cv2.putText(img=image,
+                                text=str(self._id),
+                                org=text_pos,
+                                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                fontScale=1,
+                                color=self.__text_color,
+                                thickness=2,
+                                lineType=cv2.LINE_AA)
 
     def coordinate_valid(self, x, y):
         """checks if a coordiante lies within an image
@@ -204,6 +218,36 @@ class MaskWidget():
     def line_color(self, color):
         """line color setter"""
         self.__line_color = color
+
+    @property
+    def box_color(self):
+        """bounding box color getter"""
+        return self.__box_color
+
+    @box_color.setter
+    def box_color(self, color):
+        """bonding box color setter"""
+        self.__box_color = color
+
+    @property
+    def text_color(self):
+        """text color getter"""
+        return self.__text_color
+
+    @text_color.setter
+    def text_color(self, color):
+        """text color setter"""
+        self.__text_color = color
+
+    @property
+    def active(self):
+        """active getter"""
+        return self.__active
+
+    @active.setter
+    def active(self, active):
+        """active setter"""
+        self.__active = active
 
     @property
     def ready(self):

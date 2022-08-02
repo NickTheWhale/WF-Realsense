@@ -29,8 +29,8 @@ class Config():
         self._config_file = configparser.ConfigParser()
         try:
             file_list = self._config_file.read(self._file_name)
-        except configparser.DuplicateOptionError as e:
-            raise e
+        except configparser.Error:
+            raise
 
         if len(file_list) <= 0:
             raise FileNotFoundError(f'"{self._file_name}" was not found')
@@ -84,6 +84,7 @@ class Config():
         return missing
 
     def save(self, file):
+        """write configuration to file"""
         self._config_file.write(file, space_around_delimiters=True)        
 
     def set(self, *args, **kwargs):

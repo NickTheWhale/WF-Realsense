@@ -1,6 +1,8 @@
+import configparser
 import tkinter as tk
 from tkinter import ttk
 
+from camera.config import Config
 from widgets.settings import SettingsEntry, SettingsSlider, SettingsCombobox
 from widgets.tooltip import ButtonToolTip
 from widgets.scrollframe import VerticalScrollFrame
@@ -19,26 +21,33 @@ class AppSettings(ttk.Labelframe):
         self._args = args
         self._kwargs = kwargs
         self._root = self._args[0]
-        self._configurator = self._root.configurator
-        self._config_data = self._configurator.data
         self._camera = self._root.camera
 
         super().__init__(*args, **kwargs)
-        self.configure(text=f'settings ({self._configurator.name})')
+
+        self._padx = 0
+        self._pady = 0
+        self._width = 0
+        self._entry_width = 23
+
+        self.init()
+
+    def init(self):
+        self.configure(text=f'settings ({self._root.configurator.name})')
 
         self._scroll_widget = VerticalScrollFrame(self)
-        self._scroll_widget.grid(row=0, column=0, padx=5, sticky="NS")
+        self._scroll_widget.grid(row=0, column=0, padx=self._padx, sticky="NS")
         self._scroll_frame = self._scroll_widget.interior
 
         self._entry_text = tk.StringVar()
-        # self._entry_text.set(self._configurator.name.split('.')[0])
+        # self._entry_text.set(self._root.configurator.name.split('.')[0])
         self._entry_text.set('configuration')
 
         # camera options
         self._sliders = []
         self._entries = []
         last_row = 0
-        for key, value in self._config_data['camera'].items():
+        for key, value in self._root.configurator.data['camera'].items():
             ret, option = self._camera.options.get_option_range(key)
             if ret:
                 try:
@@ -60,7 +69,7 @@ class AppSettings(ttk.Labelframe):
                 self._sliders[-1].grid(row=last_row, column=0)
                 last_row += 1
 
-        for key, value in self._config_data['camera'].items():
+        for key, value in self._root.configurator.data['camera'].items():
             ret, _ = self._camera.options.get_option_range(key)
             if not ret:
                 try:
@@ -78,49 +87,49 @@ class AppSettings(ttk.Labelframe):
                     pass
 
         # server options
-        for option in self._config_data['server']:
+        for option in self._root.configurator.data['server']:
             self._entries.append(SettingsEntry(
                 self._scroll_frame,
                 root=self._root,
                 label=option,
                 section='server',
-                start=self._configurator.get_value('server', option, '')
+                start=self._root.configurator.get_value('server', option, '')
             ))
             self._entries[-1].grid(row=last_row, column=0)
             last_row += 1
 
         # node options
-        for option in self._config_data['nodes']:
+        for option in self._root.configurator.data['nodes']:
             self._entries.append(SettingsEntry(
                 self._scroll_frame,
                 root=self._root,
                 label=option,
                 section='nodes',
-                start=self._configurator.get_value('nodes', option, '')
+                start=self._root.configurator.get_value('nodes', option, '')
             ))
             self._entries[-1].grid(row=last_row, column=0)
             last_row += 1
 
         # logging options
-        for option in self._config_data['logging']:
+        for option in self._root.configurator.data['logging']:
             self._entries.append(SettingsEntry(
                 self._scroll_frame,
                 root=self._root,
                 label=option,
                 section='logging',
-                start=self._configurator.get_value('logging', option, '')
+                start=self._root.configurator.get_value('logging', option, '')
             ))
             self._entries[-1].grid(row=last_row, column=0)
             last_row += 1
 
         # application options
-        for option in self._config_data['application']:
+        for option in self._root.configurator.data['application']:
             self._entries.append(SettingsEntry(
                 self._scroll_frame,
                 root=self._root,
                 label=option,
                 section='application',
-                start=self._configurator.get_value('application', option, '')
+                start=self._root.configurator.get_value('application', option, '')
             ))
             self._entries[-1].grid(row=last_row, column=0)
             last_row += 1
@@ -134,28 +143,46 @@ class AppSettings(ttk.Labelframe):
 
         self._filename_entry_box = ttk.Entry(
             master=self._button_frame,
-            width=25,
+            width=self._entry_width,
             textvariable=self._entry_text,
         )
-        self._filename_entry_box.grid(row=0, column=0, padx=3, pady=3, sticky="S")
+        self._filename_entry_box.grid(row=0, column=0, padx=self._padx, pady=self._pady)
 
         self._reset_button = ButtonToolTip(
             master=self._button_frame,
             text='↺',
             helptext='Reset settings back to defualt',
-            width=3,
+            width=self._width,
             command=self.reset_callback
         )
-        self._reset_button.grid(row=0, column=1, padx=3, pady=3, sticky="E")
+        self._reset_button.grid(row=0,
+                                column=1,
+                                padx=self._padx,
+                                pady=self._pady)
+
+        self._open_button = ButtonToolTip(
+            master=self._button_frame,
+            text='⤒',
+            helptext='Open and load settings from configuration file',
+            width=self._width,
+            command=self.open_callback
+        )
+        self._open_button.grid(row=0,
+                               column=2, 
+                               padx=self._padx, 
+                               pady=self._pady)
 
         self._save_button = ButtonToolTip(
             master=self._button_frame,
-            text='↓',
+            text='⤓',
             helptext='Save settings to camera and configuration file',
-            width=3,
+            width=self._width,
             command=self.save_callback
         )
-        self._save_button.grid(row=0, column=2, padx=3, pady=3)
+        self._save_button.grid(row=0, 
+                               column=3,
+                               padx=self._padx, 
+                               pady=self._pady)
 
         self._root.bind("<Button-1>", self.mouse_click_callback)
         self._root.bind("<Return>", self.return_callback)
@@ -171,26 +198,73 @@ class AppSettings(ttk.Labelframe):
             entry.reset()
 
     def save_callback(self, *args, **kwargs):
-        self._root.terminal.write_camera('Saving...')
-        self._root.update_idletasks()
+        self.save()            
+    
+    def save(self):
+        try:
+            self._root.terminal.write_camera('Saving...')
+            self._root.update_idletasks()
 
-        for slider in self._sliders:
-            slider.save()
-        for entry in self._entries:
-            entry.save()
+            for mask in self._root.masks:
+                mask.complete()
+            for slider in self._sliders:
+                slider.save()
+            for entry in self._entries:
+                entry.save()
 
-        with open(f'{self._entry_text.get()}.ini', 'w') as file:
-            for i in range(len(self._root.masks)):
-                self._configurator.set(
-                    'roi',
-                    f'roi_{i+1}',
-                    str(self._root.masks[i].coordinates)
-                )
+            with open(f'{self._entry_text.get()}.ini', 'w') as file:
+                for i in range(len(self._root.masks)):
+                    self._root.configurator.set(
+                        'roi',
+                        f'roi_{i+1}',
+                        str(self._root.masks[i].coordinates)
+                    )
 
-            self._configurator.save(file)
+                self._root.configurator.save(file)
 
-        self._root.terminal.write_camera(f'Saved configuration to "{self._entry_text.get()}.ini"')
+            self._root.terminal.write_camera(
+                f'Saved configuration to "{self._entry_text.get()}.ini"')
+        except RuntimeError:
+            self._root.terminal.write_error(
+                ('Failed to save configuration file. '
+                 'This may be due to a configuration '
+                 'conflict or other camera related issue. '
+                 'Try default settings, resetting camera, '
+                 'or restarting application if issues persist'))
+            
+    def sync(self):
+        try:
+            self._root.terminal.write_camera('Syncing.....')
+            self._root.update_idletasks()
 
+            for mask in self._root.masks:
+                mask.complete()
+            for slider in self._sliders:
+                slider.save()
+            for entry in self._entries:
+                entry.save()
+        except Exception:
+            self._root.terminal.write_error('Failed to sync configuration')
+        else:
+            self._root.terminal.write('Synced')
+
+    def open_callback(self, *args, **kwargs):
+        filename = self._entry_text.get().strip().split('.')[0] + '.ini'
+        try:
+            self._root.configurator = Config(filename)
+        except configparser.Error:
+            self._root.terminal.write_error(f'Failed to open "{filename}"')
+        except FileNotFoundError as e:
+            self._root.terminal.write_error(e)
+        except RuntimeError as e:
+            self._root.terminal.write_error(e)
+        else:
+            self._root.configurator = Config(filename)
+            self.init()
+            
+            self.resize()
+            self.sync()
+                
     def mouse_click_callback(self, event):
         if self._root.focus_get() is not event.widget:
             self._root.focus_set()
@@ -202,13 +276,41 @@ class AppSettings(ttk.Labelframe):
 
         else:
             for entry in self._entries:
-                if focused is entry.entry:
-                    self._root.focus_set()
-                    break
+                if hasattr(entry, 'entry'):
+                    if focused is entry.entry:
+                        self._root.focus_set()
+                        break
+                elif hasattr(entry, 'combobox'):
+                    if focused is entry.combobox:
+                        self._root.focus_set()
+                        break
 
     def resize(self):
         self._scroll_widget.resize()
+        
+        if self._root.camera.scale > 1:
+            self._padx = 0
+            self._pady = 0
+            self._width = 0
+            self._entry_width = 23
+        else:
+            self._padx = 3
+            self._pady = 3
+            self._width = 3
+            self._entry_width = 20
+    
+        self._filename_entry_box.configure(width=self._entry_width)
+        self._reset_button.configure(width=self._width)
+        self._open_button.configure(width=self._width)
+        self._save_button.configure(width=self._width)
 
+        
+        columns, rows = self._button_frame.grid_size()
+        for column in range(columns):
+            self._button_frame.columnconfigure(column, pad=self._padx)
+        for row in range(rows):
+            self._button_frame.rowconfigure(row, pad=self._pady)
+    
     @property
     def camera(self):
         return self._camera

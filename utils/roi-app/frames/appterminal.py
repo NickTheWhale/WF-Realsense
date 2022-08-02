@@ -16,6 +16,19 @@ class AppTerminal(ttk.Labelframe):
         self._lines = 0
         self._expanded = False
         self._camera_supress = False
+        self._target_width = 895
+
+        # resize variables
+        self._padx = 0
+        self._pady = 0
+        self._width = 3
+        self._border = 0
+        self._terminal_height = 8
+        self._terminal_font = ('Courier', 9)
+        self._terminal_width = (round(self._target_width
+                                      / (self._terminal_font[1]
+                                         * self._root.camera.scale)))
+        print(self._terminal_width)
 
         self._create_widgets()
 
@@ -23,10 +36,10 @@ class AppTerminal(ttk.Labelframe):
         # terminal text
         self._scrolled_text = ScrolledText(self,
                                            state='disabled',
-                                           height=8,
-                                           width=44)
+                                           height=self._terminal_height,
+                                           width=self._terminal_width)
         self._scrolled_text.grid(row=0, column=0, rowspan=4, sticky="NSEW")
-        self._scrolled_text.configure(font='TkFixedFont')
+        self._scrolled_text.configure(font=self._terminal_font)
         self._scrolled_text.tag_config('INFO', foreground='black')
         self._scrolled_text.tag_config('DEBUG', foreground='gray')
         self._scrolled_text.tag_config('WARNING', foreground='orange')
@@ -39,43 +52,43 @@ class AppTerminal(ttk.Labelframe):
         self._expand_button = ButtonToolTip(
             self,
             text='⇩',
-            width=3,
+            width=self._width,
             command=self.toggle_expand,
             helptext='Expand/collapse terminal'
         )
-        self._expand_button.grid(row=0, column=1, pady=2)
+        self._expand_button.grid(row=0, column=1, padx=self._padx, pady=self._pady)
 
         # pause
         self._pause_button = ButtonToolTip(
             self,
             text='◼',
-            width=3,
+            width=self._width,
             command=self.flip_pause,
             helptext='Pause terminal output'
         )
-        self._pause_button.grid(row=1, column=1, pady=2)
+        self._pause_button.grid(row=1, column=1, padx=self._padx, pady=self._pady)
 
         # clear
         self._clear_button = ButtonToolTip(
             self,
             text='🗑',
-            width=3,
+            width=self._width,
             command=self.clear,
             helptext='Clear terminal output'
         )
-        self._clear_button.grid(row=2, column=1, pady=2)
+        self._clear_button.grid(row=2, column=1, padx=self._padx, pady=self._pady)
 
         # camera
         self._camera_button = CheckButtonToolTip(
             self,
             text='📷',
-            width=3,
+            width=self._width,
             command=self.toggle_camera_supress,
             helptext='Surpress region of interest data'
         )
 
         self._camera_button.state(['selected'])
-        self._camera_button.grid(row=3, column=1, pady=2)
+        self._camera_button.grid(row=3, column=1, padx=self._padx, pady=self._pady)
 
         self.sync_icons()
 
@@ -126,10 +139,42 @@ class AppTerminal(ttk.Labelframe):
         self.sync_icons()
 
     def resize(self):
-        if self._root.camera.scale <= 1:
-            self._scrolled_text.configure(width=97, height=8)
-        elif self._root.camera.scale > 1:
-            self._scrolled_text.configure(width=44, height=8)
+        if self._root.camera.scale > 1:
+            self._padx = 0
+            self._pady = 0
+            self._width = 3
+            self._border = 0
+            self._terminal_height = 8
+            self._terminal_font = ('Courier', 9)
+            self._terminal_width = (round(self._target_width
+                                          / (self._terminal_font[1]
+                                             * self._root.camera.scale)))
+        else:
+            self._padx = 3
+            self._pady = 3
+            self._width = 4
+            self._border = 3
+            self._terminal_height = 8
+            self._terminal_font = ('Courier', 11)
+            self._terminal_width = (round(self._target_width
+                                          * 1.05 / (self._terminal_font[1]
+                                                     * self._root.camera.scale)))
+
+        self._scrolled_text.configure(width=self._terminal_width,
+                                      height=self._terminal_height,
+                                      font=self._terminal_font)
+
+        self._expand_button.configure(width=self._width)
+        self._pause_button.configure(width=self._width)
+        self._clear_button.configure(width=self._width)
+        self._camera_button.configure(width=self._width)
+
+        columns, rows = self.grid_size()
+        for column in range(columns):
+            self.columnconfigure(column, pad=self._padx)
+        for row in range(rows):
+            self.rowconfigure(row, pad=self._pady)
+
         self._expanded = False
         self.sync_icons()
 
@@ -151,17 +196,16 @@ class AppTerminal(ttk.Labelframe):
         # pause button
         pause_text = '▶' if self._paused else '◼'
         self._pause_button['text'] = pause_text
-        
+
         # expand button
         expand_text = '↑' if self._expanded else '↓'
         self._expand_button['text'] = expand_text
-        
-        # frame label 
+
+        # frame label
         status = 'paused' if self._paused else 'running'
         self.configure(text=f'terminal ({status})')
         self.update_idletasks()
-    
-    
+
     @property
     def camera_supress(self):
         return self._camera_supress

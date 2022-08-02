@@ -9,14 +9,13 @@ from ttkwidgets import TickScale
 class SettingsSlider(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
         self._root = kwargs.pop('root')
-        self._camera = self._root.camera
-        self._configurator = self._root.configurator
         self._from = kwargs.pop('from_')
         self._to = kwargs.pop('to')
         self._step = kwargs.pop('step')
         self._label = kwargs.pop('label')
         self._section = kwargs.pop('section')
         self._start = kwargs.pop('start')
+        self._current = self._start
 
         super().__init__(*args, **kwargs)
 
@@ -81,18 +80,40 @@ class SettingsSlider(ttk.Labelframe):
         return float(constrained_val)
 
     def save(self):
+        # if self._section == 'camera':
+        #     if self._level != self._current:
+        #         self._current = self._level
+        #         ret = self._root.camera.options.set_rs_option_direct(self._label, self._level)
+        #         if not ret:
+        #             self._root.terminal.write_camera(
+        #                 f'Failed to set "{self._label}" to "{self._level}"')
+        #         else:
+        #             self._root.terminal.write_camera(
+        #                 f'Set "{self._label}" to "{self._level}"')
         if self._section == 'camera':
-            # save to camera
-            ret = self._camera.options.set_rs_option_direct(self._label, self._level)
-            if not ret:
+            self._current = self._level
+            try:
+                current = self._root.camera.options.get_camera_value(self._label)
+            except Exception:
+                current = None
+            try:
+                if self._level != current:
+                    ret = self._root.camera.options.set_rs_option_direct(
+                        self._label, self._level
+                    )
+                    if not ret:
+                        self._root.terminal.write_camera(
+                            f'Failed to save "{self._level}" to "{self._label}"')
+                    else:
+                        # write to configurator file
+                        self._root.configurator.set(self._section,
+                                                    self._label,
+                                                    str(self._level))
+                        self._root.terminal.write_camera(
+                            f'Saved "{self._level}" to "{self._label}"')
+            except Exception as e:
                 self._root.terminal.write_camera(
-                    f'Failed to set "{self._label}" to "{self._level}"')
-            else:
-                self._root.terminal.write_camera(
-                    f'Set "{self._label}" to "{self._level}"')
-
-        # write to configurator file
-        self._configurator.set(self._section, self._label, str(self._level))
+                    f'Failed to save "{self._level}" to "{self._label}"')
 
     def reset(self):
         self.reset_callback()
@@ -101,10 +122,10 @@ class SettingsSlider(ttk.Labelframe):
 class SettingsEntry(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
         self._root = kwargs.pop('root')
-        self._configurator = self._root.configurator
         self._label = kwargs.pop('label')
         self._section = kwargs.pop('section')
         self._start = kwargs.pop('start')
+        self._current = self._start
 
         self._text = tk.StringVar()
         self._text.set(self._start)
@@ -130,15 +151,20 @@ class SettingsEntry(ttk.Labelframe):
         self._reset_button.grid(row=0, column=1, padx=3, pady=3)
 
     def save(self):
+        # if self._text.get() != self._current:
+        #     self._current = self._text.get()
+        #     self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
+        #     self._root.configurator.set(self._section, self._label, str(self._text.get()))
+        self._current = self._text.get()
         self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
-        self._configurator.set(self._section, self._label, str(self._text.get()))
+        self._root.configurator.set(self._section, self._label, str(self._text.get()))
 
     def reset(self):
         self.reset_callback()
 
     def reset_callback(self):
         self._text.set(self._start)
-        
+
     @property
     def entry(self):
         return self._entry
@@ -148,10 +174,10 @@ class SettingsCombobox(ttk.Labelframe):
     def __init__(self, *args, **kwargs):
         self._args = args
         self._root = kwargs.pop('root')
-        self._configurator = self._root.configurator
         self._label = kwargs.pop('label')
         self._section = kwargs.pop('section')
         self._start = kwargs.pop('start')
+        self._current = self._start
         self._values = kwargs.pop('values')
 
         self._text = tk.StringVar()
@@ -167,10 +193,9 @@ class SettingsCombobox(ttk.Labelframe):
             width=23,
             takefocus=False
         )
-        
-        # self._combobox.bind('<MouseWheel>', self.scroll_callback)
+
         self.unbind_class('TCombobox', '<MouseWheel>')
-        
+
         self._combobox.configure(values=self._values, state='readonly')
         self._combobox.grid(row=0, column=0, padx=3, pady=3)
 
@@ -183,21 +208,28 @@ class SettingsCombobox(ttk.Labelframe):
         )
         self._reset_button.grid(row=0, column=1, padx=3, pady=3)
 
+        self._combobox.bind("<<ComboboxSelected>>", self.callback)
+
+    def callback(self, event):
+        self._combobox.configure(state='readonly')
+        self._combobox.configure(state='disabled')
+        self._combobox.configure(state='readonly')
+
     def save(self):
+        # if self._text.get() != self._current:
+        #     self._current = self._text.get()
+        #     self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
+        #     self._root.configurator.set(self._section, self._label, str(self._text.get()))
+        self._current = self._text.get()
         self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
-        self._configurator.set(self._section, self._label, str(self._text.get()))
+        self._root.configurator.set(self._section, self._label, str(self._text.get()))
 
     def reset(self):
         self.reset_callback()
 
     def reset_callback(self):
         self._text.set(self._start)
-        
-    def scroll_callback(self, event):
-        return 'break'
-        
+
     @property
     def combobox(self):
         return self._combobox
-    
-    

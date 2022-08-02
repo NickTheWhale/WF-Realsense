@@ -21,7 +21,7 @@ METER_TO_FEET = 3.28084
 
 
 class Camera():
-    def __init__(self, width=848, height=480, framerate=0, metric=False, config=None, callback=None):
+    def __init__(self, width=848, height=480, framerate=0, metric=True, config=None, callback=None):
         """create a Camera object to interface with camera. 
         Creating a Camera object also creates a CameraOptions object
         used for setting and getting camera settings
@@ -67,7 +67,8 @@ class Camera():
         self.__height = height
         self.__width = width
         self.__conversion = METER_TO_FEET * self.__depth_scale
-        if metric:
+        self.__metric = metric
+        if self.__metric:
             self.__conversion = self.__depth_scale
         self.__frameset = None
         self.__depth_frame = None
@@ -76,8 +77,6 @@ class Camera():
         self.__saving_image = False
         self.__frame_number = 0
         self.__scale = 1
-        # roi attributes
-        self.__blank_image = np.zeros((height, width))
 
     def __depth_callback(self, fs):
         """called when a new frameset arrives. Updates self.__depth_frame
@@ -125,7 +124,6 @@ class Camera():
         ctx = rs.context()
         devices = ctx.query_devices()
         for dev in devices:
-            log.info(f'Resetting device: {dev}')
             dev.hardware_reset()
             time.sleep(1)
 
@@ -360,6 +358,14 @@ class Camera():
     @property
     def width(self):
         return self.__width
+
+    @property
+    def metric(self):
+        return self.__metric
+
+    @metric.setter
+    def metric(self, metric):
+        self.__metric = metric
 
 
 class CameraOptions():

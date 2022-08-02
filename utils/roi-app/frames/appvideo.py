@@ -5,6 +5,7 @@ import numpy as np
 import PIL.Image
 import PIL.ImageTk
 from widgets.tooltip import ButtonToolTip, CheckButtonToolTip
+from tkinter import messagebox
 
 
 class AppVideo(ttk.Labelframe):
@@ -12,15 +13,21 @@ class AppVideo(ttk.Labelframe):
         self._args = args
         self._kwargs = kwargs
         self._root = self._args[0]
-        self._camera = self._root.camera
         super().__init__(*args, **kwargs)
 
         self.configure(text='video')
 
         self._paused = False
         self._roi_select = tk.IntVar()
+        self._roi_select.set(1)
         self._roi_select_all = tk.BooleanVar()
         self._roi_select_all.set(False)
+
+        # resize variables
+        self._padx = 0
+        self._pady = 0
+        self._width = 0
+        self._border = 0
 
         # region WIDGETS
         # video
@@ -28,80 +35,80 @@ class AppVideo(ttk.Labelframe):
             master=self,
             cursor="tcross",
             relief="sunken",
-            border=2
+            border=self._border
         )
         self._video_label.grid(row=0, column=0, columnspan=2)
 
         # MASK CONTROLS
-        self._mask_control_frame = ttk.Labelframe(
-            self, text='mask controls', border=3)
-        self._mask_control_frame.grid(row=1, column=0)
+        self._mask_control_frame = ttk.Labelframe(self,
+                                                  text='mask controls',
+                                                  border=self._border)
+        self._mask_control_frame.grid(row=1, column=0, padx=self._padx, pady=self._pady)
 
         # reset
         self._mask_reset_button = ButtonToolTip(
             master=self._mask_control_frame,
             text='🗑',
             command=self.mask_reset,
-            width=3,
-            helptext='Reset (clear) current mask'
+            width=self._width,
+            helptext='Reset (clear) mask(s)'
         )
-        self._mask_reset_button.grid(row=0, column=0, padx=3)
+        self._mask_reset_button.grid(row=0, column=0, padx=self._padx, pady=self._pady)
 
         # undo
         self._mask_undo_button = ButtonToolTip(
             master=self._mask_control_frame,
             text='⎌',
             command=self.mask_undo,
-            width=3,
+            width=self._width,
             helptext='Undo last mask command'
         )
-        self._mask_undo_button.grid(row=0, column=1, padx=3)
+        self._mask_undo_button.grid(row=0, column=1, padx=self._padx, pady=self._pady)
 
         # see
         self._mask_see_button = ButtonToolTip(
             master=self._mask_control_frame,
             text='👓',
             command=self.mask_see_raw,
-            width=3,
+            width=self._width,
             helptext='Output list of coordinates to terminal'
         )
-        self._mask_see_button.grid(row=0, column=2, padx=3)
+        self._mask_see_button.grid(row=0, column=2, padx=self._padx, pady=self._pady)
 
         # complete
         self._mask_complete_button = ButtonToolTip(
             master=self._mask_control_frame,
             text='✓',
             command=self.mask_complete,
-            width=3,
+            width=self._width,
             helptext='Complete (close) mask'
         )
-        self._mask_complete_button.grid(row=0, column=3, padx=3)
+        self._mask_complete_button.grid(row=0, column=3, padx=self._padx, pady=self._pady)
 
         # see all
         self._mask_see_all_button = CheckButtonToolTip(
             master=self._mask_control_frame,
             text='all',
             command=self.mask_see_all,
-            width=3,
+            width=self._width,
             helptext='View all masks',
             variable=self._roi_select_all
         )
-        self._mask_see_all_button.grid(row=0, column=4, padx=3)
+        self._mask_see_all_button.grid(row=0, column=4, padx=self._padx, pady=self._pady)
 
-        self._mask_select_buttons = []
-        for id in range(len(self._root.masks)):
-            self._mask_select_buttons.append(ttk.Radiobutton(
-                master=self._mask_control_frame,
-                command=self.mask_select,
-                variable=self._roi_select,
-                value=id,
-                width=1
-            ))
-            self._mask_select_buttons[-1].grid(row=0, column=5+id)
+        self._mask_select_combobox = ttk.Combobox(
+            master=self._mask_control_frame,
+            textvariable=self._roi_select,
+            width=1,
+            takefocus=False
+        )
+        values = [x+1 for x in range(len(self._root.masks))]
+        self._mask_select_combobox.configure(values=values, state='readonly')
+        self._mask_select_combobox.grid(row=0, column=5, padx=self._padx, pady=self._pady)
 
         # VIDEO CONTROLS
         self._video_controls_frame = ttk.Labelframe(
-            self, text='video controls', border=3)
+            self, text='video controls', border=self._border)
         self._video_controls_frame.grid(row=1, column=1)
 
         # pause
@@ -109,41 +116,43 @@ class AppVideo(ttk.Labelframe):
             master=self._video_controls_frame,
             text='◼',
             command=self.toggle_pause,
-            width=3,
+            width=self._width,
             helptext='Pause/unpause video'
         )
-        self._video_pause_button.grid(row=0, column=0, padx=3)
+        self._video_pause_button.grid(row=0, column=0, padx=self._padx, pady=self._pady)
 
         # restart
         self._video_restart_button = ButtonToolTip(
             master=self._video_controls_frame,
             text='⟳',
             command=self.restart_camera,
-            width=3,
+            width=self._width,
             helptext='Restart camera stream'
         )
-        self._video_restart_button.grid(row=0, column=1, padx=3)
+        self._video_restart_button.grid(row=0, column=1, padx=self._padx, pady=self._pady)
 
         # reset
-        self._camera_reset_button = ButtonToolTip(
+        self._video_reset_button = ButtonToolTip(
             master=self._video_controls_frame,
             text='↺',
             command=self.reset_camera,
-            width=3,
+            width=self._width,
             helptext='Hardware reset camera and stop stream. '
             'Use "Restart camera" button to resume stream'
         )
-        self._camera_reset_button.grid(row=0, column=2, padx=3)
+        self._video_reset_button.grid(
+            row=0, column=2, padx=self._padx, pady=self._pady)
 
         # resize
-        self._camera_resize_button = CheckButtonToolTip(
+        self._video_resize_button = CheckButtonToolTip(
             master=self._video_controls_frame,
             text='⤢',
-            command=self.resize_camera,
-            width=3,
+            command=self.resize_callback,
+            width=self._width,
             helptext='Resize camera stream'
         )
-        self._camera_resize_button.grid(row=0, column=3, padx=3)
+        self._video_resize_button.grid(
+            row=0, column=3, padx=self._padx, pady=self._pady)
         # endregion WIDGETS
 
         # BINDINGS
@@ -160,14 +169,15 @@ class AppVideo(ttk.Labelframe):
                 img_h = color_image.shape[0]
                 img_w = color_image.shape[1]
 
-                if (self._camera.width // img_w == self._camera.scale and
-                        self._camera.height // img_h == self._camera.scale):
+                if (self._root.camera.width // img_w == self._root.camera.scale and
+                        self._root.camera.height // img_h == self._root.camera.scale):
                     img = PIL.Image.fromarray(color_image)
                     imgtk = PIL.ImageTk.PhotoImage(image=img)
 
                     self._video_label.imgtk = imgtk
                     self._video_label.configure(image=imgtk)
                     self._video_label.update()
+                    self.set_active_mask()
 
         self.after(50, self.set_image)
 
@@ -198,11 +208,12 @@ class AppVideo(ttk.Labelframe):
         self.update_idletasks()
 
     def mask_reset(self):
-        self._root.masks[self.roi_select].reset()
-
         if self._roi_select_all.get():
-            for i in range(len(self._root.masks)):
-                self._root.masks[i].reset()
+            title = "Clear region of interests"
+            msg = "Do you want to clear all region of interests?"
+            if messagebox.askokcancel(title, msg):
+                for i in range(len(self._root.masks)):
+                    self._root.masks[i].reset()
         else:
             self._root.masks[self.roi_select].reset()
 
@@ -220,11 +231,7 @@ class AppVideo(ttk.Labelframe):
         pass
 
     def mask_complete(self):
-        # self._root.mask.complete()
         self._root.masks[self.roi_select].complete()
-
-    def mask_select(self):
-        print('mask select', self._roi_select.get())
 
     def restart_camera(self):
         self.pause()
@@ -233,11 +240,11 @@ class AppVideo(ttk.Labelframe):
 
     def reset_camera(self):
         self.pause()
-        self._camera_reset_button['state'] = 'disabled'
+        self._root.camera_reset_button['state'] = 'disabled'
         self._root.camera.reset()
-        self._camera_reset_button['state'] = 'enabled'
+        self._root.camera_reset_button['state'] = 'enabled'
 
-    def resize_camera(self):
+    def resize_callback(self):
         self.pause()
         if self._root.camera.scale <= 1:
             self._root.camera.scale = 2
@@ -245,15 +252,67 @@ class AppVideo(ttk.Labelframe):
             self._root.camera.scale = 1
         self._root.terminal.resize()
         self._root.settings.resize()
+        self.resize()
+        self._root.resize()
         self.unpause()
+
+    def resize(self):
+        if self._root.camera.scale > 1:
+            self._padx = 0
+            self._pady = 0
+            self._width = 0
+            self._border = 0
+        else:
+            self._padx = 3
+            self._pady = 3
+            self._width = 4
+            self._border = 3
+
+        # video
+        self._video_label.configure(border=self._border)
+
+        # masks
+        self._mask_control_frame.configure(border=self._border)
+        self._mask_reset_button.configure(width=self._width)
+        self._mask_undo_button.configure(width=self._width)
+        self._mask_see_button.configure(width=self._width)
+        self._mask_complete_button.configure(width=self._width)
+        self._mask_see_all_button.configure(width=self._width)
+        self._mask_select_combobox.configure(width=self._width)
+
+        columns, rows = self._mask_control_frame.grid_size()
+        for column in range(columns):
+            self._mask_control_frame.columnconfigure(column, pad=self._padx)
+        for row in range(rows):
+            self._mask_control_frame.rowconfigure(row, pad=self._pady)
+
+        # camera
+        self._video_controls_frame.configure(border=self._border)
+        self._video_pause_button.configure(width=self._width)
+        self._video_restart_button.configure(width=self._width)
+        self._video_reset_button.configure(width=self._width)
+        self._video_resize_button.configure(width=self._width)
+
+        columns, rows = self._video_controls_frame.grid_size()
+        for column in range(columns):
+            self._video_controls_frame.columnconfigure(column, pad=self._padx)
+        for row in range(rows):
+            self._video_controls_frame.rowconfigure(row, pad=self._pady)
 
     def set_status(self, status):
         self.configure(text=f'video ({status})')
 
     def get_coordinates(self, *args, **kwargs):
         if not self._paused:
-            # self._root.mask.get_coordinates(*args, **kwargs)
             self._root.masks[self.roi_select].get_coordinates(*args, **kwargs)
+
+    def set_active_mask(self):
+        for i in range(len(self._root.masks)):
+            activate = i == self._roi_select.get() - 1
+            if activate:
+                self._root.masks[i].active = True
+            else:
+                self._root.masks[i].active = False
 
     @property
     def paused(self):
@@ -261,7 +320,7 @@ class AppVideo(ttk.Labelframe):
 
     @property
     def roi_select(self):
-        return self._roi_select.get()
+        return self._roi_select.get() - 1
 
     @property
     def roi_select_all(self):

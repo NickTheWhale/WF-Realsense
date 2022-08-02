@@ -28,8 +28,6 @@ HEIGHT = 480
 WIDTH = 848
 METER_TO_FEET = 3.28084
 
-LABEL_FRAME_BORDER = 3
-
 RESIZABLE = False
 
 
@@ -61,6 +59,11 @@ class AppWindow(tk.Tk):
         self._loop_count = 0
         self._new_frame_count = 0
         self._color_image = None
+
+        # resize variables
+        self._padx = 1
+        self._pady = 1
+        self._border = 1
 
         # find configuration files
         config_filename = ''
@@ -113,25 +116,25 @@ class AppWindow(tk.Tk):
         self._menu = AppMenu(self, tearoff=0)
         self.configure(menu=self._menu)
 
-        self._video_widget = AppVideo(self, border=LABEL_FRAME_BORDER)
+        self._video_widget = AppVideo(self, border=self._border)
         self._video_widget.grid(row=0,
                                 column=1,
-                                padx=5,
-                                pady=5,
+                                padx=self._padx,
+                                pady=self._pady,
                                 sticky="N")
 
-        self._terminal_widget = AppTerminal(self, border=LABEL_FRAME_BORDER)
+        self._terminal_widget = AppTerminal(self, border=self._border)
         self._terminal_widget.grid(row=1,
                                    column=1,
-                                   padx=5,
-                                   pady=5)
+                                   padx=self._padx,
+                                   pady=self._pady)
 
-        self._settings_widget = AppSettings(self, border=LABEL_FRAME_BORDER)
+        self._settings_widget = AppSettings(self, border=self._border)
         self._settings_widget.grid(row=0,
                                    column=3,
                                    rowspan=2,
-                                   padx=5,
-                                   pady=5,
+                                   padx=self._padx,
+                                   pady=self._pady,
                                    sticky="NS")
 
         # bindings
@@ -178,6 +181,10 @@ class AppWindow(tk.Tk):
     @property
     def configurator(self):
         return self._configurator
+
+    @configurator.setter
+    def configurator(self, configurator):
+        self._configurator = configurator
 
     @property
     def framerate(self):
@@ -278,16 +285,25 @@ class AppWindow(tk.Tk):
         dir = os.listdir(path=path)
         return name in dir
 
-    def on_closing(self, *args, **kwargs):
-        """prompt user if they are sure they want to quit when they hit the 'x'"""
-        try:
-            if messagebox.askokcancel("Quit", "Do you want to quit?"):
-                if self._camera.connected:
-                    self._camera.stop()
-                self.destroy()
-                os._exit(0)
-        except:
-            os._exit(0)
+    def resize(self):
+        if self._camera.scale > 1:
+            self._padx = 1
+            self._pady = 1
+            self._border = 1
+        else:
+            self._padx = 5
+            self._pady = 5
+            self._border = 5
+        
+        columns, rows = self.grid_size()
+        for column in range(columns):
+            self.columnconfigure(column, pad=self._padx)
+        for row in range(rows):
+            self.rowconfigure(row, pad=self._pady)
+            
+        self._video_widget.configure(border=self._border)
+        self._terminal_widget.configure(border=self._border)
+        self._settings_widget.configure(border=self._border)
 
     def fake_callback(self, *args, **kwargs):
         print("fake callback", args, kwargs)
@@ -311,3 +327,14 @@ class AppWindow(tk.Tk):
         if self._video_widget.paused:
             self._video_widget.unpause()
         self._drag_id = ''
+
+    def on_closing(self, *args, **kwargs):
+        """prompt user if they are sure they want to quit when they hit the 'x'"""
+        try:
+            if messagebox.askokcancel("Quit", "Do you want to quit?"):
+                if self._camera.connected:
+                    self._camera.stop()
+                self.destroy()
+                os._exit(0)
+        except:
+            os._exit(0)
