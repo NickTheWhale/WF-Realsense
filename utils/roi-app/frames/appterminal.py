@@ -28,7 +28,6 @@ class AppTerminal(ttk.Labelframe):
         self._terminal_width = (round(self._target_width
                                       / (self._terminal_font[1]
                                          * self._root.camera.scale)))
-        print(self._terminal_width)
 
         self._create_widgets()
 
@@ -158,7 +157,7 @@ class AppTerminal(ttk.Labelframe):
             self._terminal_font = ('Courier', 11)
             self._terminal_width = (round(self._target_width
                                           * 1.05 / (self._terminal_font[1]
-                                                     * self._root.camera.scale)))
+                                                    * self._root.camera.scale)))
 
         self._scrolled_text.configure(width=self._terminal_width,
                                       height=self._terminal_height,

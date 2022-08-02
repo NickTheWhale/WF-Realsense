@@ -237,12 +237,14 @@ class AppVideo(ttk.Labelframe):
         self.pause()
         self._root.camera.restart()
         self.unpause()
+        self._root.settings.sync()
 
     def reset_camera(self):
         self.pause()
-        self._root.camera_reset_button['state'] = 'disabled'
+        self._video_reset_button['state'] = 'disabled'
         self._root.camera.reset()
-        self._root.camera_reset_button['state'] = 'enabled'
+        self._video_reset_button['state'] = 'enabled'
+        self._root.settings.sync()
 
     def resize_callback(self):
         self.pause()

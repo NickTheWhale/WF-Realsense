@@ -1,34 +1,7 @@
-import threading
-import time
-import sys
 import os
-
+import sys
 
 from frames.appwindow import AppWindow
-
-# constants
-LOOP_DELAY = 1  # sleep time in ms between update loops
-
-
-# class App(threading.Thread):
-#     def __init__(self):
-#         threading.Thread.__init__(self)
-#         self.__ready = False
-#         self.start()
-
-#     def run(self):
-#         self.__app = AppWindow("ROI Utility")
-#         self.__app.protocol("WM_DELETE_WINDOW", self.__app.on_closing)
-#         self.__ready = True
-#         self.__app.mainloop()
-
-#     @property
-#     def ready(self):
-#         return self.__ready
-
-#     @property
-#     def root(self):
-#         return self.__app
 
 
 def get_program_path() -> str:
@@ -50,6 +23,11 @@ def main():
 
     app = AppWindow("ROI Utility", path)
     app.protocol("WM_DELETE_WINDOW", app.on_closing)
+
+    # theme
+    # app.tk.call('source', 'theme\\azure.tcl')
+    # app.tk.call('set_theme', 'light')
+
     app.mainloop()
 
 

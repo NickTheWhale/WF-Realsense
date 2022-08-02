@@ -91,26 +91,20 @@ class SettingsSlider(ttk.Labelframe):
         #             self._root.terminal.write_camera(
         #                 f'Set "{self._label}" to "{self._level}"')
         if self._section == 'camera':
-            self._current = self._level
             try:
-                current = self._root.camera.options.get_camera_value(self._label)
-            except Exception:
-                current = None
-            try:
-                if self._level != current:
-                    ret = self._root.camera.options.set_rs_option_direct(
-                        self._label, self._level
-                    )
-                    if not ret:
-                        self._root.terminal.write_camera(
-                            f'Failed to save "{self._level}" to "{self._label}"')
-                    else:
-                        # write to configurator file
-                        self._root.configurator.set(self._section,
-                                                    self._label,
-                                                    str(self._level))
-                        self._root.terminal.write_camera(
-                            f'Saved "{self._level}" to "{self._label}"')
+                ret = self._root.camera.options.set_rs_option_direct(
+                    self._label, self._level
+                )
+                if not ret:
+                    self._root.terminal.write_camera(
+                        f'Failed to save "{self._level}" to "{self._label}"')
+                else:
+                    # write to configurator file
+                    self._root.configurator.set(self._section,
+                                                self._label,
+                                                str(self._level))
+                    self._root.terminal.write_camera(
+                        f'Saved "{self._level}" to "{self._label}"')
             except Exception as e:
                 self._root.terminal.write_camera(
                     f'Failed to save "{self._level}" to "{self._label}"')

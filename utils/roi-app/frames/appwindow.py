@@ -36,7 +36,7 @@ class AppWindow(tk.Tk):
         self._path = path
         super().__init__()
         # theme
-        sv_ttk.set_theme('light')
+        # sv_ttk.set_theme('light')
 
         # create main gui window
         self.title(window_title)

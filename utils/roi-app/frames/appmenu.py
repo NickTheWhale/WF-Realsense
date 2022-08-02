@@ -4,8 +4,8 @@ import webbrowser
 import sv_ttk
 
 
-DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
-GITHUB_WEBSITE = "https://github.com/NickTheWhale/WF-Realsense"
+DOC_URL = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
+GITHUB_URL = "https://github.com/NickTheWhale/WF-Realsense"
 MASK_OUTPUT_FILE_NAME = "mask.txt"
 
 
@@ -23,66 +23,49 @@ class AppMenu(tk.Menu):
     def __create_widgets(self):
         # FILE MENU
         self.__filemenu = tk.Menu(self, tearoff=0)
-        self.__filemenu.add_command(label="Save camera settings",
-                                    command=self.fake_menu_callback)
-        self.__filemenu.add_command(label="Save mask",
-                                    command=self.fake_menu_callback)
-        self.__filemenu.add_command(label="Save image",
-                                    command=self.fake_menu_callback)
+        self.__filemenu.add_command(label="Save configuration",
+                                    command=self.save_configuration)
+        self.__filemenu.add_command(label="Load configuration",
+                                    command=self.load_configuration)
+        self.__filemenu.add_command(label="Save image as",
+                                    command=self.save_image)
         self.__filemenu.add_separator()
-        self.__filemenu.add_command(label="Restart")
+        self.__filemenu.add_command(label="Restart", 
+                                    command=self.restart)
         self.__filemenu.add_command(label="Exit",
-                                    command=lambda: self.fake_menu_callback,
+                                    command=self.exit,
                                     accelerator="Ctrl+Q")
         self.add_cascade(label="File", menu=self.__filemenu)
-
-        # MASK MENU
-        self.__maskmenu = tk.Menu(self, tearoff=0)
-        self.__maskmenu.add_command(label="Circle")
-        self.__maskmenu.add_command(label="Rectangle")
-        self.__maskmenu.add_command(label="Free draw")
-        self.__maskmenu.add_separator()
-        self.__maskmenu.add_command(label="Undo",
-                                    command=self.fake_menu_callback,
-                                    accelerator="Ctrl+Z")
-        self.__maskmenu.add_separator()
-        self.__maskmenu.add_command(label="Clear",
-                                    command=self.fake_menu_callback,
-                                    accelerator="Ctrl+R")
-        self.add_cascade(label="Mask", menu=self.__maskmenu)
 
         # HELP MENU
         self.__helpmenu = tk.Menu(self, tearoff=0)
         self.__helpmenu.add_command(label="Documentation",
-                                    command=self.fake_menu_callback)
+                                    command=lambda url=DOC_URL: self.documentation(url))
         self.__helpmenu.add_command(label="GitHub",
-                                    command=self.fake_menu_callback)
+                                    command=lambda url=GITHUB_URL: self.github(url))
         self.add_cascade(label="Help", menu=self.__helpmenu)
-
-        # SETTINGS MENU
-        self.__settingsmenu = tk.Menu(self, tearoff=0)
-        self.__settingsmenu.add_checkbutton(label="dark mode",
-                                        command=self.toggle_dark_mode)
-        self.add_cascade(label="Settings", menu=self.__settingsmenu)
 
     def fake_menu_callback(self, evt=None):
         print('menu callback', evt)
 
+    def save_configuration(self):
+        print('save config')
+        
+    def load_configuration(self):
+        print('load config')
 
-
-
-    def _menu_save_settings(self):
+    def save_image(self):
         path = filedialog.asksaveasfilename(
             initialdir="C:/",
             filetypes=(("image files", "*.bmp"),
                        ("all files", "*.*")))
         print(path)
 
-    def _menu_save_mask(self):
-        with open(MASK_OUTPUT_FILE_NAME, 'w') as file:
-            file.write(str(self._mask_widget.coordinates))
-            self._settings_widget.change_text(
-                str(self._mask_widget.coordinates))
+    def restart(self):
+        print('restart')
+        
+    def exit(self):
+        self._root.on_closing()
 
     # region
     # def _menu_save_image(self):
@@ -128,10 +111,10 @@ class AppMenu(tk.Menu):
     
     
     
-    def _menu_documentation(self, url):
+    def documentation(self, url):
         return webbrowser.open(url)
 
-    def _menu_github(self, url):
+    def github(self, url):
         return webbrowser.open(url)
 
     # def mask_reset(self, *args, **kwargs):
