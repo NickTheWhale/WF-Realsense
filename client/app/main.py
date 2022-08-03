@@ -13,7 +13,6 @@ import sys
 import threading
 import time
 from datetime import datetime
-from typing import get_origin
 
 import numpy as np
 import opcua
@@ -434,7 +433,6 @@ def main():
     #                                    ROI                                     #
     ##############################################################################
 
-
     polygons = []
     for key in config.data['roi']:
         polygons.append(list(eval(config.get_value('roi', key, fallback='[]'))))
@@ -461,19 +459,18 @@ def main():
     #                                    LOOP                                    #
     ##############################################################################
 
-
     sleep_time = float(config.get_value(
         'application', 'sleep_time', fallback='10'))
     filter_level = int(config.get_value(
         'camera', 'spatial_filter_level', fallback='0'))
-    
+
     start = time.time()
     log_start = start
     loop_start = start
     first_loop = True
 
     roi_select = roi_select_node.get_value()
-    
+
     log.info('Entering main loop')
 
     while True:
