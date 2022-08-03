@@ -1,1 +1,1 @@
-.\venv\scripts\activate && cd utils && server-data.py
+.\venv\scripts\activate && cd utils\"mock server" && server-data.py
