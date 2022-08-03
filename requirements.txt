@@ -5,3 +5,4 @@ Pillow==9.2.0
 pyrealsense2==2.50.0.3812
 sv_ttk==1.0
 ttkwidgets==0.12.1
+cryptography==37.0.4
