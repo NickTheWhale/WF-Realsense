@@ -9,11 +9,11 @@ license: TODO
 import configparser
 import logging as log
 import os
-import random
 import sys
 import threading
 import time
 from datetime import datetime
+from typing import get_origin
 
 import numpy as np
 import opcua
@@ -29,13 +29,14 @@ from status import (ROI_HIGH_INVALID, TEMP_CRITICAL, TEMP_MAX_SAFE,
                     TEMP_WARNING, StatusCodes)
 
 # CONFIGURATION
+LOOP_TIME_WARNING = 100  # loop time warning threshold in milliseconds
 STATUS_INTERVAL = 2  # time in seconds to update status
 STATUS_LOG_INTERVAL = 60  # time in seconds between status log
 # (time in seconds ~= STATUS_INTERVAL * STATUS_LOG_INTERVAL)
-WAIT_BEFORE_RESTARTING = 60  # time in seconds to wait before
+WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-DEBUG = False  # true: log output goes to console, false: log output goes to .log file
+DEBUG = True  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
@@ -127,49 +128,6 @@ def take_picture(image, polygons):
         taking_picture = False
 
 
-def get_program_path() -> str:
-    """gets full path name of program. Works if 
-    program is frozen
-
-    :return: path
-    :rtype: string
-    """
-    if getattr(sys, 'frozen', False):
-        path = os.path.dirname(sys.executable)
-    elif __file__:
-        path = os.path.dirname(__file__)
-    return path
-
-
-def draw_poly(image: PIL.Image.Image, poly: list) -> PIL.Image.Image:
-    """draw polygon on depth image
-
-    :param image: image
-    :type image: PIL.Image
-    :param poly: polygon
-    :type poly: list
-    :return: image with polygon
-    :rtype: PIL.Image.Image
-    """
-    draw = PIL.ImageDraw.Draw(image)
-    draw.polygon(poly, width=4)
-    return image
-
-
-def dir_exists(path: str, name: str) -> bool:
-    """check if directory 'name' exists within 'path'
-
-    :param path: full parent path name
-    :type path: string
-    :param name: name of directory to check
-    :type name: string
-    :return: if 'name' exists
-    :rtype: bool
-    """
-    dir = os.listdir(path=path)
-    return name in dir
-
-
 def depth_frame_to_image(depth_frame):
     """attempts to convert 'depth_frame' to a color image
 
@@ -194,6 +152,49 @@ def depth_frame_to_image(depth_frame):
     else:
         ret = (False, None)
     return ret
+
+
+def draw_poly(image: PIL.Image.Image, poly: list) -> PIL.Image.Image:
+    """draw polygon on depth image
+
+    :param image: image
+    :type image: PIL.Image
+    :param poly: polygon
+    :type poly: list
+    :return: image with polygon
+    :rtype: PIL.Image.Image
+    """
+    draw = PIL.ImageDraw.Draw(image)
+    draw.polygon(poly, width=4)
+    return image
+
+
+def get_program_path() -> str:
+    """gets full path name of program. Works if 
+    program is frozen
+
+    :return: path
+    :rtype: string
+    """
+    if getattr(sys, 'frozen', False):
+        path = os.path.dirname(sys.executable)
+    elif __file__:
+        path = os.path.dirname(__file__)
+    return path
+
+
+def dir_exists(path: str, name: str) -> bool:
+    """check if directory 'name' exists within 'path'
+
+    :param path: full parent path name
+    :type path: string
+    :param name: name of directory to check
+    :type name: string
+    :return: if 'name' exists
+    :rtype: bool
+    """
+    dir = os.listdir(path=path)
+    return name in dir
 
 
 def critical_error(message="Unkown critical error", allow_restart=True, camera=None):
@@ -226,22 +227,50 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
         os._exit(1)
 
 
-def roi_box(roi):
-    """calculate bounding box from list of coordinates.
-    If provide roi is not valid, the bounding box defaults
-    to [106, 60, 742, 420]
+def set_roi(camera, roi):
+    x1, y1, x2, y2 = roi_box(roi)
+    roi = rs.region_of_interest()
+    roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
+    camera.set_roi(roi)
 
-    :param roi: list of (x, y) coordinates
-    :type roi: list
-    :return: bounding box coordinates
+
+# def roi_box(roi):
+#     """calculate bounding box from list of coordinates.
+#     If provide roi is not valid, the bounding box defaults
+#     to [106, 60, 742, 420]
+
+#     :param roi: list of (x, y) coordinates
+#     :type roi: list
+#     :return: bounding box coordinates
+#     :rtype: tuple
+#     """
+#     if len(roi) > 2:
+#         x = [i[0] for i in roi]
+#         y = [i[1] for i in roi]
+#         x1, y1, x2, y2 = min(x), min(y), max(x), max(y)
+#     else:
+#         x1, y1, x2, y2 = 106, 60, 742, 420
+#     return x1, y1, x2, y2
+
+
+def roi_box(rois) -> tuple:
+    """calculate bounding box from nested list of coordinates
+
+    :param rois: nested coordinate list: [[(x1, y1)]]
+    :type rois: list
+    :return: bounding box coordinates: (x1, y1, x2, y2)
     :rtype: tuple
     """
-    if len(roi) > 2:
-        x = [i[0] for i in roi]
-        y = [i[1] for i in roi]
-        x1, y1, x2, y2 = min(x), min(y), max(x), max(y)
-    else:
-        x1, y1, x2, y2 = 106, 60, 742, 420
+    x = [y[0] for x in rois for y in x if len(x) > 2]
+    y = [y[1] for x in rois for y in x if len(x) > 2]
+    if len(x) and len(y) > 2:
+        x1, y1 = max(min(x), 0), max(min(y), 0)
+        x2, y2 = min(max(x), 847), min(max(y), 479)
+
+        if x1 != x2 and y1 != y2:
+            return x1, y1, x2, y2
+
+    x1, y1, x2, y2 = 106, 60, 742, 420
     return x1, y1, x2, y2
 
 
@@ -277,6 +306,18 @@ def send_status(status_node, status_value):
     status_node.set_value(dv)
 
 
+def pprint(config: Config):
+    TAB = '      '
+    BRANCH = '    ╰─ '
+    data = config.data
+    log.debug('~~~~~~~~~~configuration file~~~~~~~~~~')
+    for section in data:
+        log.debug(f'[{section}]:')
+        for key in data[section]:
+            log.debug(f'{BRANCH}{key}:')
+            log.debug(f'{TAB}{BRANCH}{data[section][key]}')
+
+
 def main():
     """Program entry point. Basic program flow in order:
     1. Read in configuration file settings
@@ -303,9 +344,8 @@ def main():
 
     try:
         config = Config('configuration.ini', REQUIRED_DATA)
-    except configparser.DuplicateOptionError as e:
-        critical_error(
-            f'Duplicate option found in configuration file: {e}', False)
+    except configparser.Error as e:
+        critical_error(e, False)
     except RuntimeError as e:
         critical_error(e, False)
     except FileNotFoundError as e:
@@ -342,19 +382,8 @@ def main():
                         height=HEIGHT, framerate=f, metric=m)
         camera.options.write_all_settings()
         camera.options.log_settings()
+        pprint(config)
         camera.start_callback()
-
-        # set exposure roi from config file
-        enable_roi_exposure = bool(float(config.get_value(
-            'camera', 'region_of_interest_auto_exposure', fallback='0.0')))
-
-        if enable_roi_exposure:
-            config_roi = list(eval(config.get_value(
-                'camera', 'region_of_interest', fallback=ROI_AUTO_EXPOSURE_FALLBACK)))
-            x1, y1, x2, y2 = roi_box(config_roi)
-            roi = rs.region_of_interest()
-            roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
-            camera.set_roi(roi)
 
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
@@ -405,32 +434,47 @@ def main():
     #                                    ROI                                     #
     ##############################################################################
 
-    # store repeatedly used variables
-    sleep_time = float(config.get_value(
-        'application', 'sleep_time', fallback='10'))
-    filter_level = int(config.get_value(
-        'camera', 'spatial_filter_level', fallback='0'))
 
     polygons = []
-    polygon_count = 0
     for key in config.data['roi']:
         polygons.append(list(eval(config.get_value('roi', key, fallback='[]'))))
-        polygon_count += 1
-    if polygon_count < NUM_OF_ROI:
+
+    if len(polygons) < NUM_OF_ROI:
         critical_error(f'Missing region of interests. '
-                       f'Need {NUM_OF_ROI}, found {polygon_count}', False)
+                       f'Need {NUM_OF_ROI}, found {len(polygons)}', False)
+
+    # set exposure roi from config file
+    enable_roi_exposure = bool(float(config.get_value(
+        'camera', 'region_of_interest_auto_exposure', fallback='0.0')))
+    try:
+        if enable_roi_exposure:
+            x1, y1, x2, y2 = roi_box(polygons)
+            roi = rs.region_of_interest()
+            roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
+            camera.set_roi(roi)
+    except RuntimeError as e:
+        log.warning(f'Failed to set region of interest auto exposure '
+                    f'from configuration file, defaulting to '
+                    f'{ROI_AUTO_EXPOSURE_FALLBACK}')
 
     ##############################################################################
     #                                    LOOP                                    #
     ##############################################################################
 
-    log.info('Entering main loop')
 
+    sleep_time = float(config.get_value(
+        'application', 'sleep_time', fallback='10'))
+    filter_level = int(config.get_value(
+        'camera', 'spatial_filter_level', fallback='0'))
+    
     start = time.time()
     log_start = start
-    loop_start = time.time()
+    loop_start = start
+    first_loop = True
 
     roi_select = roi_select_node.get_value()
+    
+    log.info('Entering main loop')
 
     while True:
         if camera.connected:
@@ -438,6 +482,8 @@ def main():
             try:
                 # if not camera.depth_frame:
                 if not isinstance(camera.depth_frame, rs.depth_frame):
+                    print("not a depth frame")
+                    time.sleep(0.005)
                     continue
             except RuntimeError as e:
                 critical_error(
@@ -497,28 +543,39 @@ def main():
                                 target=take_picture, args=[img, polygons])
                             if not picture_thread.is_alive():
                                 picture_thread.start()
+
+                    ##############################################
+                    #               STATUS UPDATE                #
+                    ##############################################
+
+                    elapsed = time.time() - start
+                    log_elapsed = time.time() - log_start
+                    if elapsed > STATUS_INTERVAL:
+                        status_code = get_status(camera, roi_invalid)
+                        if log_elapsed > STATUS_LOG_INTERVAL:
+                            if status_code != StatusCodes.OK:
+                                log.warning(f'Status update: {StatusCodes.name(status_code)}')
+                            log_start = time.time()
+                        if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
+                            send_status(status_node, StatusCodes.ERROR_NO_RESTART)
+                            critical_error(
+                                f'Camera overheating (temp > {TEMP_CRITICAL} celcius)', False,
+                                camera)
+                        send_status(status_node, status_code)
+                        start = time.time()
+
+                    time.sleep(sleep_time / 1000)
+
+                    loop_time = (time.time() - loop_start) * 1000
+                    if loop_time > LOOP_TIME_WARNING and not first_loop:
+                        log.warning(f'High loop time ({loop_time:.2f} ms)')
+
+                    first_loop = False
+                    loop_start = time.time()
+                except KeyboardInterrupt:
+                    continue
                 except Exception as e:
                     critical_error(e)
-
-            elapsed = time.time() - start
-            log_elapsed = time.time() - log_start
-            if elapsed > STATUS_INTERVAL:
-                status_code = get_status(camera, roi_invalid)
-                if log_elapsed > STATUS_LOG_INTERVAL:
-                    if status_code != StatusCodes.OK:
-                        log.warning(f'Status update: {StatusCodes.name(status_code)}')
-                    log_start = time.time()
-                if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
-                    send_status(status_node, StatusCodes.ERROR_NO_RESTART)
-                    critical_error(
-                        f'Camera overheating (temp > {TEMP_CRITICAL} celcius)', False, camera)
-                send_status(status_node, status_code)
-                start = time.time()
-
-            time.sleep(sleep_time / 1000)
-            loop_time = time.time() - loop_start
-            # log.info(f'loop time (ms): {loop_time*1000:.3f}  fps: {1 / loop_time:.3f}')
-            loop_start = time.time()
 
         else:
             critical_error('Camera disconnected')

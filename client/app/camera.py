@@ -120,6 +120,15 @@ class Camera():
         """
         sensor = self.__profile.get_device().first_roi_sensor()
         sensor.set_region_of_interest(roi)
+        
+    def get_roi(self):
+        """get camera auto exposure region of interest
+
+        :return: region of interest
+        :rtype: pyrealsense2.region_of_interest
+        """
+        sensor = self.__profile.get_device().first_roi_sensor()
+        return sensor.get_region_of_interest()
 
     def __disconnect_callback(self, info):
         """called when a camera device is connected or disconnected. Updates  
