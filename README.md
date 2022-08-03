@@ -45,7 +45,7 @@ Install and run from source
     
 ## Screenshots
 
-![utility](https://github.com/NickTheWhale/WF-Realsense/blob/main/image.png)
+![utility](https://github.com/NickTheWhale/WF-Realsense/fullscreen.jpg)
 
 
 ## Authors
