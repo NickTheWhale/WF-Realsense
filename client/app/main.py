@@ -233,25 +233,6 @@ def set_roi(camera, roi):
     camera.set_roi(roi)
 
 
-# def roi_box(roi):
-#     """calculate bounding box from list of coordinates.
-#     If provide roi is not valid, the bounding box defaults
-#     to [106, 60, 742, 420]
-
-#     :param roi: list of (x, y) coordinates
-#     :type roi: list
-#     :return: bounding box coordinates
-#     :rtype: tuple
-#     """
-#     if len(roi) > 2:
-#         x = [i[0] for i in roi]
-#         y = [i[1] for i in roi]
-#         x1, y1, x2, y2 = min(x), min(y), max(x), max(y)
-#     else:
-#         x1, y1, x2, y2 = 106, 60, 742, 420
-#     return x1, y1, x2, y2
-
-
 def roi_box(rois) -> tuple:
     """calculate bounding box from nested list of coordinates
 
@@ -487,7 +468,7 @@ def main():
                     f'Error while retrieving camera frames: {e}')
             else:
                 try:
-                    roi_depth, roi_invalid, roi_deviation = camera.ROI_datan(
+                    roi_depth, roi_invalid, roi_deviation = camera.roi_data(
                         polygons=polygons, roi_select=roi_select, filter_level=filter_level)
 
                     ##############################################

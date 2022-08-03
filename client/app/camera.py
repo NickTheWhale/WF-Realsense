@@ -120,7 +120,7 @@ class Camera():
         """
         sensor = self.__profile.get_device().first_roi_sensor()
         sensor.set_region_of_interest(roi)
-        
+
     def get_roi(self):
         """get camera auto exposure region of interest
 
@@ -141,23 +141,22 @@ class Camera():
         if devs.size() < 1:
             self.__connected = False
 
-    def ROI_datan(self, polygons: list, roi_select: int, filter_level=0):
+    def roi_data(self, polygons: list, roi_select: int, filter_level=0):
         """compute average of n-number of polygons"""
 
         depth_frame = self.__depth_frame
         if isinstance(depth_frame, rs.depth_frame):
-            if filter_level > 5:
-                filter_level = 5
+            filter_level = min(max(int(filter_level, 0), 5))
 
-            if roi_select > 255:
-                roi_select = 255
-            elif roi_select < 0:
-                roi_select = 0
+            # clamp roi_select to 8 bit integer
+            roi_select = min(max(int(roi_select), 0), 255)
 
+            # build select list (ex. 137 -> [1, 0, 0, 0, 1, 0, 0, 1])
             select_list = []
             for bit in format(roi_select, '08b'):
                 select_list.append(bool(int(bit)))
 
+            # build polygon list ( [[x1, y1, x2, y2], [x1, y1, x2, y2]] )
             polygon_list = []
             for i in range(len(polygons)):
                 if select_list[i]:
@@ -167,16 +166,16 @@ class Camera():
             if len(polygon_list) > 0:
                 blank_image = np.zeros((self.__height, self.__width))
 
-                # create depth image
-                if filter_level > 0:
+                # create depth image and filter if necessary
+                if filter_level == 0:
+                    depth_image = np.asanyarray(depth_frame.get_data())
+                else:
                     spatial = rs.spatial_filter()
                     spatial.set_option(rs.option.holes_fill, filter_level)
                     depth_image = spatial.process(depth_frame)
                     depth_image = np.asanyarray(depth_image.get_data())
-                else:
-                    depth_image = np.asanyarray(depth_frame.get_data())
 
-                # Compute mask form polygon vertices
+                # Compute mask from polygon vertices
                 mask = blank_image
                 for polygon in polygon_list:
                     if len(polygon) > 0:
@@ -184,9 +183,10 @@ class Camera():
                 mask = mask.astype('bool')
                 mask = np.invert(mask)
 
-                # Apply mask to depth data and ignore invalid/zero distances
+                # Apply mask to depth data
                 depth_mask = ma.array(depth_image, mask=mask, fill_value=0)
 
+                # calculate standard deviation and percentage of invalid pixels
                 total = ma.count(depth_mask)
                 if total > 0:
                     invalid = (depth_mask == 0).sum()
@@ -196,20 +196,20 @@ class Camera():
                     deviation = float(0)
                     invalid = float(100)
 
+                # filter out invalid and 0 distances
                 depth_mask = ma.masked_invalid(depth_mask)
                 depth_mask = ma.masked_equal(depth_mask, 0)
 
                 # Compute average distance of the region of interest
                 ROI_depth = depth_mask.mean() * self.__conversion
 
-                # Compute average distance of the region of interest
-                ROI_depth = depth_mask.mean() * self.__conversion
-
                 if isinstance(ROI_depth, np.float64):
-                    return ROI_depth.item(), invalid, deviation
+                    ret = ROI_depth.item(), invalid, deviation
                 else:
-                    return float(0), invalid, deviation
-        return float(0), float(100), float(0)
+                    ret = float(0), invalid, deviation
+            else:
+                ret = float(0), float(100), float(0)
+        return ret
 
     @property
     def asic_temperature(self):
