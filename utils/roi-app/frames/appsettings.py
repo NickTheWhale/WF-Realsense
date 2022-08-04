@@ -1,4 +1,5 @@
 import configparser
+import threading
 import tkinter as tk
 from tkinter import ttk
 
@@ -168,8 +169,8 @@ class AppSettings(ttk.Labelframe):
             command=self.open_callback
         )
         self._open_button.grid(row=0,
-                               column=2, 
-                               padx=self._padx, 
+                               column=2,
+                               padx=self._padx,
                                pady=self._pady)
 
         self._save_button = ButtonToolTip(
@@ -179,9 +180,9 @@ class AppSettings(ttk.Labelframe):
             width=self._width,
             command=self.save_callback
         )
-        self._save_button.grid(row=0, 
+        self._save_button.grid(row=0,
                                column=3,
-                               padx=self._padx, 
+                               padx=self._padx,
                                pady=self._pady)
 
         self._root.bind("<Button-1>", self.mouse_click_callback)
@@ -198,8 +199,51 @@ class AppSettings(ttk.Labelframe):
             entry.reset()
 
     def save_callback(self, *args, **kwargs):
-        self.save()            
+        self._root.video.pause()
+        self.save()
+
+    def open_callback(self, *args, **kwargs):
+        self._root.video.pause()
+        self.open()
     
+    def open(self):
+        filename = self._entry_text.get().strip().split('.')[0] + '.ini'
+        try:
+            self._root.configurator = Config(filename)
+        except configparser.Error:
+            self._root.terminal.write_error(f'Failed to open "{filename}"')
+        except FileNotFoundError as e:
+            self._root.terminal.write_error(e)
+        except RuntimeError as e:
+            self._root.terminal.write_error(e)
+        else:
+            self._root.configurator = Config(filename)
+            self.init()
+
+            self.resize()
+            self.sync()
+            self._root.video.unpause()
+
+    def mouse_click_callback(self, event):
+        if self._root.focus_get() is not event.widget:
+            self._root.focus_set()
+
+    def return_callback(self, event):
+        focused = self._root.focus_get()
+        if focused is self._filename_entry_box:
+            self._root.focus_set()
+
+        else:
+            for entry in self._entries:
+                if hasattr(entry, 'entry'):
+                    if focused is entry.entry:
+                        self._root.focus_set()
+                        break
+                elif hasattr(entry, 'combobox'):
+                    if focused is entry.combobox:
+                        self._root.focus_set()
+                        break
+
     def save(self):
         try:
             self._root.terminal.write_camera('Saving...')
@@ -231,63 +275,40 @@ class AppSettings(ttk.Labelframe):
                  'conflict or other camera related issue. '
                  'Try default settings, resetting camera, '
                  'or restarting application if issues persist'))
-            
+        else:
+            self.init()
+
+            self.resize()
+            self.sync()
+            self._root.video.unpause()
+
     def sync(self):
         try:
             self._root.terminal.write_camera('Syncing.....')
             self._root.update_idletasks()
-
+            self._root.terminal.pause()
             for mask in self._root.masks:
                 mask.complete()
             for slider in self._sliders:
                 slider.save()
             for entry in self._entries:
                 entry.save()
-        except Exception:
-            self._root.terminal.write_error('Failed to sync configuration')
+            self._root.terminal.unpause()
+            self.sync_camera()
+        except Exception as e:
+            self._root.terminal.write_error(f'Failed to sync configuration: {e}')
         else:
             self._root.terminal.write('Synced')
 
-    def open_callback(self, *args, **kwargs):
-        filename = self._entry_text.get().strip().split('.')[0] + '.ini'
-        try:
-            self._root.configurator = Config(filename)
-        except configparser.Error:
-            self._root.terminal.write_error(f'Failed to open "{filename}"')
-        except FileNotFoundError as e:
-            self._root.terminal.write_error(e)
-        except RuntimeError as e:
-            self._root.terminal.write_error(e)
-        else:
-            self._root.configurator = Config(filename)
-            self.init()
-            
-            self.resize()
-            self.sync()
-                
-    def mouse_click_callback(self, event):
-        if self._root.focus_get() is not event.widget:
-            self._root.focus_set()
-
-    def return_callback(self, event):
-        focused = self._root.focus_get()
-        if focused is self._filename_entry_box:
-            self._root.focus_set()
-
-        else:
-            for entry in self._entries:
-                if hasattr(entry, 'entry'):
-                    if focused is entry.entry:
-                        self._root.focus_set()
-                        break
-                elif hasattr(entry, 'combobox'):
-                    if focused is entry.combobox:
-                        self._root.focus_set()
-                        break
+    def sync_camera(self):
+        self._root.camera.filter_level = int(float(self._root.configurator.get_value(
+            'camera', 'spatial_filter_level', '0')))
+        self._root.camera.metric = bool(float(self._root.configurator.get_value(
+            'camera', 'metric', '0')))
 
     def resize(self):
         self._scroll_widget.resize()
-        
+
         if self._root.camera.scale > 1:
             self._padx = 0
             self._pady = 0
@@ -298,19 +319,18 @@ class AppSettings(ttk.Labelframe):
             self._pady = 3
             self._width = 3
             self._entry_width = 20
-    
+
         self._filename_entry_box.configure(width=self._entry_width)
         self._reset_button.configure(width=self._width)
         self._open_button.configure(width=self._width)
         self._save_button.configure(width=self._width)
 
-        
         columns, rows = self._button_frame.grid_size()
         for column in range(columns):
             self._button_frame.columnconfigure(column, pad=self._padx)
         for row in range(rows):
             self._button_frame.rowconfigure(row, pad=self._pady)
-    
+
     @property
     def camera(self):
         return self._camera

@@ -21,7 +21,7 @@ METER_TO_FEET = 3.28084
 
 
 class Camera():
-    def __init__(self, width=848, height=480, framerate=0, metric=True, config=None, callback=None):
+    def __init__(self, width=848, height=480, framerate=0, config=None, callback=None):
         """create a Camera object to interface with camera. 
         Creating a Camera object also creates a CameraOptions object
         used for setting and getting camera settings
@@ -66,10 +66,7 @@ class Camera():
         # camera attributes
         self.__height = height
         self.__width = width
-        self.__conversion = METER_TO_FEET * self.__depth_scale
-        self.__metric = metric
-        if self.__metric:
-            self.__conversion = self.__depth_scale
+        self.__conversion = self.__depth_scale
         self.__frameset = None
         self.__depth_frame = None
         self.__raw_depth_frame = None
@@ -77,6 +74,7 @@ class Camera():
         self.__saving_image = False
         self.__frame_number = 0
         self.__scale = 1
+        self.__filter_level = 0
 
     def __depth_callback(self, fs):
         """called when a new frameset arrives. Updates self.__depth_frame
@@ -173,13 +171,13 @@ class Camera():
         if devs.size() < 1:
             self.__connected = False
 
-    def ROI_datan(self, polygons, filter_level=0):
+    def ROI_datan(self, polygons):
         """compute average of n-number of polygons"""
 
+        filter_level = self.__filter_level
         depth_frame = self.__raw_depth_frame
         if isinstance(depth_frame, rs.depth_frame):
-            if filter_level > 5:
-                filter_level = 5
+            filter_level = int(min(max(filter_level, 0), 5))
 
             polygon_list = []
             for polygon in polygons:
@@ -345,27 +343,48 @@ class Camera():
 
     @property
     def scale(self):
+        """camera scale getter"""
         return self.__scale
 
     @scale.setter
     def scale(self, scale):
+        """camera scale setter"""
         self.__scale = scale
 
     @property
     def height(self):
+        """camera height getter"""
         return self.__height
 
     @property
     def width(self):
+        """camera width getter"""
         return self.__width
 
     @property
     def metric(self):
+        """metric getter"""
         return self.__metric
 
     @metric.setter
     def metric(self, metric):
+        """metric setter"""
         self.__metric = metric
+        if self.__metric:
+            self.__conversion = self.__depth_scale
+        else:
+            self.__conversion = self.__depth_scale * METER_TO_FEET
+
+    @property
+    def filter_level(self):
+        """filter level getter"""
+        return self.__filter_level
+
+    @filter_level.setter
+    def filter_level(self, filter_level):
+        """filter level setter"""
+        lvl = int(min(max(filter_level, 0), 5))
+        self.__filter_level = lvl
 
 
 class CameraOptions():

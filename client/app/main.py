@@ -50,7 +50,7 @@ taking_picture = False
 METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
-NUM_OF_ROI = 8
+NUM_OF_ROI = 8 # or this
 ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
 ROI_AUTO_EXPOSURE_FALLBACK = '[(106, 60), (742, 60), (742, 420), (106, 420), (106, 60)]'
 if DEBUG:

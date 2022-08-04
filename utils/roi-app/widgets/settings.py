@@ -80,16 +80,6 @@ class SettingsSlider(ttk.Labelframe):
         return float(constrained_val)
 
     def save(self):
-        # if self._section == 'camera':
-        #     if self._level != self._current:
-        #         self._current = self._level
-        #         ret = self._root.camera.options.set_rs_option_direct(self._label, self._level)
-        #         if not ret:
-        #             self._root.terminal.write_camera(
-        #                 f'Failed to set "{self._label}" to "{self._level}"')
-        #         else:
-        #             self._root.terminal.write_camera(
-        #                 f'Set "{self._label}" to "{self._level}"')
         if self._section == 'camera':
             try:
                 ret = self._root.camera.options.set_rs_option_direct(
@@ -145,10 +135,6 @@ class SettingsEntry(ttk.Labelframe):
         self._reset_button.grid(row=0, column=1, padx=3, pady=3)
 
     def save(self):
-        # if self._text.get() != self._current:
-        #     self._current = self._text.get()
-        #     self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
-        #     self._root.configurator.set(self._section, self._label, str(self._text.get()))
         self._current = self._text.get()
         self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
         self._root.configurator.set(self._section, self._label, str(self._text.get()))
@@ -210,10 +196,6 @@ class SettingsCombobox(ttk.Labelframe):
         self._combobox.configure(state='readonly')
 
     def save(self):
-        # if self._text.get() != self._current:
-        #     self._current = self._text.get()
-        #     self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
-        #     self._root.configurator.set(self._section, self._label, str(self._text.get()))
         self._current = self._text.get()
         self._root.terminal.write_camera(f'Saved {self._text.get()} to {self._label}')
         self._root.configurator.set(self._section, self._label, str(self._text.get()))

@@ -78,21 +78,18 @@ class Camera():
         self.__frame_number = self.__depth_frame.frame_number
 
     def start_callback(self):
-        """start pipeline and setup new frameset callback
-        """
+        """start pipeline and setup new frameset callback"""
         self.__profile = self.__pipeline.start(self.__pipeline_config,
                                                self.__depth_callback)
         self.__connected = True
 
     def stop(self):
-        """stop pipeline
-        """
+        """stop pipeline"""
         self.__pipeline.stop()
         self.__connected = False
 
     def reset(self):
-        """performs a hardware reset on every available device
-        """
+        """performs a hardware reset on every available device"""
         if self.__connected:
             self.stop()
         ctx = rs.context()

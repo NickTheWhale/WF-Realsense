@@ -28,23 +28,16 @@ HEIGHT = 480
 WIDTH = 848
 METER_TO_FEET = 3.28084
 
-RESIZABLE = False
-
 
 class AppWindow(tk.Tk):
     def __init__(self, window_title, path):
         self._path = path
         super().__init__()
         # theme
-        # sv_ttk.set_theme('light')
+        sv_ttk.set_theme('light')
 
         # create main gui window
         self.title(window_title)
-
-        if RESIZABLE:
-            self.resizable(True, True)
-        else:
-            self.resizable(False, False)
 
         self._drag_id = ''
 
@@ -80,28 +73,34 @@ class AppWindow(tk.Tk):
                             if root == self._path:
                                 config_filename = file
 
+        # connect camera
         self._configurator = Config(config_filename)
         self._framerate = int(self._configurator.get_value('camera', 'framerate', '30'))
-        self._filter_level = int(self._configurator.get_value(
-            'camera', 'spatial_filter_level', str(0)))
-        self._metric = bool(float(self._configurator.get_value('camera', 'metric', '0.0')))
         try:
             self._camera = Camera(width=WIDTH,
                                   height=HEIGHT,
                                   framerate=self._framerate,
-                                  metric=self._metric,
                                   config=self._configurator.data)
             self._camera.options.get_camera_options()
             self._camera.scale = 2
             self._camera.start()
         except RuntimeError as e:
-            raise RuntimeError(
-                f"Could not find camera, check connections: {e}")
+            if self._camera.connected:
+                self._camera.stop()
+            self.destroy()
+            os._exit(0)
+
+        # set some camera settings
+        self._camera.filter_level = int(self._configurator.get_value(
+            'camera', 'spatial_filter_level', '0'))
+        self._camera.metric = bool(float(self._configurator.get_value(
+            'camera', 'metric', '0.0')))
 
         self._mask_widgets = []
         for id in range(number_of_roi):
             self._mask_widgets.append(MaskWidget(self, id=id+1))
 
+        # get region of interests form
         polygon_count = 0
         polygons = []
         for key in self._configurator.data['roi']:
@@ -113,6 +112,7 @@ class AppWindow(tk.Tk):
             self._mask_widgets[i].coordinates = polygons[i]
             self._mask_widgets[i].complete()
 
+        # build frames
         self._menu = AppMenu(self, tearoff=0)
         self.configure(menu=self._menu)
 
@@ -190,18 +190,6 @@ class AppWindow(tk.Tk):
     def framerate(self):
         return self._framerate
 
-    @property
-    def filter_level(self):
-        return self._filter_level
-
-    @filter_level.setter
-    def filter_level(self, level):
-        if level > 5:
-            level = 5
-        elif level < 0:
-            level = 0
-        self._filter_level = level
-
     def update_roi_stats(self, depth_frame):
         # get frame and polygon
         if self._video_widget.roi_select_all:
@@ -212,7 +200,7 @@ class AppWindow(tk.Tk):
                     polygons.append(poly)
 
             if isinstance(depth_frame, rs.depth_frame):
-                d, i, s = self._camera.ROI_datan(polygons, self._filter_level)
+                d, i, s = self._camera.ROI_datan(polygons)
 
                 self._roi_depth = d
                 self._roi_deviation = s
@@ -224,7 +212,7 @@ class AppWindow(tk.Tk):
                 polygons.append(poly)
 
             if isinstance(depth_frame, rs.depth_frame):
-                d, i, s = self._camera.ROI_datan(polygons, self._filter_level)
+                d, i, s = self._camera.ROI_datan(polygons)
 
                 self._roi_depth = d
                 self._roi_deviation = s
@@ -294,13 +282,13 @@ class AppWindow(tk.Tk):
             self._padx = 5
             self._pady = 5
             self._border = 5
-        
+
         columns, rows = self.grid_size()
         for column in range(columns):
             self.columnconfigure(column, pad=self._padx)
         for row in range(rows):
             self.rowconfigure(row, pad=self._pady)
-            
+
         self._video_widget.configure(border=self._border)
         self._terminal_widget.configure(border=self._border)
         self._settings_widget.configure(border=self._border)
@@ -309,19 +297,12 @@ class AppWindow(tk.Tk):
         print("fake callback", args, kwargs)
 
     def dragging(self, event):
-        if RESIZABLE:
+        if event.widget is self:
             if self._drag_id != '':
                 self.after_cancel(self._drag_id)
-            elif not self._video_widget.paused:
+            if not self._video_widget.paused:
                 self._video_widget.pause()
             self._drag_id = self.after(200, self.stop_drag)
-        else:
-            if event.widget is self:
-                if self._drag_id != '':
-                    self.after_cancel(self._drag_id)
-                if not self._video_widget.paused:
-                    self._video_widget.pause()
-                self._drag_id = self.after(200, self.stop_drag)
 
     def stop_drag(self):
         if self._video_widget.paused:
