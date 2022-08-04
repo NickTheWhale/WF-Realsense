@@ -32,7 +32,7 @@ Install as standalone executable
 
 - [releases](https://github.com/NickTheWhale/WF-Realsense/releases)
 
-Install and run from source (python 3.9)
+Install and run from source
 ```bash
   git clone https://github.com/NickTheWhale/WF-Realsense.git
   python -m venv venv
