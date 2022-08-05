@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import filedialog
 import webbrowser
@@ -51,10 +52,16 @@ class AppMenu(tk.Menu):
         print('menu callback', evt)
 
     def save_configuration(self):
-        print('save config')
+        path = filedialog.asksaveasfilename(
+            initialdir=self._root.path,
+            filetypes=(("configuration files", "*.ini"),
+                       ("all files", "*.*")))
+        path += '.ini'
+        self._root.settings.save(path)
 
     def load_configuration(self):
-        print('load config')
+        path = os.path.basename(filedialog.askopenfilename())
+        self._root.settings.open(path)
 
     def save_image(self):
         try:

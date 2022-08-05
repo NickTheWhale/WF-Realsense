@@ -199,25 +199,40 @@ class AppSettings(ttk.Labelframe):
             entry.reset()
 
     def save_callback(self, *args, **kwargs):
-        self._root.video.pause()
         self.save()
 
     def open_callback(self, *args, **kwargs):
-        self._root.video.pause()
         self.open()
-    
-    def open(self):
-        filename = self._entry_text.get().strip().split('.')[0] + '.ini'
+
+    def open(self, path=None):
+        if path is None:
+            path = self._entry_text.get().strip().split('.')[0] + '.ini'
         try:
-            self._root.configurator = Config(filename)
-        except configparser.Error:
-            self._root.terminal.write_error(f'Failed to open "{filename}"')
+            self._root.video.pause()
+            self._root.configurator = Config(path)
+
+            # overwrite current roi's from configuration roi's
+            polygons = []
+            for key in self._root.configurator.data['roi']:
+                polygons.append(
+                    list(
+                        eval(
+                            self._root.configurator.get_value(
+                                'roi', key, fallback='[]'))))
+            for _ in range(len(self._root.masks) - len(polygons)):
+                polygons.append('[]')
+            for i in range(len(self._root.masks)):
+                self._root.masks[i].coordinates = polygons[i]
+                self._root.masks[i].complete()
+
+        except configparser.Error as e:
+            self._root.terminal.write_error(f'Failed to open "{path}": {e}')
         except FileNotFoundError as e:
             self._root.terminal.write_error(e)
         except RuntimeError as e:
             self._root.terminal.write_error(e)
         else:
-            self._root.configurator = Config(filename)
+            self._root.configurator = Config(path)
             self.init()
 
             self.resize()
@@ -244,8 +259,12 @@ class AppSettings(ttk.Labelframe):
                         self._root.focus_set()
                         break
 
-    def save(self):
+    def save(self, path=None):
         try:
+            self._root.video.pause()
+            if path is None:
+                path = self._entry_text.get() + '.ini'
+
             self._root.terminal.write_camera('Saving...')
             self._root.update_idletasks()
 
@@ -256,7 +275,7 @@ class AppSettings(ttk.Labelframe):
             for entry in self._entries:
                 entry.save()
 
-            with open(f'{self._entry_text.get()}.ini', 'w') as file:
+            with open(path, 'w') as file:
                 for i in range(len(self._root.masks)):
                     self._root.configurator.set(
                         'roi',
@@ -298,7 +317,7 @@ class AppSettings(ttk.Labelframe):
         except Exception as e:
             self._root.terminal.write_error(f'Failed to sync configuration: {e}')
         else:
-            self._root.terminal.write('Synced')
+            self._root.terminal.write_camera('Synced')
 
     def sync_camera(self):
         self._root.camera.filter_level = int(float(self._root.configurator.get_value(

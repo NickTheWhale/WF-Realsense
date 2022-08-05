@@ -100,13 +100,11 @@ class AppWindow(tk.Tk):
         for id in range(number_of_roi):
             self._mask_widgets.append(MaskWidget(self, id=id+1))
 
-        # get region of interests form
-        polygon_count = 0
+        # get region of interests from configuration
         polygons = []
         for key in self._configurator.data['roi']:
             polygons.append(list(eval(self._configurator.get_value('roi', key, fallback='[]'))))
-            polygon_count += 1
-        for _ in range(number_of_roi - polygon_count):
+        for _ in range(number_of_roi - len(polygons)):
             polygons.append('[]')
         for i in range(number_of_roi):
             self._mask_widgets[i].coordinates = polygons[i]

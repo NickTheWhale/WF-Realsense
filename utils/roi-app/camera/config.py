@@ -32,7 +32,7 @@ class Config():
         except configparser.Error:
             raise
 
-        if len(file_list) <= 0:
+        if len(file_list) < 1:
             raise FileNotFoundError(f'"{self._file_name}" was not found')
 
         self._data = self._config_file.__dict__['_sections'].copy()
