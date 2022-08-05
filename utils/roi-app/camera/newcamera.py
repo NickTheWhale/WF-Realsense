@@ -342,6 +342,15 @@ class Camera():
         self.__depth_frame = df
 
     @property
+    def depth_frame_raw(self):
+        """raw (unscaled) depth frame getter
+
+        :return: depth frame
+        :rtype: pyrealsense2.depth_frame
+        """ 
+        return self.__raw_depth_frame
+
+    @property
     def scale(self):
         """camera scale getter"""
         return self.__scale

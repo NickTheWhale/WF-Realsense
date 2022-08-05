@@ -1,13 +1,15 @@
 import tkinter as tk
 from tkinter import filedialog
 import webbrowser
+import PIL
+import numpy as np
 import sv_ttk
+import pyrealsense2 as rs
 
 
 DOC_URL = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
 GITHUB_URL = "https://github.com/NickTheWhale/WF-Realsense"
 MASK_OUTPUT_FILE_NAME = "mask.txt"
-
 
 
 class AppMenu(tk.Menu):
@@ -30,7 +32,7 @@ class AppMenu(tk.Menu):
         self.__filemenu.add_command(label="Save image as",
                                     command=self.save_image)
         self.__filemenu.add_separator()
-        self.__filemenu.add_command(label="Restart", 
+        self.__filemenu.add_command(label="Restart",
                                     command=self.restart)
         self.__filemenu.add_command(label="Exit",
                                     command=self.exit,
@@ -50,20 +52,36 @@ class AppMenu(tk.Menu):
 
     def save_configuration(self):
         print('save config')
-        
+
     def load_configuration(self):
         print('load config')
 
     def save_image(self):
-        path = filedialog.asksaveasfilename(
-            initialdir="C:/",
-            filetypes=(("image files", "*.bmp"),
-                       ("all files", "*.*")))
-        print(path)
+        try:
+            path = filedialog.asksaveasfilename(
+                initialdir=self._root.path,
+                filetypes=(("image files", "*.jpg"),
+                           ("all files", "*.*")))
+
+            depth_frame = self._root.camera.depth_frame
+            if isinstance(depth_frame, rs.depth_frame):
+                color_frame = rs.colorizer().colorize(depth_frame)
+                color_array = np.asanyarray(color_frame.get_data())
+                for i in range(len(self._root.masks)):
+                    self._root.masks[i].draw(color_array)
+                color_image = PIL.Image.fromarray(color_array)
+                color_image = color_image.resize((848, 480))
+                color_image.save(f'{path}.jpg')
+            else:
+                self._root.terminal.write_error(
+                    'Failed to save image: '
+                    'supplied depth frame was invalid')
+        except Exception as e:
+            self._root.terminal.write_error(f'Failed to save image: {e}')
 
     def restart(self):
         print('restart')
-        
+
     def exit(self):
         self._root.on_closing()
 
@@ -108,9 +126,7 @@ class AppMenu(tk.Menu):
     #             # SAVE IMAGE
     #             image.save(f'{path}\\snapshots\\{timestamp}.jpg')
     # endregion
-    
-    
-    
+
     def documentation(self, url):
         return webbrowser.open(url)
 
@@ -122,6 +138,6 @@ class AppMenu(tk.Menu):
 
     # def mask_undo(self, *args, **kwargs):
     #     self._mask_widget.undo()
-        
+
     def toggle_dark_mode(self, *args, **kwargs):
-        sv_ttk.toggle_theme()        
+        sv_ttk.toggle_theme()
