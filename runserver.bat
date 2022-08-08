@@ -1,1 +1,0 @@
-.\venv\scripts\activate && cd utils && server-data.py

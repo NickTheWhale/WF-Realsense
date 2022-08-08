@@ -174,11 +174,12 @@ class MaskWidget():
         return x1, y1, x2, y2
 
     def complete(self):
-        if self.__left_clicked:
-            if not self.__right_clicked:
-                if len(self.coordinates) > 0:
-                    self.__coordinates.append(self.__coordinates[0])
-        self.__right_clicked = True
+        coordinates = self.coordinates
+        if len(coordinates) >= 2:
+            if coordinates[0] != coordinates[-1]:
+                self.__coordinates.append(self.__coordinates[0])
+            self.__right_clicked = True
+            self.__left_clicked = True
 
     @property
     def cursor_xy(self):

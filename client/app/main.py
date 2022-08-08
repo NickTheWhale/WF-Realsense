@@ -460,7 +460,6 @@ def main():
             try:
                 # if not camera.depth_frame:
                 if not isinstance(camera.depth_frame, rs.depth_frame):
-                    print("not a depth frame")
                     time.sleep(0.005)
                     continue
             except RuntimeError as e:

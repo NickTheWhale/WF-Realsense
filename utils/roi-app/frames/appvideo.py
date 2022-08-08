@@ -41,7 +41,7 @@ class AppVideo(ttk.Labelframe):
 
         # MASK CONTROLS
         self._mask_control_frame = ttk.Labelframe(self,
-                                                  text='mask controls',
+                                                  text='ROI controls',
                                                   border=self._border)
         self._mask_control_frame.grid(row=1, column=0, padx=self._padx, pady=self._pady)
 
@@ -51,7 +51,7 @@ class AppVideo(ttk.Labelframe):
             text='🗑',
             command=self.mask_reset,
             width=self._width,
-            helptext='Reset (clear) mask(s)'
+            helptext='Reset (clear) roi(s)'
         )
         self._mask_reset_button.grid(row=0, column=0, padx=self._padx, pady=self._pady)
 
@@ -61,7 +61,7 @@ class AppVideo(ttk.Labelframe):
             text='⎌',
             command=self.mask_undo,
             width=self._width,
-            helptext='Undo last mask command'
+            helptext='Undo last roi command'
         )
         self._mask_undo_button.grid(row=0, column=1, padx=self._padx, pady=self._pady)
 
@@ -81,7 +81,7 @@ class AppVideo(ttk.Labelframe):
             text='✓',
             command=self.mask_complete,
             width=self._width,
-            helptext='Complete (close) mask'
+            helptext='Complete (close) roi'
         )
         self._mask_complete_button.grid(row=0, column=3, padx=self._padx, pady=self._pady)
 
@@ -91,7 +91,7 @@ class AppVideo(ttk.Labelframe):
             text='all',
             command=self.mask_see_all,
             width=self._width,
-            helptext='View all masks',
+            helptext='View all roi',
             variable=self._roi_select_all
         )
         self._mask_see_all_button.grid(row=0, column=4, padx=self._padx, pady=self._pady)

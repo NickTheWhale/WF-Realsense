@@ -20,10 +20,6 @@ from frames.appterminal import AppTerminal
 from frames.appvideo import AppVideo
 
 # constants
-DOC_WEBSITE = "https://dev.intelrealsense.com/docs/stereo-depth-camera-d400"
-GITHUB_WEBSITE = "https://github.com/NickTheWhale/WF-Realsense"
-MASK_OUTPUT_FILE_NAME = "mask.txt"
-
 HEIGHT = 480
 WIDTH = 848
 METER_TO_FEET = 3.28084
@@ -31,13 +27,16 @@ METER_TO_FEET = 3.28084
 
 class AppWindow(tk.Tk):
     def __init__(self, window_title, path):
+        """create main window and sub frames"""
         self._path = path
         super().__init__()
         # theme
         sv_ttk.set_theme('light')
-
+        self.resizable(False, False)
         # create main gui window
-        self.title(window_title)
+        self._title = window_title
+        self.__title = window_title
+        self.title(self._title)
 
         self._drag_id = ''
 
@@ -73,6 +72,13 @@ class AppWindow(tk.Tk):
                             if root == self._path:
                                 config_filename = file
 
+        if config_filename == '':
+            raise FileNotFoundError(
+                "Could not find a valid configuration file. Make "
+                "sure there is at least one valid *.ini configuration "
+                "file located in the same directory as this program."
+            )
+
         # connect camera
         self._configurator = Config(config_filename)
         self._framerate = int(self._configurator.get_value('camera', 'framerate', '30'))
@@ -85,10 +91,13 @@ class AppWindow(tk.Tk):
             self._camera.scale = 2
             self._camera.start()
         except RuntimeError as e:
-            if self._camera.connected:
-                self._camera.stop()
+            if hasattr(self, '_camera'):
+                if self._camera.connected:
+                    self._camera.stop()
             self.destroy()
-            os._exit(0)
+            raise RuntimeError("Could not connect to camera. Make sure camera "
+                               "is plugged in properly and not already in use.")
+            os._exit(1)
 
         # set some camera settings
         self._camera.filter_level = int(self._configurator.get_value(
@@ -105,7 +114,7 @@ class AppWindow(tk.Tk):
         for key in self._configurator.data['roi']:
             polygons.append(list(eval(self._configurator.get_value('roi', key, fallback='[]'))))
         for _ in range(number_of_roi - len(polygons)):
-            polygons.append('[]')
+            polygons.append([])
         for i in range(number_of_roi):
             self._mask_widgets[i].coordinates = polygons[i]
             self._mask_widgets[i].complete()
@@ -146,49 +155,76 @@ class AppWindow(tk.Tk):
 
     @property
     def path(self):
+        """root program path getter"""
         return self._path
 
     @property
     def masks(self):
+        """list of mask widgets getter"""
         return self._mask_widgets
 
     @property
     def root(self):
+        """self (appwindow) getter"""
         return self
 
     @property
     def camera(self):
+        """camera getter"""
         return self._camera
 
     @property
     def video(self):
+        """video frame getter"""
         return self._video_widget
 
     @property
     def terminal(self):
+        """terminal frame getter"""
         return self._terminal_widget
 
     @property
     def settings(self):
+        """setting frame getter"""
         return self._settings_widget
 
     @property
     def color_image(self):
+        """color image getter"""
         return self._color_image
 
     @property
     def configurator(self):
+        """config class getter"""
         return self._configurator
 
     @configurator.setter
     def configurator(self, configurator):
+        """config class setter"""
         self._configurator = configurator
 
     @property
     def framerate(self):
+        """framerate getter"""
         return self._framerate
+    
+    @property
+    def title_(self):
+        """window title getter"""
+        return self._title
+    
+    @title_.setter
+    def title_(self, title):
+        """window title setter"""
+        self.title(' '.join((self.__title, title)))
+        self._title = title
 
     def update_roi_stats(self, depth_frame):
+        """computes roi data 
+
+        :param depth_frame: camera depth frame
+        :type depth_frame: pyrealsense2.depth_frame
+        """
         # get frame and polygon
         if self._video_widget.roi_select_all:
             polygons = []
@@ -218,17 +254,16 @@ class AppWindow(tk.Tk):
 
     @property
     def formatted_stats(self):
+        """returns depth, std., and invalid % in formatted string"""
         d = self._roi_depth
         s = self._roi_deviation
         i = self._roi_invalid
-        # return (f'[Depth:\t{d:.3f}]\t[Max:\t{h:.3f}]\t'
-        #         f'[Min:\t{l:.3f}]\t[Std.:\t{s:.3f}]\t'
-        #         f'[Invalid:\t{i:.1f}]')
         return (f'[Depth:\t{d:.3f}]\t'
                 f'[Std.:\t{s:.3f}]\t'
                 f'[Invalid:\t{i:.1f}]')
 
     def loop(self):
+        """updates video and draws masks"""
         # update video and roi stats()
         if not self._video_widget.paused:
             depth_frame = self._camera.depth_frame
@@ -272,6 +307,7 @@ class AppWindow(tk.Tk):
         return name in dir
 
     def resize(self):
+        """resizes frames based on camera scale"""
         if self._camera.scale > 1:
             self._padx = 1
             self._pady = 1
@@ -291,10 +327,8 @@ class AppWindow(tk.Tk):
         self._terminal_widget.configure(border=self._border)
         self._settings_widget.configure(border=self._border)
 
-    def fake_callback(self, *args, **kwargs):
-        print("fake callback", args, kwargs)
-
     def dragging(self, event):
+        """called when main window is dragged"""
         if event.widget is self:
             if self._drag_id != '':
                 self.after_cancel(self._drag_id)
@@ -303,6 +337,7 @@ class AppWindow(tk.Tk):
             self._drag_id = self.after(200, self.stop_drag)
 
     def stop_drag(self):
+        """called when main window stops being dragged"""
         if self._video_widget.paused:
             self._video_widget.unpause()
         self._drag_id = ''

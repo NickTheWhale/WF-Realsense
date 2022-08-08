@@ -1,2 +1,2 @@
-pyinstaller -F --clean main.py -n "Client App"
+pyinstaller -F --clean main.py -n "Depth Client"
 @pause

@@ -25,9 +25,10 @@ class VerticalScrollFrame(ttk.Frame):
         self._root = args[0].root
 
         self._entered = False
-        self._lower_height = 380
-        self._upper_height = 675
-        self._expand_offset = 180
+        self._lower_height = 445
+        self._upper_height = 720
+        self._lower_expand_offset = 172
+        self._upper_expand_offset = 200
 
         super().__init__(*args, **kwargs)
 
@@ -89,12 +90,16 @@ class VerticalScrollFrame(ttk.Frame):
 
     def resize(self):
         new_height = 0
-        if self._root.camera.scale <= 1:
+        scale = self._root.camera.scale
+        if scale <= 1:
             new_height = self._upper_height
-        elif self._root.camera.scale > 1:
+        elif scale > 1:
             new_height = self._lower_height
         if self._root.terminal.expanded:
-            new_height += self._expand_offset
+            if scale <=1:
+                new_height += self._upper_expand_offset
+            elif scale > 1:
+                new_height += self._lower_expand_offset
         
         self._canvas.configure(height=new_height)
         

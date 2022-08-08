@@ -12,7 +12,7 @@ MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
 
 class Config():
-    def __init__(self, file_name, required_data=None):
+    def __init__(self, path, required_data=None):
         """creates config object
 
         :param file_name: name of file
@@ -25,15 +25,15 @@ class Config():
         file data and the requried data dict
         """
         
-        self._file_name = file_name
+        self._path = path
         self._config_file = configparser.ConfigParser()
         try:
-            file_list = self._config_file.read(self._file_name)
+            file_list = self._config_file.read(self._path)
         except configparser.Error:
             raise
 
         if len(file_list) < 1:
-            raise FileNotFoundError(f'"{self._file_name}" was not found')
+            raise FileNotFoundError(f'"{self._path}" was not found')
 
         self._data = self._config_file.__dict__['_sections'].copy()
 
@@ -42,7 +42,7 @@ class Config():
             validity = self.is_valid()
             if len(validity) > 0:
                 raise RuntimeError(
-                    f'"{self._file_name}" is missing required configuration data: "{validity}"')
+                    f'"{self._path}" is missing required configuration data: "{validity}"')
 
     def get_value(self, section: str, key: str, fallback=None) -> str:
         """gets config file value at specified location
@@ -100,8 +100,8 @@ class Config():
             self._config_file.set(*args, **kwargs)
         
     @property
-    def name(self):
-        return self._file_name    
+    def path(self):
+        return self._path    
     
     @property
     def data(self):
