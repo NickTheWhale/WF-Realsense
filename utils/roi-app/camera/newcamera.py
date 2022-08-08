@@ -5,7 +5,6 @@ date:    June 2022
 license: TODO
 """
 
-from ast import Call
 import difflib as diff
 import logging as log
 import time
