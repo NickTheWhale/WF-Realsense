@@ -23,8 +23,8 @@ def main():
     
     path = Path(raw_path)
 
-    print('raw', raw_path)
-    print('parent', path.parent)
+    # print('raw', raw_path)
+    # print('parent', path.parent)
 
     app = AppWindow("ROI Utility", raw_path)
     app.protocol("WM_DELETE_WINDOW", app.on_closing)
