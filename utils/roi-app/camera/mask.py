@@ -65,6 +65,57 @@ class MaskWidget():
 
     def draw(self, image):
         """draws opencv lines between stored coordinates"""
+
+        coordinates = self.__coordinates
+        scaled_coordinates = []
+
+        for coordinate in coordinates:
+            scaled_coordinates.append(
+                (coordinate[0] // self._root.camera.scale,
+                 coordinate[1] // self._root.camera.scale)
+            )
+
+        n = len(scaled_coordinates)
+        if n > 0:
+            if self.__active:
+                self.__line_color = (255, 255, 255)
+                self.__box_color = (0, 0, 0)
+                self.__text_color = (255, 255, 255)
+            else:
+                self.__line_color = (150, 150, 150)
+                self.__box_color = (30, 30, 30)
+                self.__text_color = (150, 150, 150)
+            
+            if n == 1:
+                cv2.line(image, scaled_coordinates[0], scaled_coordinates[0],
+                         color=self.__line_color, thickness=3)
+            elif n == 2:
+                cv2.line(image, scaled_coordinates[0], scaled_coordinates[1],
+                         color=self.__line_color, thickness=2)
+            elif n > 2:
+                for i in range(n - 1):
+                    cv2.line(image, scaled_coordinates[i], scaled_coordinates[i+1],
+                             color=self.__line_color, thickness=2)
+            if self.ready:
+                if isinstance(self._id, int) and n >= 2:
+                    x1, y1, x2, y2 = self.box(scaled_coordinates)
+                    cv2.line(image, (x1, y1), (x2, y1), color=self.__box_color, thickness=1)
+                    cv2.line(image, (x2, y1), (x2, y2), color=self.__box_color, thickness=1)
+                    cv2.line(image, (x2, y2), (x1, y2), color=self.__box_color, thickness=1)
+                    cv2.line(image, (x1, y2), (x1, y1), color=self.__box_color, thickness=1)
+
+                    text_pos = (((x2-x1)//2)+x1-7, ((y2-y1)//2)+y1+10)
+
+                    cv2.putText(img=image,
+                                text=str(self._id),
+                                org=text_pos,
+                                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                fontScale=1,
+                                color=self.__text_color,
+                                thickness=2,
+                                lineType=cv2.LINE_AA)    
+    def _draw(self, image):
+        """draws opencv lines between stored coordinates"""
         if isinstance(image, np.ndarray):
             new_image = image.copy()
             new_image = image

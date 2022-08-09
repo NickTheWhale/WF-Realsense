@@ -276,12 +276,12 @@ class AppWindow(tk.Tk):
 
                 depth_color_frame = self._camera.colorizer.colorize(depth_frame)
                 color_image: np.ndarray = np.asanyarray(depth_color_frame.get_data())
-                
+
                 if self._video_widget.roi_select_all:
                     for i in range(len(self._mask_widgets)):
-                        color_image += self._mask_widgets[i].draw(color_image)
+                        self._mask_widgets[i].draw(color_image)
                 else:
-                    color_image += self._mask_widgets[self._video_widget.roi_select].draw(color_image)
+                    self._mask_widgets[self._video_widget.roi_select].draw(color_image)
 
                 if self._video_widget.rotated:
                     color_image = np.rot90(color_image, 2)
