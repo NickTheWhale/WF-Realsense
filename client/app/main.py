@@ -35,7 +35,7 @@ STATUS_LOG_INTERVAL = 60  # time in seconds between status log
 WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-DEBUG = True  # true: log output goes to console, false: log output goes to .log file
+DEBUG = False  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
