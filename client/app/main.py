@@ -452,6 +452,8 @@ def main():
 
     roi_select = roi_select_node.get_value()
 
+    print(roi_select, type(roi_select))
+
     log.info('Entering main loop')
 
     while True:

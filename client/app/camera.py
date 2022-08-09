@@ -143,7 +143,7 @@ class Camera():
 
         depth_frame = self.__depth_frame
         if isinstance(depth_frame, rs.depth_frame):
-            filter_level = min(max(int(filter_level, 0), 5))
+            filter_level = min(max(int(filter_level), 0), 5)
 
             # clamp roi_select to 8 bit integer
             roi_select = min(max(int(roi_select), 0), 255)
