@@ -1,41 +1,27 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter.messagebox import showinfo
-from calendar import month_name
+import cv2
+import numpy as np
 
-root = tk.Tk()
+# Create a zeros image
+img = np.zeros((800,800), dtype=np.uint8)
 
-# config the root window
-root.geometry('300x200')
-root.resizable(False, False)
-root.title('Combobox Widget')
+# Specify the text location and rotation angle
+text_location = (100,200)
+angle = 0
 
-# label
-label = ttk.Label(text="Please select a month:")
-label.pack(fill=tk.X, padx=5, pady=5)
+# Draw the text using cv2.putText()
+font = cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(img, 'TheAILearner', text_location, font, 1, 255, 2)
 
-# create a combobox
-selected_month = tk.StringVar()
-month_cb = ttk.Combobox(root, textvariable=selected_month)
+# Rotate the image using cv2.warpAffine()
+try:
+    while True:
+        angle += 1
+        if angle > 360:
+            angle = 0
+        M = cv2.getRotationMatrix2D(text_location, angle, 1)
+        out = cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))
 
-# get first 3 letters of every month name
-month_cb['values'] = [month_name[m][0:3] for m in range(1, 13)]
-
-# prevent typing a value
-month_cb['state'] = 'readonly'
-
-# place the widget
-month_cb.pack(fill=tk.X, padx=5, pady=5)
-
-
-# bind the selected value changes
-def month_changed(event):
-    """ handle the month changed event """
-    showinfo(
-        title='Result',
-        message=f'You selected {selected_month.get()}!'
-    )
-
-month_cb.bind('<<ComboboxSelected>>', month_changed)
-
-root.mainloop()
+        cv2.imshow('img',out)
+        cv2.waitKey(1)
+except KeyboardInterrupt:
+    cv2.destroyAllWindows()

@@ -14,6 +14,8 @@ from camera.config import Config
 from camera.mask import MaskWidget
 from camera.newcamera import Camera
 
+import cv2
+
 from frames.appmenu import AppMenu
 from frames.appsettings import AppSettings
 from frames.appterminal import AppTerminal
@@ -207,12 +209,12 @@ class AppWindow(tk.Tk):
     def framerate(self):
         """framerate getter"""
         return self._framerate
-    
+
     @property
     def title_(self):
         """window title getter"""
         return self._title
-    
+
     @title_.setter
     def title_(self, title):
         """window title setter"""
@@ -273,17 +275,18 @@ class AppWindow(tk.Tk):
                 self._frame_number = frame_number
 
                 depth_color_frame = self._camera.colorizer.colorize(depth_frame)
-                color_image = np.asanyarray(depth_color_frame.get_data())
-
-                # self._mask_widget.draw(color_image)
+                color_image: np.ndarray = np.asanyarray(depth_color_frame.get_data())
+                
                 if self._video_widget.roi_select_all:
                     for i in range(len(self._mask_widgets)):
-                        self._mask_widgets[i].draw(color_image)
+                        color_image += self._mask_widgets[i].draw(color_image)
                 else:
-                    self._mask_widgets[self._video_widget.roi_select].draw(color_image)
+                    color_image += self._mask_widgets[self._video_widget.roi_select].draw(color_image)
+
+                if self._video_widget.rotated:
+                    color_image = np.rot90(color_image, 2)
 
                 self._color_image = color_image
-                # self._video_widget.set_image()
 
         if self._new_frame_count > self._framerate:
             if self._mask_widgets[self._video_widget.roi_select].ready:

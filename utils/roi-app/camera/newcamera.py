@@ -88,9 +88,6 @@ class Camera():
         self.__raw_depth_frame = self.__depth_frame
         self.__frame_number = self.__depth_frame.frame_number
         if self.__scale > 1:
-            # if self.__scale > 2:
-            #     self.__scale = 2
-
             self.__decimate.set_option(rs.option.filter_magnitude, self.__scale)
             self.__depth_frame = (self.__decimate.
                                   process(self.__depth_frame).
@@ -246,7 +243,10 @@ class Camera():
 
                     # Compute average distance of the region of interest
                     ROI_depth = depth_mask.mean() * self.__conversion
-
+                                
+                    cv2.imshow('mask', depth_mask * 100)
+                    cv2.waitKey(1)
+                                
                 if isinstance(ROI_depth, np.float64):
                     return ROI_depth.item(), invalid, deviation
                 else:
@@ -346,7 +346,7 @@ class Camera():
 
         :return: depth frame
         :rtype: pyrealsense2.depth_frame
-        """ 
+        """
         return self.__raw_depth_frame
 
     @property

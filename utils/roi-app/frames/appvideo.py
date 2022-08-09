@@ -22,6 +22,7 @@ class AppVideo(ttk.Labelframe):
         self._roi_select.set(1)
         self._roi_select_all = tk.BooleanVar()
         self._roi_select_all.set(False)
+        self._rotated = False
 
         # resize variables
         self._padx = 0
@@ -37,11 +38,11 @@ class AppVideo(ttk.Labelframe):
             relief="sunken",
             border=self._border
         )
-        self._video_label.grid(row=0, column=0, columnspan=2)
+        self._video_label.grid(row=0, column=0, columnspan=3)
 
         # MASK CONTROLS
         self._mask_control_frame = ttk.Labelframe(self,
-                                                  text='ROI controls',
+                                                  text='roi',
                                                   border=self._border)
         self._mask_control_frame.grid(row=1, column=0, padx=self._padx, pady=self._pady)
 
@@ -89,7 +90,6 @@ class AppVideo(ttk.Labelframe):
         self._mask_see_all_button = CheckButtonToolTip(
             master=self._mask_control_frame,
             text='all',
-            command=self.mask_see_all,
             width=self._width,
             helptext='View all roi',
             variable=self._roi_select_all
@@ -106,24 +106,50 @@ class AppVideo(ttk.Labelframe):
         self._mask_select_combobox.configure(values=values, state='readonly')
         self._mask_select_combobox.grid(row=0, column=5, padx=self._padx, pady=self._pady)
 
-        # VIDEO CONTROLS
-        self._video_controls_frame = ttk.Labelframe(
-            self, text='video controls', border=self._border)
-        self._video_controls_frame.grid(row=1, column=1)
+        # PLAYBACK CONTROLS
+        self._playback_controls_frame = ttk.Labelframe(
+            self, text='playback', border=self._border)
+        self._playback_controls_frame.grid(row=1, column=2)
+
+        # rotate
+        self._video_rotate_button = ButtonToolTip(
+            master=self._playback_controls_frame,
+            text='⥀',
+            command=self.rotate,
+            width=self._width,
+            helptext='Rotate playback by 180 degrees'
+        )
+        self._video_rotate_button.grid(row=0, column=0)
+
+        # resize
+        self._video_resize_button = CheckButtonToolTip(
+            master=self._playback_controls_frame,
+            text='⤢',
+            command=self.resize_callback,
+            width=self._width,
+            helptext='Resize camera stream'
+        )
+        self._video_resize_button.grid(
+            row=0, column=3, padx=self._padx, pady=self._pady)
+
+        # CAMERA CONTROLS
+        self._camera_controls_frame = ttk.Labelframe(
+            self, text='camera', border=self._border)
+        self._camera_controls_frame.grid(row=1, column=1)
 
         # pause
         self._video_pause_button = ButtonToolTip(
-            master=self._video_controls_frame,
+            master=self._camera_controls_frame,
             text='◼',
             command=self.toggle_pause,
             width=self._width,
-            helptext='Pause/unpause video'
+            helptext='Pause/unpause camera'
         )
         self._video_pause_button.grid(row=0, column=0, padx=self._padx, pady=self._pady)
 
         # restart
         self._video_restart_button = ButtonToolTip(
-            master=self._video_controls_frame,
+            master=self._camera_controls_frame,
             text='⟳',
             command=self.restart_camera,
             width=self._width,
@@ -133,7 +159,7 @@ class AppVideo(ttk.Labelframe):
 
         # reset
         self._video_reset_button = ButtonToolTip(
-            master=self._video_controls_frame,
+            master=self._camera_controls_frame,
             text='↺',
             command=self.reset_camera,
             width=self._width,
@@ -142,17 +168,6 @@ class AppVideo(ttk.Labelframe):
         )
         self._video_reset_button.grid(
             row=0, column=2, padx=self._padx, pady=self._pady)
-
-        # resize
-        self._video_resize_button = CheckButtonToolTip(
-            master=self._video_controls_frame,
-            text='⤢',
-            command=self.resize_callback,
-            width=self._width,
-            helptext='Resize camera stream'
-        )
-        self._video_resize_button.grid(
-            row=0, column=3, padx=self._padx, pady=self._pady)
         # endregion WIDGETS
 
         # BINDINGS
@@ -233,6 +248,9 @@ class AppVideo(ttk.Labelframe):
     def mask_complete(self):
         self._root.masks[self.roi_select].complete()
 
+    def rotate(self):
+        self._rotated = not self._rotated
+
     def restart_camera(self):
         self.pause()
         self._root.camera.restart()
@@ -288,18 +306,28 @@ class AppVideo(ttk.Labelframe):
         for row in range(rows):
             self._mask_control_frame.rowconfigure(row, pad=self._pady)
 
+        # playback
+        self._playback_controls_frame.configure(border=self._border)
+        self._video_resize_button.configure(width=self._width)
+        self._video_rotate_button.configure(width=self._width)
+
+        columns, rows = self._playback_controls_frame.grid_size()
+        for column in range(columns):
+            self._playback_controls_frame.columnconfigure(column, pad=self._padx)
+        for row in range(rows):
+            self._playback_controls_frame.rowconfigure(row, pad=self._pady)
+
         # camera
-        self._video_controls_frame.configure(border=self._border)
+        self._camera_controls_frame.configure(border=self._border)
         self._video_pause_button.configure(width=self._width)
         self._video_restart_button.configure(width=self._width)
         self._video_reset_button.configure(width=self._width)
-        self._video_resize_button.configure(width=self._width)
 
-        columns, rows = self._video_controls_frame.grid_size()
+        columns, rows = self._camera_controls_frame.grid_size()
         for column in range(columns):
-            self._video_controls_frame.columnconfigure(column, pad=self._padx)
+            self._camera_controls_frame.columnconfigure(column, pad=self._padx)
         for row in range(rows):
-            self._video_controls_frame.rowconfigure(row, pad=self._pady)
+            self._camera_controls_frame.rowconfigure(row, pad=self._pady)
 
     def set_status(self, status):
         self.configure(text=f'video ({status})')
@@ -327,3 +355,7 @@ class AppVideo(ttk.Labelframe):
     @property
     def roi_select_all(self):
         return self._roi_select_all.get()
+
+    @property
+    def rotated(self):
+        return self._rotated
