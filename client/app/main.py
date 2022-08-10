@@ -9,7 +9,6 @@ license: TODO
 import configparser
 import logging as log
 import os
-import random
 import sys
 import threading
 import time
@@ -29,10 +28,11 @@ from status import (ROI_HIGH_INVALID, TEMP_CRITICAL, TEMP_MAX_SAFE,
                     TEMP_WARNING, StatusCodes)
 
 # CONFIGURATION
+LOOP_TIME_WARNING = 100  # loop time warning threshold in milliseconds
 STATUS_INTERVAL = 2  # time in seconds to update status
 STATUS_LOG_INTERVAL = 60  # time in seconds between status log
 # (time in seconds ~= STATUS_INTERVAL * STATUS_LOG_INTERVAL)
-WAIT_BEFORE_RESTARTING = 60  # time in seconds to wait before
+WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
 DEBUG = False  # true: log output goes to console, false: log output goes to .log file
@@ -50,7 +50,9 @@ taking_picture = False
 METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
+NUM_OF_ROI = 8 # or this
 ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
+ROI_AUTO_EXPOSURE_FALLBACK = '[(106, 60), (742, 60), (742, 420), (106, 420), (106, 60)]'
 if DEBUG:
     LOG_FORMAT = '%(levelname)-10s %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-7d %(message)s'
     WAIT_BEFORE_RESTARTING = 0
@@ -59,7 +61,7 @@ else:
 MSG_STARTUP = "~~~~~~~~~~~~~~Starting Client Application~~~~~~~~~~~~"
 MSG_RESTART = (f"~~~~~~~~~~~~~~Restarting Application in "
                f"{WAIT_BEFORE_RESTARTING} seconds~~~~~~~~~~~~~~\n")
-MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
+MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error (will not restart)~~~~~~~~~~~~~~\n"
 
 
 # When parsing the configuration file, the parser will check if the file
@@ -84,7 +86,7 @@ REQUIRED_DATA = {
 }
 
 
-def take_picture(image, polygon):
+def take_picture(image, polygons):
     """saves picture to 'snapshots' directory. Creates
     directory if not found
 
@@ -99,23 +101,20 @@ def take_picture(image, polygon):
         timestamp = datetime.now()
         timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
 
-        if dir_exists(path=path, name='snapshots'):
-            # SAVE IMAGE
-            image = draw_poly(image, polygon)
-            image = image.resize((424, 240), PIL.Image.LANCZOS)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
-            # sleep thread to prevent saving a bunch of pictures
-            time.sleep(5)
-            log.debug(f'Took picture: "{timestamp}"')
-        else:
+        if not dir_exists(path, 'snapshots'):
             snapshot_path = path + '\\snapshots\\'
             os.mkdir(snapshot_path)
-            # SAVE IMAGE
-            image = draw_poly(image, polygon)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=1)
-            # sleep thread to prevent saving a bunch of pictures
-            time.sleep(5)
-            log.debug(f'Took picture: "{timestamp}"')
+
+        # SAVE IMAGE
+        for polygon in polygons:
+            if len(polygon) >= 2:
+                draw_poly(image, polygon)
+        image = image.resize((424, 240), PIL.Image.LANCZOS)
+        image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
+        # sleep thread to prevent saving a bunch of pictures
+        time.sleep(5)
+        log.debug(f'Took picture: "{timestamp}"')
+
     except ValueError as e:
         log.warning(f'Failed to take picture {timestamp}: {e}')
     except FileExistsError as e:
@@ -126,49 +125,6 @@ def take_picture(image, polygon):
         time.sleep(5)
         global taking_picture
         taking_picture = False
-
-
-def get_program_path() -> str:
-    """gets full path name of program. Works if 
-    program is frozen
-
-    :return: path
-    :rtype: string
-    """
-    if getattr(sys, 'frozen', False):
-        path = os.path.dirname(sys.executable)
-    elif __file__:
-        path = os.path.dirname(__file__)
-    return path
-
-
-def draw_poly(image: PIL.Image.Image, poly: list) -> PIL.Image.Image:
-    """draw polygon on depth image
-
-    :param image: image
-    :type image: PIL.Image
-    :param poly: polygon
-    :type poly: list
-    :return: image with polygon
-    :rtype: PIL.Image.Image
-    """
-    draw = PIL.ImageDraw.Draw(image)
-    draw.polygon(poly, width=4)
-    return image
-
-
-def dir_exists(path: str, name: str) -> bool:
-    """check if directory 'name' exists within 'path'
-
-    :param path: full parent path name
-    :type path: string
-    :param name: name of directory to check
-    :type name: string
-    :return: if 'name' exists
-    :rtype: bool
-    """
-    dir = os.listdir(path=path)
-    return name in dir
 
 
 def depth_frame_to_image(depth_frame):
@@ -192,7 +148,52 @@ def depth_frame_to_image(depth_frame):
         except ValueError as e:
             log.warning(f'Failed to convert depth frame to image: {e}')
             ret = (False, None)
+    else:
+        ret = (False, None)
     return ret
+
+
+def draw_poly(image: PIL.Image.Image, poly: list) -> PIL.Image.Image:
+    """draw polygon on depth image
+
+    :param image: image
+    :type image: PIL.Image
+    :param poly: polygon
+    :type poly: list
+    :return: image with polygon
+    :rtype: PIL.Image.Image
+    """
+    draw = PIL.ImageDraw.Draw(image)
+    draw.polygon(poly, width=4)
+    return image
+
+
+def get_program_path() -> str:
+    """gets full path name of program. Works if 
+    program is frozen
+
+    :return: path
+    :rtype: string
+    """
+    if getattr(sys, 'frozen', False):
+        path = os.path.dirname(sys.executable)
+    elif __file__:
+        path = os.path.dirname(__file__)
+    return path
+
+
+def dir_exists(path: str, name: str) -> bool:
+    """check if directory 'name' exists within 'path'
+
+    :param path: full parent path name
+    :type path: string
+    :param name: name of directory to check
+    :type name: string
+    :return: if 'name' exists
+    :rtype: bool
+    """
+    dir = os.listdir(path=path)
+    return name in dir
 
 
 def critical_error(message="Unkown critical error", allow_restart=True, camera=None):
@@ -225,22 +226,31 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
         os._exit(1)
 
 
-def roi_box(roi):
-    """calculate bounding box from list of coordinates.
-    If provide roi is not valid, the bounding box defaults
-    to [106, 60, 742, 420]
+def set_roi(camera, roi):
+    x1, y1, x2, y2 = roi_box(roi)
+    roi = rs.region_of_interest()
+    roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
+    camera.set_roi(roi)
 
-    :param roi: list of (x, y) coordinates
-    :type roi: list
-    :return: bounding box coordinates
+
+def roi_box(rois) -> tuple:
+    """calculate bounding box from nested list of coordinates
+
+    :param rois: nested coordinate list: [[(x1, y1)]]
+    :type rois: list
+    :return: bounding box coordinates: (x1, y1, x2, y2)
     :rtype: tuple
     """
-    if len(roi) > 2:
-        x = [i[0] for i in roi]
-        y = [i[1] for i in roi]
-        x1, y1, x2, y2 = min(x), min(y), max(x), max(y)
-    else:
-        x1, y1, x2, y2 = 106, 60, 742, 420
+    x = [y[0] for x in rois for y in x if len(x) > 2]
+    y = [y[1] for x in rois for y in x if len(x) > 2]
+    if len(x) and len(y) > 2:
+        x1, y1 = max(min(x), 0), max(min(y), 0)
+        x2, y2 = min(max(x), 847), min(max(y), 479)
+
+        if x1 != x2 and y1 != y2:
+            return x1, y1, x2, y2
+
+    x1, y1, x2, y2 = 106, 60, 742, 420
     return x1, y1, x2, y2
 
 
@@ -264,7 +274,7 @@ def get_status(camera, invalid):
         elif high_invalid:
             status = StatusCodes.ERROR_HIGH_INVALID_PERCENTAGE
 
-    except RuntimeError as e:
+    except RuntimeError:
         status = StatusCodes.ERROR_UPDATING_STATUS
 
     return status
@@ -274,6 +284,18 @@ def send_status(status_node, status_value):
     dv = status_value
     dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
     status_node.set_value(dv)
+
+
+def pprint(config: Config):
+    TAB = '      '
+    BRANCH = '    ╰─ '
+    data = config.data
+    log.debug('~~~~~~~~~~configuration file~~~~~~~~~~')
+    for section in data:
+        log.debug(f'[{section}]:')
+        for key in data[section]:
+            log.debug(f'{BRANCH}{key}:')
+            log.debug(f'{TAB}{BRANCH}{data[section][key]}')
 
 
 def main():
@@ -302,9 +324,8 @@ def main():
 
     try:
         config = Config('configuration.ini', REQUIRED_DATA)
-    except configparser.DuplicateOptionError as e:
-        critical_error(
-            f'Duplicate option found in configuration file: {e}', False)
+    except configparser.Error as e:
+        critical_error(e, False)
     except RuntimeError as e:
         critical_error(e, False)
     except FileNotFoundError as e:
@@ -341,19 +362,8 @@ def main():
                         height=HEIGHT, framerate=f, metric=m)
         camera.options.write_all_settings()
         camera.options.log_settings()
+        pprint(config)
         camera.start_callback()
-
-        # set exposure roi from config file
-        enable_roi_exposure = bool(float(config.get_value(
-            'camera', 'region_of_interest_auto_exposure', fallback='0.0')))
-
-        if enable_roi_exposure:
-            config_roi = eval(config.get_value(
-                'camera', 'region_of_interest', fallback=ROI_FALLBACK))
-            x1, y1, x2, y2 = roi_box(config_roi)
-            roi = rs.region_of_interest()
-            roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
-            camera.set_roi(roi)
 
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
@@ -396,49 +406,71 @@ def main():
             alive_node = client.get_node(
                 str(config.get_value('nodes', 'alive_node')))
 
-            nodes = {
-                'roi_depth': roi_depth_node,
-                'roi_invalid': roi_invalid_node,
-                'roi_deviation': roi_deviation_node,
-                'roi_select': roi_select_node,
-                'status': status_node,
-                'picture_trigger': picture_trigger_node,
-                'alive': alive_node
-            }
-
             log.info("Successfully retrieved nodes from OPC server")
         except ua.UaError as e:
             critical_error(f'Failed to retrieve nodes: {e}')
 
     ##############################################################################
+    #                                    ROI                                     #
+    ##############################################################################
+
+    polygons = []
+    for key in config.data['roi']:
+        polygons.append(list(eval(config.get_value('roi', key, fallback='[]'))))
+
+    if len(polygons) < NUM_OF_ROI:
+        critical_error(f'Missing region of interests. '
+                       f'Need {NUM_OF_ROI}, found {len(polygons)}', False)
+
+    # set exposure roi from config file
+    enable_roi_exposure = bool(float(config.get_value(
+        'camera', 'region_of_interest_auto_exposure', fallback='0.0')))
+    try:
+        if enable_roi_exposure:
+            x1, y1, x2, y2 = roi_box(polygons)
+            roi = rs.region_of_interest()
+            roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
+            camera.set_roi(roi)
+    except RuntimeError as e:
+        log.warning(f'Failed to set region of interest auto exposure '
+                    f'from configuration file, defaulting to '
+                    f'{ROI_AUTO_EXPOSURE_FALLBACK}')
+
+    ##############################################################################
     #                                    LOOP                                    #
     ##############################################################################
 
-    # store repeatedly used variables
     sleep_time = float(config.get_value(
         'application', 'sleep_time', fallback='10'))
-    polygon = list(eval(config.get_value(
-        'camera', 'region_of_interest', fallback=ROI_FALLBACK)))
     filter_level = int(config.get_value(
         'camera', 'spatial_filter_level', fallback='0'))
 
-    log.info('Entering main loop')
     start = time.time()
     log_start = start
+    loop_start = start
+    first_loop = True
+
+    roi_select = roi_select_node.get_value()
+
+    print(roi_select, type(roi_select))
+
+    log.info('Entering main loop')
+
     while True:
         if camera.connected:
             # check for valid depth frame
             try:
                 # if not camera.depth_frame:
                 if not isinstance(camera.depth_frame, rs.depth_frame):
+                    time.sleep(0.005)
                     continue
             except RuntimeError as e:
                 critical_error(
                     f'Error while retrieving camera frames: {e}')
             else:
                 try:
-                    roi_depth, roi_invalid, roi_deviation = camera.ROI_data(
-                        polygon=polygon, filter_level=filter_level)
+                    roi_depth, roi_invalid, roi_deviation = camera.roi_data(
+                        polygons=polygons, roi_select=roi_select, filter_level=filter_level)
 
                     ##############################################
                     #                  SEND DATA                 #
@@ -459,10 +491,12 @@ def main():
                     dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
                     roi_deviation_node.set_value(dv)
 
+                    ##############################################
+                    #                 RECIEVE DATA               #
+                    ##############################################
+
                     # roi select
-                    dv = random.random() * 100
-                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                    roi_select_node.set_value(dv)
+                    roi_select = roi_select_node.get_value()
 
                     ##############################################
                     #                  SEND ALIVE                #
@@ -485,30 +519,42 @@ def main():
                         ret, img = depth_frame_to_image(camera.depth_frame)
                         if ret:
                             picture_thread = threading.Thread(
-                                target=take_picture, args=[img, polygon])
+                                target=take_picture, args=[img, polygons])
                             if not picture_thread.is_alive():
                                 picture_thread.start()
-                except ConnectionRefusedError as e:
+
+                    ##############################################
+                    #               STATUS UPDATE                #
+                    ##############################################
+
+                    elapsed = time.time() - start
+                    log_elapsed = time.time() - log_start
+                    if elapsed > STATUS_INTERVAL:
+                        status_code = get_status(camera, roi_invalid)
+                        if log_elapsed > STATUS_LOG_INTERVAL:
+                            if status_code != StatusCodes.OK:
+                                log.warning(f'Status update: {StatusCodes.name(status_code)}')
+                            log_start = time.time()
+                        if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
+                            send_status(status_node, StatusCodes.ERROR_NO_RESTART)
+                            critical_error(
+                                f'Camera overheating (temp > {TEMP_CRITICAL} celcius)', False,
+                                camera)
+                        send_status(status_node, status_code)
+                        start = time.time()
+
+                    time.sleep(sleep_time / 1000)
+
+                    loop_time = (time.time() - loop_start) * 1000
+                    if loop_time > LOOP_TIME_WARNING and not first_loop:
+                        log.warning(f'High loop time ({loop_time:.2f} ms)')
+
+                    first_loop = False
+                    loop_start = time.time()
+                except KeyboardInterrupt:
+                    continue
+                except Exception as e:
                     critical_error(e)
-
-            elapsed = time.time() - start
-            log_elapsed = time.time() - log_start
-            if elapsed > STATUS_INTERVAL:
-                status_code = get_status(camera, roi_invalid)
-                if log_elapsed > STATUS_LOG_INTERVAL:
-                    if status_code != StatusCodes.OK:
-                        print(
-                            f'asic: {camera.asic_temperature}  projector: {camera.projector_temperature}')
-                        log.warning(f'Status update: {StatusCodes.name(status_code)}')
-                    log_start = time.time()
-                if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
-                    send_status(status_node, StatusCodes.ERROR_NO_RESTART)
-                    critical_error(
-                        f'Camera overheating (temp > {TEMP_CRITICAL} celcius)', False, camera)
-                send_status(status_node, status_code)
-                start = time.time()
-
-            time.sleep(sleep_time / 1000)
 
         else:
             critical_error('Camera disconnected')
