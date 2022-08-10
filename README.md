@@ -27,8 +27,8 @@ camera. The ROI-Utility is a gui that allows easy configuraion of the client app
 
 
 ## Installation
-
-Install as standalone executable
+#### Currently all scripts are tested against Windows 10 Enterprise version 1909, build 18363.2274 and python 3.9.13
+Install as standalone executable 
 
 - [releases](https://github.com/NickTheWhale/WF-Realsense/releases)
 
