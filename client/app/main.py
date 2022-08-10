@@ -28,18 +28,18 @@ from status import (ROI_HIGH_INVALID, TEMP_CRITICAL, TEMP_MAX_SAFE,
                     TEMP_WARNING, StatusCodes)
 
 # CONFIGURATION
-LOOP_TIME_WARNING = 100  # loop time warning threshold in milliseconds
-STATUS_INTERVAL = 2  # time in seconds to update status
-STATUS_LOG_INTERVAL = 60  # time in seconds between status log
-# (time in seconds ~= STATUS_INTERVAL * STATUS_LOG_INTERVAL)
-WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
-#                               restarting program in the event of an error.
-#                               set to 0 for no wait time
 DEBUG = False  # true: log output goes to console, false: log output goes to .log file
 #                 note- if set to 'true' and the script is being run in an
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
 #                 information
+LOOP_TIME_WARNING = 100  # loop time warning threshold in milliseconds
+STATUS_INTERVAL = 1  # time in seconds to send status to server
+STATUS_LOG_INTERVAL = 60  # time in seconds between status log to file
+# (time in seconds ~= STATUS_INTERVAL * STATUS_LOG_INTERVAL)
+WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
+#                               restarting program in the event of an error.
+#                               set to 0 for no wait time
 
 # GLOBALS
 global taking_picture
@@ -50,7 +50,7 @@ taking_picture = False
 METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
-NUM_OF_ROI = 8 # or this
+NUM_OF_ROI = 8  # or this
 ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
 ROI_AUTO_EXPOSURE_FALLBACK = '[(106, 60), (742, 60), (742, 420), (106, 420), (106, 60)]'
 if DEBUG:
@@ -452,10 +452,10 @@ def main():
 
     roi_select = roi_select_node.get_value()
 
-    print(roi_select, type(roi_select))
-
     log.info('Entering main loop')
-
+    
+    expo = []
+    
     while True:
         if camera.connected:
             # check for valid depth frame
@@ -545,13 +545,36 @@ def main():
 
                     time.sleep(sleep_time / 1000)
 
+                    ##############################################
+                    #                 LOOP TIME                  #
+                    ##############################################
+
                     loop_time = (time.time() - loop_start) * 1000
                     if loop_time > LOOP_TIME_WARNING and not first_loop:
                         log.warning(f'High loop time ({loop_time:.2f} ms)')
 
                     first_loop = False
                     loop_start = time.time()
+                    
+                    # testing
+                    
+                    # expo.append(roi_depth)
+                    # if len(expo) > 2:
+                    #     expo.pop(0)
+                    #     expo[0] += (expo[1] - expo[0]) / 4
+                    
+                    # print(f'{time.time()}, {expo[-1]}, {expo[0]}')
+                    
+
                 except KeyboardInterrupt:
+                    if DEBUG:
+                        log.debug('Keyboard interrupt')
+                        try:
+                            camera.stop()
+                            client.disconnect()
+                        except RuntimeError:
+                            pass
+                        return
                     continue
                 except Exception as e:
                     critical_error(e)
