@@ -5,14 +5,15 @@ date:    June 2022
 license: TODO
 """
 
-
 import configparser
+import gc
 import logging as log
 import os
 import sys
 import threading
 import time
 from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import opcua
@@ -86,7 +87,7 @@ REQUIRED_DATA = {
 }
 
 
-def take_picture(image, polygons):
+def take_picture(depth_frame, polygons):
     """saves picture to 'snapshots' directory. Creates
     directory if not found
 
@@ -106,14 +107,17 @@ def take_picture(image, polygons):
             os.mkdir(snapshot_path)
 
         # SAVE IMAGE
-        for polygon in polygons:
-            if len(polygon) >= 2:
-                draw_poly(image, polygon)
-        image = image.resize((424, 240), PIL.Image.LANCZOS)
-        image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
-        # sleep thread to prevent saving a bunch of pictures
-        time.sleep(5)
-        log.debug(f'Took picture: "{timestamp}"')
+        ret, image = depth_frame_to_image(depth_frame)
+        if ret:
+            for polygon in polygons:
+                if len(polygon) >= 2:
+                    draw_poly(image, polygon)
+            image = image.resize((424, 240), PIL.Image.LANCZOS)
+            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
+            # sleep thread to prevent saving a bunch of pictures
+            log.debug(f'Took picture: "{timestamp}"')
+        else:
+            log.warning(f'Failed to take picture {timestamp}')
 
     except ValueError as e:
         log.warning(f'Failed to take picture {timestamp}: {e}')
@@ -179,6 +183,9 @@ def get_program_path() -> str:
         path = os.path.dirname(sys.executable)
     elif __file__:
         path = os.path.dirname(__file__)
+
+    path = Path()
+    return path.absolute()
     return path
 
 
@@ -227,6 +234,7 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
 
 
 def set_roi(camera, roi):
+    """set camera roi"""
     x1, y1, x2, y2 = roi_box(roi)
     roi = rs.region_of_interest()
     roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
@@ -255,6 +263,15 @@ def roi_box(rois) -> tuple:
 
 
 def get_status(camera, invalid):
+    """get camera status
+
+    :param camera: camera
+    :type camera: Camera
+    :param invalid: high invalid percentage
+    :type invalid: float or int
+    :return: status
+    :rtype: int
+    """
     status = StatusCodes.OK
     try:
         asic_temp = camera.asic_temperature
@@ -281,12 +298,14 @@ def get_status(camera, invalid):
 
 
 def send_status(status_node, status_value):
+    """send status to status_node"""
     dv = status_value
     dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
     status_node.set_value(dv)
 
 
 def pprint(config: Config):
+    """pretty pring configuration dictionary"""
     TAB = '      '
     BRANCH = '    ╰─ '
     data = config.data
@@ -303,7 +322,7 @@ def main():
     1. Read in configuration file settings
     2. Connect to realsense camera
     3. Connect to OPC server
-    4. Send data to OPC server
+    4. Send/receive OPC data
     5. goto 4
     """
 
@@ -363,7 +382,7 @@ def main():
         camera.options.write_all_settings()
         camera.options.log_settings()
         pprint(config)
-        camera.start_callback()
+        camera.start()
 
         log.info("Successfully connected RealSense camera")
     except RuntimeError as e:
@@ -450,134 +469,135 @@ def main():
     loop_start = start
     first_loop = True
 
-    roi_select = roi_select_node.get_value()
+    roi_depth = 0.0
+    roi_invalid = 0.0
+    roi_deviation = 0.0
+
+    dv = 0
+
+    try:
+        roi_select = roi_select_node.get_value()
+    except Exception:
+        roi_select = 0
 
     log.info('Entering main loop')
-    
+
+    # DEBUGGING
     expo = []
-    
+
     while True:
         if camera.connected:
             # check for valid depth frame
+            # try:
+            #     # if not camera.depth_frame:
+            #     if not isinstance(camera.depth_frame, rs.depth_frame):
+            #         time.sleep(0.005)
+            #         continue
+            # except RuntimeError as e:
+            #     critical_error(
+            #         f'Error while retrieving camera frames: {e}')
+            # else:
             try:
-                # if not camera.depth_frame:
-                if not isinstance(camera.depth_frame, rs.depth_frame):
-                    time.sleep(0.005)
-                    continue
-            except RuntimeError as e:
-                critical_error(
-                    f'Error while retrieving camera frames: {e}')
-            else:
-                try:
-                    roi_depth, roi_invalid, roi_deviation = camera.roi_data(
-                        polygons=polygons, roi_select=roi_select, filter_level=filter_level)
+                roi_depth, roi_invalid, roi_deviation = camera.roi_data(
+                    polygons=polygons, roi_select=roi_select, filter_level=filter_level)
 
-                    ##############################################
-                    #                  SEND DATA                 #
-                    ##############################################
+                ##############################################
+                #                  SEND DATA                 #
+                ##############################################
 
-                    # depth
-                    dv = roi_depth
-                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                    roi_depth_node.set_value(dv)
+                # depth
+                dv = roi_depth
+                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                roi_depth_node.set_value(dv)
 
-                    # invalid
-                    dv = roi_invalid
-                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                    roi_invalid_node.set_value(dv)
+                # invalid
+                dv = roi_invalid
+                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                roi_invalid_node.set_value(dv)
 
-                    # deviation
-                    dv = roi_deviation
-                    dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                    roi_deviation_node.set_value(dv)
+                # deviation
+                dv = roi_deviation
+                dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
+                roi_deviation_node.set_value(dv)
 
-                    ##############################################
-                    #                 RECIEVE DATA               #
-                    ##############################################
+                ##############################################
+                #                 RECIEVE DATA               #
+                ##############################################
 
-                    # roi select
-                    roi_select = roi_select_node.get_value()
+                # roi select
+                roi_select = roi_select_node.get_value()
 
-                    ##############################################
-                    #                  SEND ALIVE                #
-                    ##############################################
+                ##############################################
+                #                  SEND ALIVE                #
+                ##############################################
 
-                    if not alive_node.get_value():
-                        dv = True
-                        dv = ua.DataValue(ua.Variant(
-                            dv, ua.VariantType.Boolean))
-                        alive_node.set_value(dv)
+                if not alive_node.get_value():
+                    dv = True
+                    dv = ua.DataValue(ua.Variant(
+                        dv, ua.VariantType.Boolean))
+                    alive_node.set_value(dv)
 
-                    ##############################################
-                    #                SAVE PICTURE                #
-                    ##############################################
+                ##############################################
+                #                SAVE PICTURE                #
+                ##############################################
 
-                    pic_trig = picture_trigger_node.get_value()
-                    global taking_picture
-                    if pic_trig and not taking_picture:
-                        taking_picture = True
-                        ret, img = depth_frame_to_image(camera.depth_frame)
-                        if ret:
-                            picture_thread = threading.Thread(
-                                target=take_picture, args=[img, polygons])
-                            if not picture_thread.is_alive():
-                                picture_thread.start()
+                pic_trig = picture_trigger_node.get_value()
+                pic_trig = False
+                global taking_picture
+                if pic_trig and not taking_picture:
+                    taking_picture = True
+                    picture_thread = threading.Thread(
+                        target=take_picture, args=[camera.depth_frame, polygons])
+                    if not picture_thread.is_alive():
+                        picture_thread.start()
 
-                    ##############################################
-                    #               STATUS UPDATE                #
-                    ##############################################
+                ##############################################
+                #               STATUS UPDATE                #
+                ##############################################
 
-                    elapsed = time.time() - start
-                    log_elapsed = time.time() - log_start
-                    if elapsed > STATUS_INTERVAL:
-                        status_code = get_status(camera, roi_invalid)
-                        if log_elapsed > STATUS_LOG_INTERVAL:
-                            if status_code != StatusCodes.OK:
-                                log.warning(f'Status update: {StatusCodes.name(status_code)}')
-                            log_start = time.time()
-                        if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
-                            send_status(status_node, StatusCodes.ERROR_NO_RESTART)
-                            critical_error(
-                                f'Camera overheating (temp > {TEMP_CRITICAL} celcius)', False,
-                                camera)
-                        send_status(status_node, status_code)
-                        start = time.time()
+                elapsed = time.time() - start
+                log_elapsed = time.time() - log_start
+                if elapsed > STATUS_INTERVAL:
+                    status_code = get_status(camera, roi_invalid)
+                    if log_elapsed > STATUS_LOG_INTERVAL:
+                        if status_code != StatusCodes.OK:
+                            log.warning(f'Status update: {StatusCodes.name(status_code)}')
+                        log_start = time.time()
+                    if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
+                        send_status(status_node, StatusCodes.ERROR_NO_RESTART)
+                        critical_error(
+                            f'Camera overheating (temp > {TEMP_CRITICAL} celcius)', False,
+                            camera)
+                    send_status(status_node, status_code)
+                    start = time.time()
 
-                    time.sleep(sleep_time / 1000)
+                time.sleep(sleep_time / 1000)
 
-                    ##############################################
-                    #                 LOOP TIME                  #
-                    ##############################################
+                ##############################################
+                #                 LOOP TIME                  #
+                ##############################################
 
-                    loop_time = (time.time() - loop_start) * 1000
-                    if loop_time > LOOP_TIME_WARNING and not first_loop:
-                        log.warning(f'High loop time ({loop_time:.2f} ms)')
+                loop_time = (time.time() - loop_start) * 1000
+                if loop_time > LOOP_TIME_WARNING and not first_loop:
+                    log.warning(f'High loop time ({loop_time:.2f} ms)')
 
-                    first_loop = False
-                    loop_start = time.time()
-                    
-                    # testing
-                    
-                    # expo.append(roi_depth)
-                    # if len(expo) > 2:
-                    #     expo.pop(0)
-                    #     expo[0] += (expo[1] - expo[0]) / 4
-                    
-                    # print(f'{time.time()}, {expo[-1]}, {expo[0]}')
-                    
+                first_loop = False
+                loop_start = time.time()
 
-                except KeyboardInterrupt:
-                    if DEBUG:
-                        log.debug('Keyboard interrupt')
-                        try:
-                            camera.stop()
-                            client.disconnect()
-                        except RuntimeError:
-                            pass
-                        return
-                    continue
-                except Exception as e:
-                    critical_error(e)
+                # DEBUGGING
+
+            except KeyboardInterrupt:
+                if DEBUG:
+                    log.debug('Keyboard interrupt')
+                    try:
+                        camera.stop()
+                        client.disconnect()
+                    except RuntimeError:
+                        pass
+                    return
+                continue
+            except Exception as e:
+                critical_error(e)
 
         else:
             critical_error('Camera disconnected')

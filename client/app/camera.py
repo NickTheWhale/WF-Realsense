@@ -57,10 +57,8 @@ class Camera():
         self.__conversion = METER_TO_FEET * self.__depth_scale
         if metric:
             self.__conversion = self.__depth_scale
-        self.__frameset = None
         self.__depth_frame = None
         self.__connected = False
-        self.__saving_image = False
         self.__frame_number = 0
         # roi attributes
         self.__height = height
@@ -73,11 +71,10 @@ class Camera():
         :param fs: rs.type
         :type fs: rs.type
         """
-        self.__frameset = fs
-        self.__depth_frame = self.__frameset.as_frameset().get_depth_frame()
+        self.__depth_frame = fs.as_frameset().get_depth_frame()
         self.__frame_number = self.__depth_frame.frame_number
 
-    def start_callback(self):
+    def start(self):
         """start pipeline and setup new frameset callback"""
         self.__profile = self.__pipeline.start(self.__pipeline_config,
                                                self.__depth_callback)
@@ -98,16 +95,6 @@ class Camera():
             log.info(f'Resetting device: {dev}')
             dev.hardware_reset()
             time.sleep(4)
-
-    def get_roi(self):
-        """get current auto exposure region of interest
-
-        :return: bounding box coordinates
-        :rtype: tuple
-        """
-        sensor = self.__profile.get_device().first_roi_sensor()
-        roi = sensor.get_region_of_interest()
-        return (roi.min_x, roi.min_y, roi.max_x, roi.max_y)
 
     def set_roi(self, roi):
         """set auto exposure region of interest
@@ -141,6 +128,7 @@ class Camera():
     def roi_data(self, polygons: list, roi_select: int, filter_level=0):
         """compute average of n-number of polygons"""
 
+        ret = float(0), float(100), float(0)
         depth_frame = self.__depth_frame
         if isinstance(depth_frame, rs.depth_frame):
             filter_level = min(max(int(filter_level), 0), 5)
@@ -204,8 +192,6 @@ class Camera():
                     ret = ROI_depth.item(), invalid, deviation
                 else:
                     ret = float(0), invalid, deviation
-            else:
-                ret = float(0), float(100), float(0)
         return ret
 
     @property
@@ -255,15 +241,6 @@ class Camera():
         :rtype: bool
         """
         return self.__connected
-
-    @property
-    def saving_image(self):
-        """flag to determine if a thread is saving a picture
-
-        :return: save_image flag
-        :rtype: bool
-        """
-        return self.__saving_image
 
     @property
     def frame_number(self) -> int:
