@@ -8,6 +8,7 @@ license: TODO
 import logging as log
 import os
 import sys
+import threading
 # import sys
 # import threading
 import time
@@ -108,7 +109,10 @@ def _setup_config(path: str) -> Config:
 
 def _setup_logging(config: Config) -> None:
     """setup root and opcua logging levels"""
-    log.basicConfig(filename='logger.log', filemode='a', level=log.DEBUG, format=LOG_FORMAT)
+    if DEBUG:
+        log.basicConfig(level=log.DEBUG)
+    else:
+        log.basicConfig(filename='logger.log', filemode='a', level=log.DEBUG, format=LOG_FORMAT)
     try:
         # root logger
         raw_level = config.get_value('logging', 'logging_level', fallback='debug').upper()
@@ -134,7 +138,7 @@ def _setup_opc(config: Config) -> opcua.Client:
         ip = str(config.get_value('server', 'ip'))
         client = opcua.Client(ip)
         client.connect()
-        log.info(f'Successfully setup opc client. Connected to {ip}')
+        log.info(f'Successfully setup opc client connection to "{ip}"')
     except ConnectionError as e:
         sleep_time = 5
         log.critical(f'Failed to connect to "{ip}". Retrying in {sleep_time} seconds: {e}')
@@ -163,10 +167,10 @@ def _setup_camera(config: Config) -> Camera:
         camera.options.log_settings()
         camera.start()
 
-        log.info('Successfully connected RealSense camera')
+        log.info('Successfully setup camera')
     except RuntimeError as e:
         sleep_time = 5
-        log.critical(f'Failed to setup camera. Retrying in {sleep_time} secconds: {e}')
+        log.critical(f'Failed to setup camera. Retrying in {sleep_time} seconds: {e}')
         time.sleep(sleep_time)
         _setup_camera(config_copy)
     return camera
@@ -179,13 +183,21 @@ def setup() -> tuple:
     :rtype: tuple
     """
     try:
+        steps = ['configuration setup', 'logging setup', 'opc setup', 'camera setup']
+        step = 0
         config = _setup_config('configuration.ini')
+        step += 1
         _setup_logging(config)
+        step += 1
         client = _setup_opc(config)
+        step += 1
         camera = _setup_camera(config)
     except RecursionError:
         log.critical('Maximum setup retries reached')
         log.critical(MSG_ERROR_SHUTDOWN)
+        os._exit(1)
+    except Exception as e:
+        log.critical(f'Error in setup. Could not complete "{steps[step]}"')
         os._exit(1)
 
     return client, camera, config
@@ -209,7 +221,7 @@ class App:
             'alive': None
         }
         self.get_nodes()
-        
+
         # status
         self._status = Status(self._camera, self._nodes)
         self._previous_status = self._status.status
@@ -235,17 +247,21 @@ class App:
                        f'Need {NUM_OF_ROI}, found {len(self._polygons)}', False)
 
         self.set_roi_exposure()
-
+        self._running = False
         self._start_time = time.time()
 
     def run(self):
         """main loop"""
         log.info('Running')
-        while self._camera.connected:
+        sleep_time = float(self._configurator.get_value('application', 'sleep_time', '15')) / 1000
+        self._start_time = time.time()
+        self._running = True
+        while self._camera.connected and self._running:
             self.update_roi_data()
             self.send_roi_data()
             self.send_alive()
             self.send_status()
+            time.sleep(sleep_time)
 
     def update_roi_data(self) -> None:
         """query camera for updated roi data"""
@@ -266,7 +282,7 @@ class App:
             self.write_node(self._nodes['alive'], True, ua.VariantType.Boolean)
             return True
         return False
-            
+
     def send_status(self) -> None:
         """send status to server"""
         new_status = self._status.status
@@ -312,19 +328,6 @@ class App:
         """retrieve node from opc server"""
         return self._client.get_node(str(self._configurator.get_value('nodes', name)))
 
-    def error(self, message="Unknown error", restart=True) -> None:
-        """log error message, then restart or exit"""
-        log.error(message, exc_info=True)
-        self.disconnect()
-        if restart:
-            log.critical(MSG_RESTART)
-            if WAIT_BEFORE_RESTARTING > 0:
-                time.sleep(WAIT_BEFORE_RESTARTING)
-            raise NotImplementedError
-        else:
-            log.critical(MSG_ERROR_SHUTDOWN)
-            sys.exit(1)
-
     def roi_box(self) -> tuple:
         """calculate bounding box from nested list of coordinates
 
@@ -362,8 +365,30 @@ class App:
             return False
         return True
 
+    def loop_time(self) -> None:
+        """measure loop time and log warning if above LOOP_TIME_WARNING"""
+        delta = (time.time() - self._start_time) * 1000
+        if delta > LOOP_TIME_WARNING:
+            log.warning(f'High loop time {delta}')
+        self._start_time = time.time()
+        return delta
+
+    def error(self, message="Unknown error", restart=True) -> None:
+        """log error message, then restart or exit"""
+        log.error(message, exc_info=True)
+        self.disconnect()
+        if restart:
+            log.critical(MSG_RESTART)
+            if WAIT_BEFORE_RESTARTING > 0:
+                time.sleep(WAIT_BEFORE_RESTARTING)
+            raise NotImplementedError
+        else:
+            log.critical(MSG_ERROR_SHUTDOWN)
+            sys.exit(1)
+
     def disconnect(self) -> None:
         """disconnect client and camera"""
+        self._running = False
         try:
             self._client.disconnect()
         except RuntimeError:
@@ -381,9 +406,7 @@ class App:
 
 def main():
     client, camera, config = setup()
-    print('setup complete')
     app = App(client, camera, config)
-    print('app init complete')
 
     try:
         app.run()
