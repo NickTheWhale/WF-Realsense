@@ -7,6 +7,7 @@ license: TODO
 
 import configparser
 import logging as log
+from typing import Union
 
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
@@ -65,7 +66,7 @@ class Config():
             log.error(f'Failed to get value from "[{section}]: {key}"')
             raise KeyError
 
-    def is_valid(self):
+    def is_valid(self) -> Union[bool, list]:
         """checks if configuration file contains the required data
 
         :return: validity
@@ -83,7 +84,7 @@ class Config():
         return missing
 
     @property
-    def data(self):
+    def data(self) -> dict:
         """configuration file contents
 
         :return: config file dictionary 
@@ -93,6 +94,6 @@ class Config():
 
 
     @property
-    def name(self):
+    def name(self) -> str:
         """file name getter"""
         return self._file_name

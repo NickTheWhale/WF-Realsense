@@ -5,27 +5,27 @@ date:    June 2022
 license: TODO
 """
 
-import configparser
 import logging as log
 import os
 import sys
-import threading
+# import sys
+# import threading
 import time
-from datetime import datetime
-from pathlib import Path
+from typing import Any, Union
+# from datetime import datetime
+# from pathlib import Path
 
 import numpy as np
 import opcua
 import opcua.ua.uatypes
-import PIL.Image
-import PIL.ImageDraw
+# import PIL.Image
+# import PIL.ImageDraw
 import pyrealsense2 as rs
-from opcua import ua
+from opcua import ua, Node
 
 from camera import Camera
 from config import Config
-from status import (ROI_HIGH_INVALID, TEMP_CRITICAL, TEMP_MAX_SAFE,
-                    TEMP_WARNING, StatusCodes)
+from status import Status
 
 # CONFIGURATION
 DEBUG = False  # true: log output goes to console, false: log output goes to .log file
@@ -40,10 +40,6 @@ STATUS_LOG_INTERVAL = 60  # time in seconds between status log to file
 WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-
-# GLOBALS
-global taking_picture
-taking_picture = False
 
 
 # CONSTANTS
@@ -86,123 +82,323 @@ REQUIRED_DATA = {
 }
 
 
-def take_picture(depth_frame, polygons):
-    """saves picture to 'snapshots' directory. Creates
-    directory if not found
-
-    :param image: image
-    :type image: image
-    """
-    log.debug('Taking picture...')
+def _setup_config(path: str) -> Config:
+    """setup configuration. Return Config object upon success
+    or exit program on failure"""
     try:
-        # GET FILE PATH
-        path = get_program_path()
-        # GET TIMESTAMP FOR FILE NAME
-        timestamp = datetime.now()
-        timestamp = timestamp.strftime("%d-%m-%Y %H-%M-%S")
-
-        if not dir_exists(path, 'snapshots'):
-            snapshot_path = path + '\\snapshots\\'
-            os.mkdir(snapshot_path)
-
-        # SAVE IMAGE
-        ret, image = depth_frame_to_image(depth_frame)
-        if ret:
-            for polygon in polygons:
-                if len(polygon) >= 2:
-                    draw_poly(image, polygon)
-            image = image.resize((424, 240), PIL.Image.LANCZOS)
-            image.save(f'{path}\\snapshots\\{timestamp}.jpg', optimize=True, quality=10)
-            # sleep thread to prevent saving a bunch of pictures
-            log.debug(f'Took picture: "{timestamp}"')
-        else:
-            log.warning(f'Failed to take picture {timestamp}')
-
-    except ValueError as e:
-        log.warning(f'Failed to take picture {timestamp}: {e}')
-    except FileExistsError as e:
-        log.warning(f'Failed to take picture {timestamp}: {e}')
-    except OSError as e:
-        log.warning(f'Failed to take picture {timestamp}: {e}')
-    finally:
-        time.sleep(5)
-        global taking_picture
-        taking_picture = False
+        config = Config(path, REQUIRED_DATA)
+    except Exception as e:
+        log.basicConfig(filename='logger.log',
+                        filemode='a',
+                        level=log.DEBUG,
+                        format=LOG_FORMAT)
+        log.critical(f'Error reading configuration file: {e}')
+        log.critical(MSG_ERROR_SHUTDOWN)
+        os._exit(1)
+    except:
+        log.basicConfig(filename='logger.log',
+                        filemode='a',
+                        level=log.DEBUG,
+                        format=LOG_FORMAT)
+        log.critical(f'Error reading configuration file')
+        log.critical(MSG_ERROR_SHUTDOWN)
+        os._exit(1)
+    return config
 
 
-def depth_frame_to_image(depth_frame):
-    """attempts to convert 'depth_frame' to a color image
+def _setup_logging(config: Config) -> None:
+    """setup root and opcua logging levels"""
+    log.basicConfig(filename='logger.log', filemode='a', level=log.DEBUG, format=LOG_FORMAT)
+    try:
+        # root logger
+        raw_level = config.get_value('logging', 'logging_level', fallback='debug').upper()
+        log_level = getattr(log, raw_level, log.DEBUG)
+        log.getLogger().setLevel(log_level)
 
-    :param depth_frame: depth frame to convert
-    :type depth_frame: pyrealsense2.depth_frame
-    :return: (status, color image)
-    :rtype: (bool, PIL.Image)
+        # opcua module logger
+        raw_level = config.get_value('logging', 'opcua_logging_level', fallback='warning').upper()
+        opcua_log_level = getattr(log, raw_level, log.WARNING)
+        log.getLogger(opcua.__name__).setLevel(opcua_log_level)
+
+        log.info('Successfully setup logging')
+    except (ValueError, TypeError, KeyError) as e:
+        log.getLogger().setLevel(log.INFO)
+        log.getLogger(opcua.__name__).setLevel(log.WARNING)
+        log.warning(f'Failed to set logging levels from user configuration: {e}')
+
+
+def _setup_opc(config: Config) -> opcua.Client:
+    """setup opc connection"""
+    try:
+        config_copy = config
+        ip = str(config.get_value('server', 'ip'))
+        client = opcua.Client(ip)
+        client.connect()
+        log.info(f'Successfully setup opc client. Connected to {ip}')
+    except ConnectionError as e:
+        sleep_time = 5
+        log.critical(f'Failed to connect to "{ip}". Retrying in {sleep_time} seconds: {e}')
+        time.sleep(sleep_time)
+        _setup_opc(config_copy)
+    except KeyError as e:
+        sleep_time = 5
+        log.critical(f'Failed to connect to opc server. Retrying in {sleep_time} seconds: {e}')
+        time.sleep(sleep_time)
+        _setup_opc(config_copy)
+    return client
+
+
+def _setup_camera(config: Config) -> Camera:
+    try:
+        # connect camera
+        config_copy = config
+        framerate = int(config.get_value('camera', 'framerate', fallback='0'))
+        metric = bool(float(config.get_value('camera', 'metric', fallback='0.0')))
+        camera = Camera(config.data,
+                        width=WIDTH,
+                        height=HEIGHT,
+                        framerate=framerate,
+                        metric=metric)
+        camera.options.write_all_settings()
+        camera.options.log_settings()
+        camera.start()
+
+        log.info('Successfully connected RealSense camera')
+    except RuntimeError as e:
+        sleep_time = 5
+        log.critical(f'Failed to setup camera. Retrying in {sleep_time} secconds: {e}')
+        time.sleep(sleep_time)
+        _setup_camera(config_copy)
+    return camera
+
+
+def setup() -> tuple:
+    """setup components
+
+    :return: client, camera, config
+    :rtype: tuple
     """
-    if isinstance(depth_frame, rs.depth_frame):
+    try:
+        config = _setup_config('configuration.ini')
+        _setup_logging(config)
+        client = _setup_opc(config)
+        camera = _setup_camera(config)
+    except RecursionError:
+        log.critical('Maximum setup retries reached')
+        log.critical(MSG_ERROR_SHUTDOWN)
+        os._exit(1)
+
+    return client, camera, config
+
+
+class App:
+    def __init__(
+            self, client: opcua.Client, camera: Camera, configurator: Config):
+
+        self._client = client
+        self._camera = camera
+        self._configurator = configurator
+
+        # nodes
+        self._nodes = {
+            'roi_depth': None,
+            'roi_invalid': None,
+            'roi_deviation': None,
+            'roi_select': None,
+            'status': None,
+            'alive': None
+        }
+        self.get_nodes()
+        
+        # status
+        self._status = Status(self._camera, self._nodes)
+        self._previous_status = self._status.status
+        self.send_status()
+
+        # camera
+        self._sleep_time = float(self._configurator.get_value(
+            'application', 'sleep_time', fallback='20'))
+        self._spatial_filter_level = int(self._configurator.get_value(
+            'camera', 'spatial_filter_level', fallback='0'))
+
+        self._roi_depth = 0.0
+        self._roi_invalid = 100.0
+        self._roi_deviation = 0.0
+
+        # get regions of interest
+        self._polygons = []
+        for key in self._configurator.data['roi']:
+            poly = list(eval(self._configurator.get_value('roi', key, fallback='[]')))
+            self._polygons.append(poly)
+        if len(self._polygons) < NUM_OF_ROI:
+            self.error(f'Missing regions of interest from configuration file. '
+                       f'Need {NUM_OF_ROI}, found {len(self._polygons)}', False)
+
+        self.set_roi_exposure()
+
+        self._start_time = time.time()
+
+    def run(self):
+        """main loop"""
+        log.info('Running')
+        while self._camera.connected:
+            self.update_roi_data()
+            self.send_roi_data()
+            self.send_alive()
+            self.send_status()
+
+    def update_roi_data(self) -> None:
+        """query camera for updated roi data"""
+        self._roi_select = self._nodes['roi_select'].get_value()
+
+        self._roi_depth, self._roi_invalid, self._roi_deviation = self._camera.roi_data(
+            polygons=self._polygons, roi_select=self._roi_select, filter_level=self._spatial_filter_level)
+
+    def send_roi_data(self) -> None:
+        """send depth, invalid, and deviation to server"""
+        self.write_node(self._nodes['roi_depth'], self._roi_depth, ua.VariantType.Float)
+        self.write_node(self._nodes['roi_invalid'], self._roi_invalid, ua.VariantType.Float)
+        self.write_node(self._nodes['roi_deviation'], self._roi_deviation, ua.VariantType.Float)
+
+    def send_alive(self) -> bool:
+        """set alive to true if false"""
+        if not self._nodes['alive'].get_value():
+            self.write_node(self._nodes['alive'], True, ua.VariantType.Boolean)
+            return True
+        return False
+            
+    def send_status(self) -> None:
+        """send status to server"""
+        new_status = self._status.status
+        if new_status != self._previous_status:
+            self._previous_status = new_status
+            self.write_node(self._nodes['status'], new_status, ua.VariantType.Int16)
+            return True
+        return False
+
+    def write_node(self, node: Node, value, type: ua.VariantType) -> bool:
+        """write value to node
+
+        :param node: node
+        :type node: Node
+        :param value: write value
+        :type value: any
+        :param type: value type to convert value to
+        :type type: ua.VariantType
+        """
         try:
-            color_frame = rs.colorizer().colorize(depth_frame)
-            color_array = np.asanyarray(color_frame.get_data())
-            color_image = PIL.Image.fromarray(color_array)
+            dv = ua.DataValue(ua.Variant(value, type))
+            node.set_value(dv)
+        except ua.UaError as e:
+            log.error(f'Failed to set "{node.get_browse_name()}" to "{value}": {e}')
+            return False
+        return True
 
-            ret = (True, color_image)
-        except TypeError as e:
-            log.warning(f'Failed to convert depth frame to image: {e}')
-            ret = (False, None)
-        except ValueError as e:
-            log.warning(f'Failed to convert depth frame to image: {e}')
-            ret = (False, None)
-    else:
-        ret = (False, None)
-    return ret
+    def get_nodes(self) -> None:
+        """retrieve nodes from opc server"""
+        try:
+            self._nodes = {
+                'roi_depth': self.get_node('roi_depth_node'),
+                'roi_invalid': self.get_node('roi_invalid_node'),
+                'roi_deviation': self.get_node('roi_deviation_node'),
+                'roi_select': self.get_node('roi_select_node'),
+                'status': self.get_node('status_node'),
+                'alive': self.get_node('alive_node')
+            }
+        except (ua.UaError, KeyError) as e:
+            self.error(f'Failed to retrieve nodes from server: {e}', False)
+
+    def get_node(self, name: str) -> Node:
+        """retrieve node from opc server"""
+        return self._client.get_node(str(self._configurator.get_value('nodes', name)))
+
+    def error(self, message="Unknown error", restart=True) -> None:
+        """log error message, then restart or exit"""
+        log.error(message, exc_info=True)
+        self.disconnect()
+        if restart:
+            log.critical(MSG_RESTART)
+            if WAIT_BEFORE_RESTARTING > 0:
+                time.sleep(WAIT_BEFORE_RESTARTING)
+            raise NotImplementedError
+        else:
+            log.critical(MSG_ERROR_SHUTDOWN)
+            sys.exit(1)
+
+    def roi_box(self) -> tuple:
+        """calculate bounding box from nested list of coordinates
+
+        :param rois: nested coordinate list: [[(x1, y1)]]
+        :type rois: list
+        :return: bounding box coordinates: (x1, y1, x2, y2)
+        :rtype: tuple
+        """
+        polys = self._polygons
+        x = [y[0] for x in polys for y in x if len(x) > 2]
+        y = [y[1] for x in polys for y in x if len(x) > 2]
+        if len(x) and len(y) > 2:
+            x1, y1 = max(min(x), 0), max(min(y), 0)
+            x2, y2 = min(max(x), 847), min(max(y), 479)
+
+            if x1 != x2 and y1 != y2:
+                return x1, y1, x2, y2
+
+        x1, y1, x2, y2 = 106, 60, 742, 420
+        return x1, y1, x2, y2
+
+    def set_roi_exposure(self) -> bool:
+        """set camera auto exposure roi from config file"""
+        try:
+            enable_roi_exposure = bool(float(self._configurator.get_value(
+                'camera', 'region_of_interest_auto_exposure', fallback='0.0')))
+            if enable_roi_exposure:
+                x1, y1, x2, y2, = self.roi_box()
+                roi = rs.region_of_interest()
+                roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
+                self._camera.set_roi(roi)
+        except RuntimeError:
+            log.warning('Failed to set region of interest auto exposure '
+                        'from configuration file')
+            return False
+        return True
+
+    def disconnect(self) -> None:
+        """disconnect client and camera"""
+        try:
+            self._client.disconnect()
+        except RuntimeError:
+            pass
+        try:
+            self._camera.stop()
+        except RuntimeError:
+            pass
+
+    def stop(self) -> None:
+        """disconnect client and camera, then exit"""
+        self.disconnect()
+        sys.exit(0)
 
 
-def draw_poly(image: PIL.Image.Image, poly: list) -> PIL.Image.Image:
-    """draw polygon on depth image
+def main():
+    client, camera, config = setup()
+    print('setup complete')
+    app = App(client, camera, config)
+    print('app init complete')
 
-    :param image: image
-    :type image: PIL.Image
-    :param poly: polygon
-    :type poly: list
-    :return: image with polygon
-    :rtype: PIL.Image.Image
-    """
-    draw = PIL.ImageDraw.Draw(image)
-    draw.polygon(poly, width=4)
-    return image
+    try:
+        app.run()
+    except KeyboardInterrupt:
+        print('Exiting')
+        app.stop()
 
 
-def get_program_path() -> str:
-    """gets full path name of program. Works if 
-    program is frozen
+if __name__ == '__main__':
+    main()
 
-    :return: path
-    :rtype: string
-    """
-    # if getattr(sys, 'frozen', False):
-    #     path = os.path.dirname(sys.executable)
-    # elif __file__:
-    #     path = os.path.dirname(__file__)
-
-    # return path
-
-    path = Path()
-    return path.absolute()
-
-
-def dir_exists(path: str, name: str) -> bool:
-    """check if directory 'name' exists within 'path'
-
-    :param path: full parent path name
-    :type path: string
-    :param name: name of directory to check
-    :type name: string
-    :return: if 'name' exists
-    :rtype: bool
-    """
-    dir = os.listdir(path=path)
-    return name in dir
-
-
+###############################################################################################
+#                                          OLD                                                #
+###############################################################################################
+'''
 def critical_error(message="Unkown critical error", allow_restart=True, camera=None):
     """function to log critical errors with the option to recall main()
     to restart program
@@ -231,20 +427,6 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
             except:
                 os._exit(1)
         os._exit(1)
-
-
-def set_roi(camera, roi):
-    """set camera autoexposure roi
-
-    :param camera: camera
-    :type camera: Camera
-    :param roi: roi
-    :type roi: pyrealsense2.region_of_interest
-    """
-    x1, y1, x2, y2 = roi_box(roi)
-    roi = rs.region_of_interest()
-    roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
-    camera.set_roi(roi)
 
 
 def roi_box(rois) -> tuple:
@@ -303,11 +485,11 @@ def get_status(camera, invalid):
     return status
 
 
-def send_status(status_node, status_value):
-    """send status to status_node"""
+def send_status(status, status_value):
+    """send status to status"""
     dv = status_value
     dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-    status_node.set_value(dv)
+    status.set_value(dv)
 
 
 def pprint(config: Config):
@@ -323,7 +505,7 @@ def pprint(config: Config):
             log.debug(f'{TAB}{BRANCH}{data[section][key]}')
 
 
-def main():
+def old_main():
     """Program entry point. Basic program flow in order:
     1. Read in configuration file settings
     2. Connect to realsense camera
@@ -410,26 +592,26 @@ def main():
         critical_error(e, False)
     else:
         try:
-            roi_depth_node = client.get_node(
-                str(config.get_value('nodes', 'roi_depth_node')))
+            roi_depth = client.get_node(
+                str(config.get_value('nodes', 'roi_depth')))
 
-            roi_invalid_node = client.get_node(
-                str(config.get_value('nodes', 'roi_invalid_node')))
+            roi_invalid = client.get_node(
+                str(config.get_value('nodes', 'roi_invalid')))
 
-            roi_deviation_node = client.get_node(
-                str(config.get_value('nodes', 'roi_deviation_node')))
+            roi_deviation = client.get_node(
+                str(config.get_value('nodes', 'roi_deviation')))
 
-            roi_select_node = client.get_node(
-                str(config.get_value('nodes', 'roi_select_node')))
+            roi_select = client.get_node(
+                str(config.get_value('nodes', 'roi_select')))
 
-            status_node = client.get_node(
-                str(config.get_value('nodes', 'status_node')))
+            status = client.get_node(
+                str(config.get_value('nodes', 'status')))
 
             picture_trigger_node = client.get_node(
                 str(config.get_value('nodes', 'picture_trigger_node')))
 
-            alive_node = client.get_node(
-                str(config.get_value('nodes', 'alive_node')))
+            alive = client.get_node(
+                str(config.get_value('nodes', 'alive')))
 
             log.info("Successfully retrieved nodes from OPC server")
         except ua.UaError as e:
@@ -482,7 +664,7 @@ def main():
     dv = 0
 
     try:
-        roi_select = roi_select_node.get_value()
+        roi_select = roi_select.get_value()
     except Exception:
         roi_select = 0
 
@@ -501,48 +683,34 @@ def main():
                 # depth
                 dv = roi_depth
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                roi_depth_node.set_value(dv)
+                roi_depth.set_value(dv)
 
                 # invalid
                 dv = roi_invalid
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                roi_invalid_node.set_value(dv)
+                roi_invalid.set_value(dv)
 
                 # deviation
                 dv = roi_deviation
                 dv = ua.DataValue(ua.Variant(dv, ua.VariantType.Float))
-                roi_deviation_node.set_value(dv)
+                roi_deviation.set_value(dv)
 
                 ##############################################
                 #                 RECIEVE DATA               #
                 ##############################################
 
                 # roi select
-                roi_select = roi_select_node.get_value()
+                roi_select = roi_select.get_value()
 
                 ##############################################
                 #                  SEND ALIVE                #
                 ##############################################
 
-                if not alive_node.get_value():
+                if not alive.get_value():
                     dv = True
                     dv = ua.DataValue(ua.Variant(
                         dv, ua.VariantType.Boolean))
-                    alive_node.set_value(dv)
-
-                ##############################################
-                #                SAVE PICTURE                #
-                ##############################################
-
-                pic_trig = picture_trigger_node.get_value()
-                pic_trig = False
-                global taking_picture
-                if pic_trig and not taking_picture:
-                    taking_picture = True
-                    picture_thread = threading.Thread(
-                        target=take_picture, args=[camera.depth_frame, polygons])
-                    if not picture_thread.is_alive():
-                        picture_thread.start()
+                    alive.set_value(dv)
 
                 ##############################################
                 #               STATUS UPDATE                #
@@ -557,11 +725,11 @@ def main():
                             log.warning(f'Status update: {StatusCodes.name(status_code)}')
                         log_start = time.time()
                     if status_code == StatusCodes.ERROR_TEMP_CRITICAL:
-                        send_status(status_node, StatusCodes.ERROR_NO_RESTART)
+                        send_status(status, StatusCodes.ERROR_NO_RESTART)
                         critical_error(
                             f'Camera overheating (temp > {TEMP_CRITICAL} celcius)', False,
                             camera)
-                    send_status(status_node, status_code)
+                    send_status(status, status_code)
                     start = time.time()
 
                 time.sleep(sleep_time / 1000)
@@ -593,7 +761,5 @@ def main():
 
         else:
             critical_error('Camera disconnected')
-
-
-if __name__ == "__main__":
-    main()
+            
+'''
