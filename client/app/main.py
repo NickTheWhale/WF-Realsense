@@ -6,7 +6,6 @@ license: TODO
 """
 
 import configparser
-import gc
 import logging as log
 import os
 import sys
@@ -179,14 +178,15 @@ def get_program_path() -> str:
     :return: path
     :rtype: string
     """
-    if getattr(sys, 'frozen', False):
-        path = os.path.dirname(sys.executable)
-    elif __file__:
-        path = os.path.dirname(__file__)
+    # if getattr(sys, 'frozen', False):
+    #     path = os.path.dirname(sys.executable)
+    # elif __file__:
+    #     path = os.path.dirname(__file__)
+
+    # return path
 
     path = Path()
     return path.absolute()
-    return path
 
 
 def dir_exists(path: str, name: str) -> bool:
@@ -234,7 +234,13 @@ def critical_error(message="Unkown critical error", allow_restart=True, camera=N
 
 
 def set_roi(camera, roi):
-    """set camera roi"""
+    """set camera autoexposure roi
+
+    :param camera: camera
+    :type camera: Camera
+    :param roi: roi
+    :type roi: pyrealsense2.region_of_interest
+    """
     x1, y1, x2, y2 = roi_box(roi)
     roi = rs.region_of_interest()
     roi.min_x, roi.min_y, roi.max_x, roi.max_y = x1, y1, x2, y2
@@ -305,9 +311,9 @@ def send_status(status_node, status_value):
 
 
 def pprint(config: Config):
-    """pretty pring configuration dictionary"""
+    """pretty print configuration dictionary"""
     TAB = '      '
-    BRANCH = '    ╰─ '
+    BRANCH = '    - '
     data = config.data
     log.debug('~~~~~~~~~~configuration file~~~~~~~~~~')
     for section in data:
@@ -482,21 +488,8 @@ def main():
 
     log.info('Entering main loop')
 
-    # DEBUGGING
-    expo = []
-
     while True:
         if camera.connected:
-            # check for valid depth frame
-            # try:
-            #     # if not camera.depth_frame:
-            #     if not isinstance(camera.depth_frame, rs.depth_frame):
-            #         time.sleep(0.005)
-            #         continue
-            # except RuntimeError as e:
-            #     critical_error(
-            #         f'Error while retrieving camera frames: {e}')
-            # else:
             try:
                 roi_depth, roi_invalid, roi_deviation = camera.roi_data(
                     polygons=polygons, roi_select=roi_select, filter_level=filter_level)
@@ -578,13 +571,11 @@ def main():
                 ##############################################
 
                 loop_time = (time.time() - loop_start) * 1000
-                if loop_time > LOOP_TIME_WARNING and not first_loop:
+                if loop_time + sleep_time > LOOP_TIME_WARNING and not first_loop:
                     log.warning(f'High loop time ({loop_time:.2f} ms)')
 
                 first_loop = False
                 loop_start = time.time()
-
-                # DEBUGGING
 
             except KeyboardInterrupt:
                 if DEBUG:
@@ -595,7 +586,8 @@ def main():
                     except RuntimeError:
                         pass
                     return
-                continue
+                else:
+                    continue
             except Exception as e:
                 critical_error(e)
 
