@@ -571,7 +571,7 @@ def main():
                 ##############################################
 
                 loop_time = (time.time() - loop_start) * 1000
-                if loop_time + sleep_time > LOOP_TIME_WARNING and not first_loop:
+                if loop_time - sleep_time > LOOP_TIME_WARNING and not first_loop:
                     log.warning(f'High loop time ({loop_time:.2f} ms)')
 
                 first_loop = False
