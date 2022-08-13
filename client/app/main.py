@@ -25,7 +25,7 @@ DEBUG = False  # true: log output goes to console, false: log output goes to .lo
 #                 executable form, make sure a console window pops up when
 #                 the program starts, otherwise you will not see any log
 #                 information
-LOOP_TIME_WARNING = 100  # loop time warning threshold in milliseconds
+LOOP_TIME_TIMEOUT = 5000  # time in milliseconds before exiting hanging program
 STATUS_INTERVAL = 1  # time in seconds to send status to server
 STATUS_LOG_INTERVAL = 60  # time in seconds between status log to file
 # (time in seconds ~= STATUS_INTERVAL * STATUS_LOG_INTERVAL)
@@ -195,6 +195,8 @@ class App:
     def __init__(
             self, client: opcua.Client, camera: Camera, configurator: Config):
 
+        self._running = False
+
         self._client = client
         self._camera = camera
         self._configurator = configurator
@@ -234,16 +236,19 @@ class App:
             self.error(f'Missing regions of interest from configuration file. '
                        f'Need {NUM_OF_ROI}, found {len(self._polygons)}', False)
 
+
         self.set_roi_exposure()
-        self._running = False
+
+        self._sleep_time = float(self._configurator.get_value(
+            'application', 'sleep_time', '15')) / 1000
+
+        self._last_log_time = time.time()
         self._start_time = time.time()
 
     def run(self):
         """main loop"""
         try:
             log.info('Running')
-            sleep_time = float(self._configurator.get_value(
-                'application', 'sleep_time', '15')) / 1000
             self._start_time = time.time()
             self._running = True
             while self._camera.connected and self._running:
@@ -251,7 +256,7 @@ class App:
                 self.send_roi_data()
                 self.send_alive()
                 self.send_status()
-                time.sleep(sleep_time)
+                time.sleep(self._sleep_time)
         except Exception as e:
             self.error(f'Failure in main program loop: {e}')
 
@@ -358,10 +363,9 @@ class App:
         return True
 
     def loop_time(self) -> None:
-        """measure loop time and log warning if above LOOP_TIME_WARNING"""
-        delta = (time.time() - self._start_time) * 1000
-        if delta > LOOP_TIME_WARNING:
-            log.warning(f'High loop time {delta}')
+        """measure loop time"""
+        now = time.time()
+        delta = (now - self._start_time) * 1000
         self._start_time = time.time()
         return delta
 
