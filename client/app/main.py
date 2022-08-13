@@ -12,7 +12,6 @@ import threading
 # import sys
 # import threading
 import time
-from typing import Any, Union
 # from datetime import datetime
 # from pathlib import Path
 
@@ -44,12 +43,9 @@ WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 
 
 # CONSTANTS
-METER_TO_FEET = 3.28084  # dont change this
 WIDTH = 848  # or this
 HEIGHT = 480  # or this
 NUM_OF_ROI = 8  # or this
-ROI_FALLBACK = '[(283, 160), (283, 320), (565, 320), (565, 160), (320, 160)]'
-ROI_AUTO_EXPOSURE_FALLBACK = '[(106, 60), (742, 60), (742, 420), (106, 420), (106, 60)]'
 if DEBUG:
     LOG_FORMAT = '%(levelname)-10s %(asctime)-25s LINE:%(lineno)-5d THREAD:%(thread)-7d %(message)s'
     WAIT_BEFORE_RESTARTING = 0
@@ -197,7 +193,7 @@ def setup() -> tuple:
         log.critical(MSG_ERROR_SHUTDOWN)
         os._exit(1)
     except Exception as e:
-        log.critical(f'Error in setup. Could not complete "{steps[step]}"')
+        log.critical(f'Error in setup. Could not complete "{steps[step]}": {e}')
         os._exit(1)
 
     return client, camera, config
@@ -252,16 +248,19 @@ class App:
 
     def run(self):
         """main loop"""
-        log.info('Running')
-        sleep_time = float(self._configurator.get_value('application', 'sleep_time', '15')) / 1000
-        self._start_time = time.time()
-        self._running = True
-        while self._camera.connected and self._running:
-            self.update_roi_data()
-            self.send_roi_data()
-            self.send_alive()
-            self.send_status()
-            time.sleep(sleep_time)
+        try:
+            log.info('Running')
+            sleep_time = float(self._configurator.get_value('application', 'sleep_time', '15')) / 1000
+            self._start_time = time.time()
+            self._running = True
+            while self._camera.connected and self._running:
+                self.update_roi_data()
+                self.send_roi_data()
+                self.send_alive()
+                self.send_status()
+                time.sleep(sleep_time)
+        except Exception as e:
+            self.error(f'Failure in main program loop: {e}')
 
     def update_roi_data(self) -> None:
         """query camera for updated roi data"""
@@ -381,7 +380,7 @@ class App:
             log.critical(MSG_RESTART)
             if WAIT_BEFORE_RESTARTING > 0:
                 time.sleep(WAIT_BEFORE_RESTARTING)
-            raise NotImplementedError
+            setup()
         else:
             log.critical(MSG_ERROR_SHUTDOWN)
             sys.exit(1)
