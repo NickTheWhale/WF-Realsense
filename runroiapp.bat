@@ -1,1 +1,0 @@
-.\venv\scripts\activate && cd utils\roi-app && main.py

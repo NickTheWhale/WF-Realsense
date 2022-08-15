@@ -1,1 +1,0 @@
-.\venv\scripts\activate && cd utils\"mock server" && server-data.py
