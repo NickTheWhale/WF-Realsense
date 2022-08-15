@@ -7,13 +7,12 @@ license: TODO
 
 import configparser
 import logging as log
-from typing import Union
 
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error Exited Application~~~~~~~~~~~~~~\n"
 
 
 class Config():
-    def __init__(self, file_name, required_data=None):
+    def __init__(self, path, required_data=None):
         """creates config object
 
         :param file_name: name of file
@@ -25,24 +24,25 @@ class Config():
         :raises RuntimeError: if there is a discrepency between the configuration
         file data and the requried data dict
         """
-        self._file_name = file_name
-        config_file = configparser.ConfigParser()
+        
+        self._path = path
+        self._config_file = configparser.ConfigParser()
         try:
-            file_list = config_file.read(self._file_name)
-        except configparser.Error as e:
-            raise e
+            file_list = self._config_file.read(self._path)
+        except configparser.Error:
+            raise
 
-        if len(file_list) <= 0:
-            raise FileNotFoundError(f'"{self._file_name}" was not found')
+        if len(file_list) < 1:
+            raise FileNotFoundError(f'"{self._path}" was not found')
 
-        self._data = config_file.__dict__['_sections'].copy()
+        self._data = self._config_file.__dict__['_sections'].copy()
 
         if required_data is not None:
             self._required_data = required_data
             validity = self.is_valid()
             if len(validity) > 0:
                 raise RuntimeError(
-                    f'"{self._file_name}" is missing required configuration data: "{validity}"')
+                    f'"{self._path}" is missing required configuration data: "{validity}"')
 
     def get_value(self, section: str, key: str, fallback=None) -> str:
         """gets config file value at specified location
@@ -58,7 +58,7 @@ class Config():
         """
         try:
             return self._data[section][key]
-        except KeyError:
+        except KeyError as e:
             if isinstance(fallback, str):
                 log.warning(
                     f'Failed to get value from "[{section}]: {key}". Defaulting to "{fallback}"')
@@ -66,7 +66,7 @@ class Config():
             log.error(f'Failed to get value from "[{section}]: {key}"')
             raise KeyError
 
-    def is_valid(self) -> Union[bool, list]:
+    def is_valid(self):
         """checks if configuration file contains the required data
 
         :return: validity
@@ -83,8 +83,28 @@ class Config():
                         missing.append((section, key))
         return missing
 
+    def save(self, file):
+        """write configuration to file"""
+        self._config_file.write(file, space_around_delimiters=True)        
+
+    def set(self, *args, **kwargs):
+        """assign value to section, key. Creates section of not found
+        
+        REQUIRED ARGS:
+            section (str), option, (str), value (str)
+        """
+        try:
+            self._config_file.set(*args, **kwargs)
+        except configparser.NoSectionError:
+            self._config_file.add_section(args[0])
+            self._config_file.set(*args, **kwargs)
+        
     @property
-    def data(self) -> dict:
+    def path(self):
+        return self._path    
+    
+    @property
+    def data(self):
         """configuration file contents
 
         :return: config file dictionary 
@@ -92,8 +112,3 @@ class Config():
         """
         return self._data
 
-
-    @property
-    def name(self) -> str:
-        """file name getter"""
-        return self._file_name

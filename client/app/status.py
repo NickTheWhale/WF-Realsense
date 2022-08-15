@@ -3,8 +3,12 @@ title:   RealSenseOPC status class
 author:  Nicholas Loehrke 
 date:    June 2022
 """
-
 import inspect
+import logging as log
+
+from opcua import Node
+
+from camera import Camera
 
 TEMP_WARNING = 40
 TEMP_MAX_SAFE = 50
@@ -24,7 +28,7 @@ class StatusCodes:
 
 
 class Status:
-    def __init__(self, camera, nodes: dict):
+    def __init__(self, camera: Camera, nodes: dict[str, Node]):
         self._camera = camera
         self._nodes = nodes
 
@@ -39,7 +43,8 @@ class Status:
             pass
         return error
 
-    def update_status(self):
+    @property
+    def status(self) -> int:
         status = StatusCodes.OK
         try:
             asic_temp = self._camera.asic_temperature
@@ -48,7 +53,7 @@ class Status:
             temp_warning = asic_temp > TEMP_WARNING or projector_temp > TEMP_WARNING
             temp_max_safe = asic_temp > TEMP_MAX_SAFE or projector_temp > TEMP_MAX_SAFE
             temp_critical = asic_temp > TEMP_CRITICAL or projector_temp > TEMP_CRITICAL
-            high_invalid = self._nodes['roi_invalid'] > ROI_HIGH_INVALID
+            high_invalid = self._nodes['roi_invalid'].get_value() > ROI_HIGH_INVALID
 
             if temp_critical:
                 status = StatusCodes.ERROR_TEMP_CRITICAL
