@@ -1,2 +1,0 @@
-pipreqs --force
-@pause
