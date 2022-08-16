@@ -8,14 +8,12 @@ license: TODO
 import logging as log
 import os
 import sys
-import threading
 import time
-from pathlib import Path
 
 import opcua
 import opcua.ua.uatypes
 import pyrealsense2 as rs
-from opcua import ua, Node
+from opcua import Node, ua
 
 from camera import Camera
 from config import Config
