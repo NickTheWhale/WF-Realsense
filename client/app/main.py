@@ -8,7 +8,9 @@ license: TODO
 import logging as log
 import os
 import sys
+import threading
 import time
+from pathlib import Path
 
 import opcua
 import opcua.ua.uatypes
@@ -20,22 +22,14 @@ from config import Config
 from status import Status
 
 # CONFIGURATION
-DEBUG = False  # true: log output goes to console, false: log output goes to .log file
-#                 note- if set to 'true' and the script is being run in an
-#                 executable form, make sure a console window pops up when
-#                 the program starts, otherwise you will not see any log
-#                 information
-LOOP_TIME_TIMEOUT = 5000  # time in milliseconds before exiting hanging program
-STATUS_INTERVAL = 1  # time in seconds to send status to server
-STATUS_LOG_INTERVAL = 60  # time in seconds between status log to file
-# (time in seconds ~= STATUS_INTERVAL * STATUS_LOG_INTERVAL)
+DEBUG = False
 WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
 
 
 # CONSTANTS
-WIDTH = 848  # or this
+WIDTH = 848  # dont change this
 HEIGHT = 480  # or this
 NUM_OF_ROI = 8  # or this
 if DEBUG:
@@ -145,12 +139,11 @@ def _setup_camera(config: Config) -> Camera:
         # connect camera
         config_copy = config
         framerate = int(config.get_value('camera', 'framerate', fallback='0'))
-        metric = bool(float(config.get_value('camera', 'metric', fallback='0.0')))
         camera = Camera(config.data,
                         width=WIDTH,
                         height=HEIGHT,
                         framerate=framerate,
-                        metric=metric)
+                        metric=True)
         camera.options.write_all_settings()
         camera.options.log_settings()
         camera.start()
@@ -236,7 +229,6 @@ class App:
             self.error(f'Missing regions of interest from configuration file. '
                        f'Need {NUM_OF_ROI}, found {len(self._polygons)}', False)
 
-
         self.set_roi_exposure()
 
         self._sleep_time = float(self._configurator.get_value(
@@ -245,7 +237,7 @@ class App:
         self._last_log_time = time.time()
         self._start_time = time.time()
 
-    def run(self):
+    def run(self) -> None:
         """main loop"""
         try:
             log.info('Running')
@@ -280,7 +272,7 @@ class App:
             return True
         return False
 
-    def send_status(self) -> None:
+    def send_status(self) -> bool:
         """send status to server"""
         new_status = self._status.status
         if new_status != self._previous_status:
@@ -326,13 +318,7 @@ class App:
         return self._client.get_node(str(self._configurator.get_value('nodes', name)))
 
     def roi_box(self) -> tuple:
-        """calculate bounding box from nested list of coordinates
-
-        :param rois: nested coordinate list: [[(x1, y1)]]
-        :type rois: list
-        :return: bounding box coordinates: (x1, y1, x2, y2)
-        :rtype: tuple
-        """
+        """calculate regions of interest bounding box"""
         polys = self._polygons
         x = [y[0] for x in polys for y in x if len(x) > 2]
         y = [y[1] for x in polys for y in x if len(x) > 2]
@@ -404,11 +390,7 @@ def main():
     client, camera, config = setup()
     app = App(client, camera, config)
 
-    try:
-        app.run()
-    except KeyboardInterrupt:
-        print('Exiting')
-        app.stop()
+    app.run()
 
 
 if __name__ == '__main__':
