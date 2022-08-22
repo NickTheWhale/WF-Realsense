@@ -6,6 +6,7 @@ license: TODO
 """
 
 import logging as log
+from logging.handlers import RotatingFileHandler
 import os
 import sys
 import time
@@ -72,18 +73,16 @@ def _setup_config(path: str) -> Config:
     try:
         config = Config(path, REQUIRED_DATA)
     except Exception as e:
-        log.basicConfig(filename='logger.log',
-                        filemode='a',
-                        level=log.DEBUG,
-                        format=LOG_FORMAT)
+        log.basicConfig(
+            handlers=[RotatingFileHandler('log', maxBytes=100000, backupCount=10)],
+            level=log.DEBUG, format=LOG_FORMAT)
         log.critical(f'Error reading configuration file: {e}')
         log.critical(MSG_ERROR_SHUTDOWN)
         os._exit(1)
     except:
-        log.basicConfig(filename='logger.log',
-                        filemode='a',
-                        level=log.DEBUG,
-                        format=LOG_FORMAT)
+        log.basicConfig(
+            handlers=[RotatingFileHandler('log', maxBytes=100000, backupCount=10)],
+            level=log.DEBUG, format=LOG_FORMAT)
         log.critical(f'Error reading configuration file')
         log.critical(MSG_ERROR_SHUTDOWN)
         os._exit(1)
@@ -95,10 +94,9 @@ def _setup_logging(config: Config) -> None:
     if DEBUG:
         log.basicConfig(level=log.DEBUG)
     else:
-        log.basicConfig(filename='logger.log',
-                        filemode='a',
-                        level=log.DEBUG,
-                        format=LOG_FORMAT)
+        log.basicConfig(
+            handlers=[RotatingFileHandler('log', maxBytes=100000, backupCount=10)],
+            level=log.DEBUG, format=LOG_FORMAT)
     try:
         # root logger
         raw_level = config.get_value('logging',
