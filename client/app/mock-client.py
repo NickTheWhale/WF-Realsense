@@ -14,6 +14,9 @@ import opcua
 import opcua.ua.uatypes
 from opcua import Node, ua
 
+MAX_RETRIES = 10
+global retries
+retries = 0
 
 IP = 'opc.tcp://localhost:4840'
 
@@ -38,15 +41,19 @@ def _setup_opc(ip: str) -> opcua.Client:
         client.connect()
         log.info(f'Successfully setup opc client connection to "{ip}"')
     except OSError:
-        log.critical(f'Failed to connect to server')
-        os._exit(1)
+        log.error(f'Failed to connect to server')
+        time.sleep(5)
+        main()
     return client
 
 
 def setup() -> tuple:
     """setup client connection and logging"""
     try:
-        _setup_logging()
+        try:
+            _setup_logging()
+        except Exception as e:
+            print(e)
         client = _setup_opc(IP)
     except Exception as e:
         log.critical(f'Error in setup: {e}')
@@ -65,10 +72,14 @@ class App:
     def run(self) -> None:
         """main loop"""
         log.info('Running')
-        while self._running:
-            self.read_nodes()
-            
-            time.sleep(1)
+        try:
+            while self._running:
+                self.read_nodes()
+                self.write_node(self._nodes['alive'], True, ua.VariantType.Boolean)
+                time.sleep(1)
+        except Exception as e:
+            log.error(e)
+            main()
 
     def write_node(self, node: Node, value, type: ua.VariantType) -> bool:
         """write value to node
@@ -137,6 +148,14 @@ class App:
 
 
 def main():
+    global retries
+    retries += 1
+    if retries > MAX_RETRIES:
+        try:
+            log.critical(f'Retried {retries} times, max is {MAX_RETRIES}')
+        finally:
+            os._exit(1)
+        
     client = setup()
     app = App(client)
 
@@ -145,7 +164,7 @@ def main():
     except KeyboardInterrupt:
         app.stop()
     except TimeoutError:
-        print('itmeout')
+        print('timeout')
         app.stop()
 
 

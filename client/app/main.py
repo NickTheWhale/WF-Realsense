@@ -24,6 +24,10 @@ DEBUG = False
 WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
+MAX_RETRIES = 50 # number of times allowed to restart program after error
+global retries
+retries = 0
+
 
 
 # CONSTANTS
@@ -92,15 +96,22 @@ def _setup_logging(config: Config) -> None:
     if DEBUG:
         log.basicConfig(level=log.DEBUG)
     else:
-        log.basicConfig(filename='logger.log', filemode='a', level=log.DEBUG, format=LOG_FORMAT)
+        log.basicConfig(filename='logger.log', 
+                        filemode='a',
+                        level=log.DEBUG,
+                        format=LOG_FORMAT)
     try:
         # root logger
-        raw_level = config.get_value('logging', 'logging_level', fallback='debug').upper()
+        raw_level = config.get_value('logging', 
+                                     'logging_level', 
+                                     fallback='debug').upper()
         log_level = getattr(log, raw_level, log.DEBUG)
         log.getLogger().setLevel(log_level)
 
         # opcua module logger
-        raw_level = config.get_value('logging', 'opcua_logging_level', fallback='warning').upper()
+        raw_level = config.get_value('logging', 
+                                     'opcua_logging_level', 
+                                     fallback='warning').upper()
         opcua_log_level = getattr(log, raw_level, log.WARNING)
         log.getLogger(opcua.__name__).setLevel(opcua_log_level)
 
@@ -108,34 +119,39 @@ def _setup_logging(config: Config) -> None:
     except (ValueError, TypeError, KeyError) as e:
         log.getLogger().setLevel(log.INFO)
         log.getLogger(opcua.__name__).setLevel(log.WARNING)
-        log.warning(f'Failed to set logging levels from user configuration: {e}')
+        log.warning(f'Failed to set logging levels '
+                    f'from user configuration: {e}')
 
 
 def _setup_opc(config: Config) -> opcua.Client:
     """setup opc connection"""
     try:
-        config_copy = config
+        # config_copy = config
         ip = str(config.get_value('server', 'ip'))
         client = opcua.Client(ip)
         client.connect()
         log.info(f'Successfully setup opc client connection to "{ip}"')
     except ConnectionError as e:
         sleep_time = 5
-        log.critical(f'Failed to connect to "{ip}". Retrying in {sleep_time} seconds: {e}')
+        log.critical(f'Failed to connect to "{ip}". '
+                     f'Restarting in {sleep_time} seconds: {e}')
         time.sleep(sleep_time)
-        _setup_opc(config_copy)
+        # _setup_opc(config_copy)
+        main()
     except KeyError as e:
         sleep_time = 5
-        log.critical(f'Failed to connect to opc server. Retrying in {sleep_time} seconds: {e}')
+        log.critical(f'Failed to connect to opc server. '
+                     f'Restarting in {sleep_time} seconds: {e}')
         time.sleep(sleep_time)
-        _setup_opc(config_copy)
+        # _setup_opc(config_copy)
+        main()
     return client
 
 
 def _setup_camera(config: Config) -> Camera:
     try:
         # connect camera
-        config_copy = config
+        # config_copy = config
         framerate = int(config.get_value('camera', 'framerate', fallback='0'))
         camera = Camera(config.data,
                         width=WIDTH,
@@ -149,9 +165,11 @@ def _setup_camera(config: Config) -> Camera:
         log.info('Successfully setup camera')
     except RuntimeError as e:
         sleep_time = 5
-        log.critical(f'Failed to setup camera. Retrying in {sleep_time} seconds: {e}')
+        log.critical(f'Failed to setup camera. '
+                     f'Restarting in {sleep_time} seconds: {e}')
         time.sleep(sleep_time)
-        _setup_camera(config_copy)
+        # _setup_camera(config_copy)
+        main()
     return camera
 
 
@@ -255,7 +273,9 @@ class App:
         self._roi_select = self._nodes['roi_select'].get_value()
 
         self._roi_depth, self._roi_invalid, self._roi_deviation = self._camera.roi_data(
-            polygons=self._polygons, roi_select=self._roi_select, filter_level=self._spatial_filter_level)
+            polygons=self._polygons, 
+            roi_select=self._roi_select,
+            filter_level=self._spatial_filter_level)
 
     def send_roi_data(self) -> None:
         """send depth, invalid, and deviation to server"""
@@ -361,7 +381,7 @@ class App:
             log.critical(MSG_RESTART)
             if WAIT_BEFORE_RESTARTING > 0:
                 time.sleep(WAIT_BEFORE_RESTARTING)
-            setup()
+            main()
         else:
             log.critical(MSG_ERROR_SHUTDOWN)
             sys.exit(1)
@@ -385,6 +405,15 @@ class App:
 
 
 def main():
+    global retries
+    retries += 1
+    if retries > MAX_RETRIES:
+        try:
+            log.critical(f'Maximum restarts attempted. '
+                         f'(tried {retries} times)')
+        finally:
+            os._exit(1)
+            
     client, camera, config = setup()
     app = App(client, camera, config)
 
