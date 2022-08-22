@@ -24,10 +24,9 @@ DEBUG = False
 WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-MAX_RETRIES = 50 # number of times allowed to restart program after error
+MAX_RETRIES = 50  # number of times allowed to restart program after error
 global retries
 retries = 0
-
 
 
 # CONSTANTS
@@ -96,21 +95,21 @@ def _setup_logging(config: Config) -> None:
     if DEBUG:
         log.basicConfig(level=log.DEBUG)
     else:
-        log.basicConfig(filename='logger.log', 
+        log.basicConfig(filename='logger.log',
                         filemode='a',
                         level=log.DEBUG,
                         format=LOG_FORMAT)
     try:
         # root logger
-        raw_level = config.get_value('logging', 
-                                     'logging_level', 
+        raw_level = config.get_value('logging',
+                                     'logging_level',
                                      fallback='debug').upper()
         log_level = getattr(log, raw_level, log.DEBUG)
         log.getLogger().setLevel(log_level)
 
         # opcua module logger
-        raw_level = config.get_value('logging', 
-                                     'opcua_logging_level', 
+        raw_level = config.get_value('logging',
+                                     'opcua_logging_level',
                                      fallback='warning').upper()
         opcua_log_level = getattr(log, raw_level, log.WARNING)
         log.getLogger(opcua.__name__).setLevel(opcua_log_level)
@@ -273,7 +272,7 @@ class App:
         self._roi_select = self._nodes['roi_select'].get_value()
 
         self._roi_depth, self._roi_invalid, self._roi_deviation = self._camera.roi_data(
-            polygons=self._polygons, 
+            polygons=self._polygons,
             roi_select=self._roi_select,
             filter_level=self._spatial_filter_level)
 
@@ -413,7 +412,7 @@ def main():
                          f'(tried {retries} times)')
         finally:
             os._exit(1)
-            
+
     client, camera, config = setup()
     app = App(client, camera, config)
 
