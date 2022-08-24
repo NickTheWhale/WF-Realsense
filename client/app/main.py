@@ -25,7 +25,7 @@ DEBUG = False
 WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
 #                               restarting program in the event of an error.
 #                               set to 0 for no wait time
-MAX_RETRIES = 50  # number of times allowed to restart program after error
+MAX_RETRIES = 100  # number of times allowed to restart program after error
 global retries
 retries = 0
 
@@ -256,6 +256,8 @@ class App:
             log.info('Running')
             self._start_time = time.time()
             self._running = True
+            global retries
+            retries = 0
             while self._camera.connected and self._running:
                 self.update_roi_data()
                 self.send_roi_data()
