@@ -51,7 +51,7 @@ Install and run from source
   - Enter server IP address (ex. opc.tcp://localhost:4840)
   - Enter node id's (ex. ns=3;s="DepthCameraOPC"."opc_roi_depth")
     - Free client software: https://www.unified-automation.com/ or https://github.com/FreeOpcUa/opcua-client-gui
-  - Configure regions of interest (**important! you must ensure all regions are complete even if you are not going**)
+  - Configure regions of interest (**important! you must ensure all regions are complete even if you are not going to use all 8**)
   - Save settings (**important! the client needs a file named 'configuration.ini' in order to run**)
 
 ## Screenshots
