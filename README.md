@@ -47,11 +47,11 @@ Install and run from source
   - Status - signed integer
   - Picture trigger (depracated) - boolean
   - Alive - boolean
-- Configure settings with ROI Utility (note: anything done in the utility can also be done by manually creating and editing 'configuration.ini')
+- Configure settings with ROI Utility (note: anything done in the utility can also be done by manually creating 'configuration.ini'. Use 'defaultconfiguration.ini' as a template)
   - Enter server IP address (ex. opc.tcp://localhost:4840)
   - Enter node id's (ex. ns=3;s="DepthCameraOPC"."opc_roi_depth")
     - Free client software: https://www.unified-automation.com/ or https://github.com/FreeOpcUa/opcua-client-gui
-  - Configure regions of interest (**important! you must ensure all regions are complete**)
+  - Configure regions of interest (**important! you must ensure all regions are complete even if you are not going to use all 8**)
   - Save settings (**important! the client needs a file named 'configuration.ini' in order to run**)
 
 ## Screenshots
