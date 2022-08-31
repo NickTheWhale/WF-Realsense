@@ -37,7 +37,8 @@ Install and run from source
   cd client\app
   python main.py
 ```
-    
+If you make changes to the client program and want to create an executable, run 'build.bat' from the main directory 
+
 ## Workflow
 - Create server nodes
   - Depth node - float
