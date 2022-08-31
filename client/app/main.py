@@ -22,12 +22,10 @@ from status import Status
 
 # CONFIGURATION
 DEBUG = False
-WAIT_BEFORE_RESTARTING = 30  # time in seconds to wait before
-#                               restarting program in the event of an error.
-#                               set to 0 for no wait time
+WAIT_BEFORE_RESTARTING = 30  # seconds
 MAX_RETRIES = 100  # number of times allowed to restart program after error
-global retries
-retries = 0
+global g_retries
+g_retries = 0
 
 
 # CONSTANTS
@@ -45,16 +43,7 @@ MSG_RESTART = (f"~~~~~~~~~~~~~~Restarting Application in "
 MSG_ERROR_SHUTDOWN = "~~~~~~~~~~~~~~~Error (will not restart)~~~~~~~~~~~~~~\n"
 
 
-# When parsing the configuration file, the parser will check if the file
-# has these required sections and key. If the file is missing any of
-# the required data, the program will log the error and stop execution.
-#    Note- the datatype is not important since key values are all
-#    treated as strings. Required keys in any section except for "node"
-#    will be checked individually. The "nodes" section is special as only
-#    one node is required and the name is irrelevant. As long as the parser
-#    is able to read atleast one node key from the file, there should not
-#    be an error
-
+# configuration parser must see these sections/keys
 REQUIRED_DATA = {
     "server":
     {
@@ -256,8 +245,8 @@ class App:
             log.info('Running')
             self._start_time = time.time()
             self._running = True
-            global retries
-            retries = 0
+            global g_retries
+            g_retries = 0
             while self._camera.connected and self._running:
                 self.update_roi_data()
                 self.send_roi_data()
@@ -404,12 +393,12 @@ class App:
 
 
 def main():
-    global retries
-    retries += 1
-    if retries > MAX_RETRIES:
+    global g_retries
+    g_retries += 1
+    if g_retries > MAX_RETRIES:
         try:
             log.critical(f'Maximum restarts attempted. '
-                         f'(tried {retries} times)')
+                         f'(tried {g_retries} times)')
         finally:
             os._exit(1)
 
