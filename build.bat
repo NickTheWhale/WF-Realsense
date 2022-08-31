@@ -1,0 +1,1 @@
+.\venv\scripts\activate && python -m pip install pyinstaller && cd client\app && pyinstaller -F --clean main.py -n "Depth Client"

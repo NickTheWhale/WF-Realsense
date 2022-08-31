@@ -1,0 +1,1 @@
+mprof run --include-children main.py

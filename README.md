@@ -30,9 +30,9 @@ Install as standalone executable
 Install and run from source
 ```bash
   git clone https://github.com/NickTheWhale/WF-Realsense.git
+  cd WF-Realsense
   python -m venv venv
   .\venv\scripts\activate
-  cd WF-Realsense
   python -m pip install -r requirements.txt
   cd client\app
   python main.py
